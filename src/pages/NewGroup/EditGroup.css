@@ -1,0 +1,98 @@
+.GroupEdit {
+    flex:4;
+    padding: 20px;
+    
+}
+
+.GroupTitleContainer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+ .GroupAddButton{
+    width: 100px ;
+    height: 40px;
+    border: none;
+    padding: 5px;
+    background-color: teal;
+    border-radius: 40px;
+    cursor:pointer;
+    color: white;
+    font-size: 20px;
+}
+
+.GroupContainer{
+    display: flex;
+    margin-top: 20px;
+    padding: 0 600px 0 600px;
+} 
+.GroupUpDate{
+    flex: 2;
+    padding: 20px;
+    -webkit-box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
+    margin-left: 20px;
+}  
+
+
+
+
+
+
+.GroupUpdateTitle{
+    font-size: 24px;
+    font-weight: 600;
+}
+.GroupUpdateFrom{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.GroupUpdateItem{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+.GroupUpdateItem>label{
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.GroupUpdateInput{
+    border: none;
+    width: 250px;
+    height: 30px;
+    border-bottom: 1px solid gray;
+}
+
+
+.GroupUpdateRight{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.GroupUpdateUpload
+{
+    display: flex;
+    align-items: center;
+
+}
+
+.GroupUpdateIcon{
+    cursor: pointer;
+
+}
+
+.GroupUpdateButton{
+    border-radius: 5px;
+    border:none;
+    margin-top: 10px;
+    padding: 5px;
+    cursor: pointer;
+    background-color: darkblue;
+    color: white;
+    font-weight: 600;
+}

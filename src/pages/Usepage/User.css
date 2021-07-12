@@ -1,0 +1,153 @@
+.user {
+    flex:4;
+    padding: 20px;
+    
+}
+
+.UserTitleContainer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+ .UserAddButton{
+    width: 100px ;
+    height: 40px;
+    border: none;
+    padding: 5px;
+    background-color: teal;
+    border-radius: 40px;
+    cursor:pointer;
+    color: white;
+    font-size: 20px;
+}
+
+.UserContainer{
+    display: flex;
+    margin-top: 20px;
+    padding: 0 250px 0 250px;
+} 
+.UserShow{
+    flex: 1;
+    padding: 20px;
+    -webkit-box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
+}
+
+.UserUpDate{
+    flex: 2;
+    padding: 20px;
+    -webkit-box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
+    margin-left: 20px;
+}  
+
+.UserShowTop{
+    display: flex;
+    align-items: center;
+}
+
+.UserShowImg{
+    width: 40px;
+    height: 40px;
+    border-radius: 50px;
+    object-fit: cover;
+}
+
+.UserShowTopTitle{
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+}
+
+.UserShowUserName{
+    font-weight: 600;
+}
+
+.UserShowUserTitle{
+    font-weight: 300;
+}
+.UserShowBottom{
+    margin-top: 20px;
+}
+.UserShowTitle{
+    font-size: 14px;
+    font-weight: 600;
+    color: rgb(160, 159, 159);
+}
+.UserShowInfo{
+    display: flex;
+    align-items: center;
+    margin: 20px 0px;
+    color: #444;
+}
+
+.UserShowIcon{
+    font-size: 16px !important;
+}
+
+.UserShowInfoTitle{
+    margin-left: 10px;
+
+}
+.UserUpdateTitle{
+    font-size: 24px;
+    font-weight: 600;
+}
+.UserUpdateFrom{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.UserUpdateItem{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+.UserUpdateItem>label{
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.UserUpdateInput{
+    border: none;
+    width: 250px;
+    height: 30px;
+    border-bottom: 1px solid gray;
+}
+.UserUpdateImg{
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.UserUpdateRight{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.UserUpdateUpload
+{
+    display: flex;
+    align-items: center;
+
+}
+
+.UserUpdateIcon{
+    cursor: pointer;
+
+}
+
+.UserUpdateButton{
+    border-radius: 5px;
+    border:none;
+    padding: 5px;
+    cursor: pointer;
+    background-color: darkblue;
+    color: white;
+    font-weight: 600;
+}
