@@ -1,10 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import SignIn from './pages/Authentication/SignIn';
 import reportWebVitals from './reportWebVitals';
+import App from './App';
 
-ReactDOM.render( <React.StrictMode > <SignIn/></React.StrictMode>,
+ReactDOM.render(
+    <React.StrictMode >
+        <App/>
+    </React.StrictMode>,
     document.getElementById('root')
 );
 

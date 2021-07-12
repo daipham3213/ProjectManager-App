@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useState, useEffect } from 'react';
+import {AuthService} from "../../services/services";
 
 function Copyright() {
     return (
@@ -99,15 +100,37 @@ export default function SignIn() {
 
         return isError;
     };
-
     //------------------------
+
 //------hàm sự kiện đăng nhập------------------
     const login = () => {
+        console.log("Logining");
         if (!validate()) {
-
+            Login();
         }
     }
 
+    async function Login() {
+        console.log(username +"/"+ password);
+        await AuthService.login(username, password, true).then((response) => {
+            if (response.status === 200) {
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("username", username);
+                localStorage.setItem("data", JSON.stringify(response.data));
+                window.location = window.location.origin;
+            } else {
+                setError((prevError) => ({
+                    ...prevError,
+                    username: response.data.message,
+                }));
+            }
+        });
+    }
+    const handleKeyPress = (event) => {
+        if (event.key === "Enter") {
+            login();
+        }
+    };
 
     return (
         <Container component="main" maxWidth="xs">
@@ -126,9 +149,10 @@ export default function SignIn() {
                         required
                         fullWidth
                         id="email"
-                        label="Email Address"
-                        name="email"
+                        label="Username"
+                        name="username"
                         autoComplete="email"
+                        error={error != null}
                         autoFocus
                         onChange={changeUsername}
 
@@ -142,20 +166,21 @@ export default function SignIn() {
                         label="Password"
                         type="password"
                         id="password"
+                        error={error != null}
                         autoComplete="current-password"
                         onChange={changePassword}
+                        onKeyPress={handleKeyPress}
                     />
                     <FormControlLabel
                         control={<Checkbox value="remember" color="primary" />}
                         label="Remember me"
                     />
                     <Button
-                        type="submit"
                         fullWidth
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onclick={login}
+                        onClick={login}
                     >
                         Sign In
                     </Button>
@@ -166,7 +191,7 @@ export default function SignIn() {
                             </Link>
                         </Grid>
                         <Grid item>
-                            <Link href="./Component/Resgin" variant="body2">
+                            <Link href="./register" variant="body2">
                                 {"Don't have an account? Sign Up"}
                             </Link>
                         </Grid>

@@ -12,13 +12,15 @@ import { TaskEdit } from './pages/PopupNewTask/TaskEdit';
 import { DepEdit } from './pages/NewDep/DepEdit';
 import { EditGroup } from './pages/NewGroup/EditGroup';
 import { NewGroup } from './pages/NewGroup/NewGroup';
-import SignIn from './pages/Authentication/SignIn';
+import SignIn from "./pages/Authentication/SignIn";
+import SignUp from "./pages/Authentication/SignUp";
 
 function App() {
 
   return(
     <BrowserRouter>
      <Route path="/login"><SignIn/>Login</Route>
+     <Route path="/register"><SignUp/>Login</Route>
     <div><AppBar/></div>
     <div>
         <Switch>
