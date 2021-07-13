@@ -31,7 +31,7 @@ import MeetingRoomSharpIcon from '@material-ui/icons/MeetingRoomSharp';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { Employee }  from "./pages/Employee";
-import {Department} from './pages/Department';
+import Department from './pages/Department';
 import {Group} from './pages/Group';
 import {Report} from './pages/Report';
 import {Request} from './pages/Request';

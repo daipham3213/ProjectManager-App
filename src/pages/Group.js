@@ -2,7 +2,7 @@ import './Group.css';
 import React,{Component} from 'react'; 
 import { DataGrid } from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import { GrRows } from "../../src/Data";
+import { GrRows } from "../Data";
 import { Link } from "react-router-dom";
 import { useState } from 'react';
 export default function DataTable() {
@@ -44,52 +44,16 @@ const columns = [
       
   ];
   
-  const rows = [
-    {
-      id: 1, 
-      groupname: 'Nhóm 1',
-      leader: "Đô Lâm",
-      quantity: "4",
-      status:"active",
-      project:"Tên dự án",
-      
-  },
-  {
-      id: 2, 
-      groupname: 'Nhóm 2',
-      leader: "Tuấn Thành",
-      quantity: "4",
-      status:"active",
-      project:"Tên dự án",
-      
-  },
-  {
-      id: 3, 
-      groupname: 'Nhóm 3',
-      leader: "Đại Phạm",
-      quantity: "4",
-      status:"active",
-      project:"Tên dự án",
-      
-  },
-  {
-      id: 4, 
-      groupname: 'Nhóm 4',
-      leader: "Vĩnh Phát",
-      quantity: "4",
-      status:"active",
-      project:"Tên dự án",
-      
-  },
-  ];
+
 
   return (
-    <div className="GroupListt" style={{ height: 400, width: '100%' }}>
+    <div className="GroupList" style={{ height: 400, width: '100%' }}>
       <DataGrid 
-      rows={data} 
-      disableSelectionOnClick 
-      columns={columns} 
-      pageSize={5} checkboxSelection />
+        rows={data}
+        disableSelectionOnClick
+        columns={columns}
+        pageSize={5}
+        checkboxSelection />
     </div>
   );
 }

@@ -1,7 +1,30 @@
 import "./NewDep.css"
-import React,{Component} from 'react';
+import React, {Component, useState} from 'react';
 
-export class NewDep extends Component{
+import {GroupService} from "../../services/services";
+
+
+
+export class NewDep extends Component {
+    department = {
+        name: '',
+        description: ''
+    }
+    changeName = event => {
+        this.department.name = event.target.value;
+    }
+    changeDes = event => {
+        this.department.description = event.target.value;
+    }
+    handleSubmit = event => {
+        GroupService.postDepartment(this.department.name, this.department.description, "")
+            .then(r => {
+               if (r.status === 200){
+                   console.log("Create Success");
+               }
+               else console.log(r.data);
+            });
+    }
     render(){
         return(
             <div className="newDep">
@@ -9,37 +32,14 @@ export class NewDep extends Component{
                <from className="newDepFrom">
                    <div className="newDepItem">
                        <label>Department Name</label>
-                       <input type="text" placeholder="Thành"/>
+                       <input type="text" onChange={this.changeName}/>
                    </div>
 
                    <div className="newDepItem">
-                       <label>Leader Name</label>
-                       <input type="text" placeholder="Tuấn Thành"/>
+                       <label>Description</label>
+                       <input type="text"  onChange={this.changeDes}/>
                    </div>
-
-                   <div className="newDepItem">
-                       <label>Email</label>
-                       <input type="Email" placeholder="tuanthanh@gmail.com"/>
-                   </div>
-
-                   <div className="newDepItem">
-                       <label>Phone</label>
-                       <input type="text" placeholder="+84 964 507 389"/>
-                   </div>
-                   <div className="newDepItem">
-                       <label>Number of member</label>
-                       <input type="text" placeholder="+84 964 507 389"/>
-                   </div>
-
-                  
-                   <div className="newDepItem">
-                   <label>Active</label>
-                   <select className="newDepSelect" name="active" id="active">
-                       <option value="yes">Yes</option>
-                       <option value="no">No</option>
-                   </select>
-                   </div>
-                   <button className="newDepButton">Create</button>
+                   <button className="newDepButton" onClick={this.handleSubmit}>Create</button>
                </from>
             </div>
         )
