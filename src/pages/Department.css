@@ -14,9 +14,13 @@
      
 } */
 
-.depListt{
+.depList{
     display: flex;
     align-items: center;
+    width: inherit;
+    height: 100vh;
+    overflow: auto;
+    margin: 50px;
 }
 
 

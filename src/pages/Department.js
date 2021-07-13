@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useState } from 'react';
 import {GroupService} from "../services/services";
 import { useHistory } from "react-router-dom";
+import Button from "@material-ui/core/Button";
 
 export default function DataTable() {
     const [data, setData] = useState([]);
@@ -20,6 +21,7 @@ export default function DataTable() {
     }
     function handleClick(id) {
         history.push("/Department/" + id);
+        window.location.reload(false);
     }
     React.useEffect(() => {
         async function fetchData() {
@@ -65,8 +67,7 @@ export default function DataTable() {
 
         }
     ];
-    return (<div className="depList"
-                style={{height: 400, width: '100%'}}>
+    return (<div className="depList">
             <DataGrid
                 rows={data}
                 disableSelectionOnClick
@@ -78,15 +79,13 @@ export default function DataTable() {
 }
 
 export class Department extends Component {
-
     render() {
-
         return (
             <div classname = "Department" >
-                <DataTable/>
                 <Link to = "/newdep">
-                    <button className = "DepAddButton" > Create </button>
+                    <Button className = "DepAddButton" > Create </Button>
                 </Link>
+                <DataTable/>
             </div>
         )
     }

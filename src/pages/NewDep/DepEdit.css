@@ -24,11 +24,23 @@
     font-size: 20px;
     position: page;
 }
+.btnPri {
+    width: 80%;
+    height: 30px;
+    border: none;
+    padding: 5px;
+    background-color: teal;
+    border-radius: 40px;
+    cursor: pointer;
+    color: white;
+    font-size: 15px;
+    position: page;
+}
 
 .DepContainer {
     display: flex;
-    margin-top: 20px;
-    padding: 0 600px 0 600px;
+    margin: 20px;
+
 }
 
 .DepUpDate {
@@ -71,9 +83,16 @@
 
 
 .DepUpdateRight {
+    margin: 10px 10px 10px 10px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: stretch;
+}
+
+.DepUpdateRight .memList {
+    width: 1000px;
+    height: 400px;
+
 }
 
 .DepUpdateUpload {

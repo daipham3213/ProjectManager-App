@@ -114,10 +114,15 @@ export default function SignIn() {
         console.log(username +"/"+ password);
         await AuthService.login(username, password, true).then((response) => {
             if (response.status === 200) {
+                debugger;
                 localStorage.setItem("token", response.data.token);
                 localStorage.setItem("username", username);
+                localStorage.setItem("roles", response.data.roleName);
+                localStorage.setItem("id", response.data.id);
                 localStorage.setItem("data", JSON.stringify(response.data));
                 window.location = window.location.origin;
+                console.log(response.data.role);
+
             } else {
                 setError((prevError) => ({
                     ...prevError,
