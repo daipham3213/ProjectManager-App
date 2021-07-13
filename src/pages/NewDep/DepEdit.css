@@ -1,66 +1,68 @@
 .DepEdit {
-    flex:4;
+    flex: 4;
     padding: 20px;
-    
+
 }
 
-.DepTitleContainer{
+.DepTitleContainer {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
+    align-content: center;
     justify-content: space-between;
 }
 
- .DepAddButton{
-    width: 100px ;
+.DepAddButton {
+    width: 130%;
     height: 40px;
     border: none;
+    margin-top: 10px;
     padding: 5px;
     background-color: teal;
     border-radius: 40px;
-    cursor:pointer;
+    cursor: pointer;
     color: white;
     font-size: 20px;
+    position: page;
 }
 
-.DepContainer{
+.DepContainer {
     display: flex;
     margin-top: 20px;
     padding: 0 600px 0 600px;
-} 
-.DepUpDate{
+}
+
+.DepUpDate {
     flex: 2;
     padding: 20px;
-    -webkit-box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
-    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75) ;
+    -webkit-box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
     margin-left: 20px;
-}  
+}
 
 
-
-
-
-
-.DepUpdateTitle{
+.DepUpdateTitle {
     font-size: 24px;
     font-weight: 600;
 }
-.DepUpdateFrom{
+
+.DepUpdateFrom {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
 }
 
-.DepUpdateItem{
+.DepUpdateItem {
     display: flex;
     flex-direction: column;
     margin-top: 10px;
 }
-.DepUpdateItem>label{
+
+.DepUpdateItem > label {
     margin-bottom: 5px;
     font-size: 14px;
 }
 
-.DepUpdateInput{
+.DepUpdateInput {
     border: none;
     width: 250px;
     height: 30px;
@@ -68,27 +70,26 @@
 }
 
 
-.DepUpdateRight{
+.DepUpdateRight {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-.DepUpdateUpload
-{
+.DepUpdateUpload {
     display: flex;
     align-items: center;
 
 }
 
-.DepUpdateIcon{
+.DepUpdateIcon {
     cursor: pointer;
 
 }
 
-.DepUpdateButton{
+.DepUpdateButton {
     border-radius: 5px;
-    border:none;
+    border: none;
     margin-top: 10px;
     padding: 5px;
     cursor: pointer;
