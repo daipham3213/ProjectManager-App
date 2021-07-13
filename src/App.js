@@ -22,12 +22,12 @@ function App() {
         return (
             <BrowserRouter forceRefresh={true}>
                 <div>
-                    <Route path=""><SignIn/>Login</Route>
-                    <Route path="/register"><SignUp/>Login</Route>
+                    <Route path="" component={SignIn}/>
+                    <Route path="/register" component={SignUp}/>
                 </div>
             </BrowserRouter>
         )
-    }
+    } else
 
     return (
         <BrowserRouter forceRefresh={true}>

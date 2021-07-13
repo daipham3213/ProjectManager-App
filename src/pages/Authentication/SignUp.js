@@ -173,34 +173,35 @@ export default function SignUp() {
                 }
             });
         }
-        //----------------------------------
+    }
+    //----------------------------------
 
 
-        //------hàm gọi SignUP------------------
+    //------hàm gọi SignUP------------------
 
-        async function SignUp() {
-            await AuthService.register(username, password, email, name, phoneNumber);
-        }
+    async function SignUp() {
+        await AuthService.register(username, password, email, name, phoneNumber);
+    }
 
-        //----------------------------------
+    //----------------------------------
 
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const classes = useStyles();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const classes = useStyles();
 
-        function Copyright() {
-            return (
-                <Typography variant="body2" color="textSecondary" align="center">
-                    {'Copyright © '}
-                    <Link color="inherit" href="https://material-ui.com/">
-                        Your Website
-                    </Link>{' '}
-                    {new Date().getFullYear()}
-                    {'.'}
-                </Typography>
-            );
-        }
-
+    function Copyright() {
         return (
+            <Typography variant="body2" color="textSecondary" align="center">
+                {'Copyright © '}
+                <Link color="inherit" href="https://material-ui.com/">
+                    Your Website
+                </Link>{' '}
+                {new Date().getFullYear()}
+                {'.'}
+            </Typography>
+        );
+    }
+
+    return (<>
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>
                 <div className={classes.paper}>
@@ -305,6 +306,7 @@ export default function SignUp() {
                     <Copyright/>
                 </Box>
             </Container>
-        );
-    }
+        </>
+    );
 }
+
