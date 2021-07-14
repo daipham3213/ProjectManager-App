@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
     Avatar,
     Box,
-    Button,
+    Button, Card, CardActions,
     Checkbox,
     Container,
     CssBaseline,
@@ -13,28 +13,11 @@ import {
     Typography
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import {makeStyles} from '@material-ui/core/styles';
-import {AuthService} from "../../services/services";
+import useStyles from "./style/cardStyle";
+import {AuthService} from "../../../services/services";
+import AuthContext from "../AuthContext";
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(8),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-        width: '100%', // Fix IE 11 issue.
-        marginTop: theme.spacing(1),
-    },
-    submit: {
-        margin: theme.spacing(3, 0, 2),
-    },
-}));
+
 
 export default function SignUp() {
     const [username, setusername] = useState("");
@@ -43,6 +26,7 @@ export default function SignUp() {
     const [name, setname] = useState("");
     const [phoneNumber, setphoneNumber] = useState("");
     const [error, setError] = useState({});
+    const [animate, setAnimate] = useState(0);
 
 
     //------hàm sự kiệm lấy dữ liệu------------------
@@ -86,7 +70,7 @@ export default function SignUp() {
         if (username === "") {
             setError((prevError) => ({
                 ...prevError,
-                firstname: "Firstname is required.",
+                firstname: "Name is required.",
             }));
             isError = true;
         }
@@ -99,14 +83,14 @@ export default function SignUp() {
         if (name === "") {
             setError((prevError) => ({
                 ...prevError,
-                lastname: "Lastname is required.",
+                phone: "Phone number is required.",
             }));
             isError = true;
         }
         if (name !== "") {
             setError((prevError) => ({
                 ...prevError,
-                lastname: "",
+                phone: "",
             }));
         }
         if (username === "") {
@@ -161,17 +145,7 @@ export default function SignUp() {
     const signup = (e) => {
         e.preventDefault();
         if (!validate()) {
-            SignUp().then((response) => {
-                if (response.status === 200) {
-                    alert("Signup Success.");
-                } else {
-                    setError((prevError) => ({
-                        ...prevError,
-                        email: response.data.emailError,
-                        username: response.data.usernameError,
-                    }));
-                }
-            });
+            SignUp();
         }
     }
     //----------------------------------
@@ -180,12 +154,23 @@ export default function SignUp() {
     //------hàm gọi SignUP------------------
 
     async function SignUp() {
-        await AuthService.register(username, password, email, name, phoneNumber);
+        await AuthService.register(username, password, email, name, phoneNumber).then((response) => {
+            if (response.status === 200) {
+                alert("Signup Success.");
+            } else {
+                setError((prevError) => ({
+                    ...prevError,
+                    email: response.data.emailError,
+                    username: response.data.usernameError,
+                }));
+                if (response.data.emailError !== "")
+                    alert(response.data.emailError);
+                else  alert(response.data.usernameError);
+            }
+        });;
     }
 
-    //----------------------------------
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const classes = useStyles();
 
     function Copyright() {
@@ -200,11 +185,11 @@ export default function SignUp() {
             </Typography>
         );
     }
-
+    const { switchToSignin } = useContext(AuthContext);
     return (<>
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>
-                <div className={classes.paper}>
+                <Card className={classes.cardSignup} animate={animate}>
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon/>
                     </Avatar>
@@ -223,6 +208,7 @@ export default function SignUp() {
                                     id="UserName"
                                     label="UserName"
                                     autoFocus
+                                    helperText={error.username}
                                     onChange={changeUsername}
                                 />
                             </Grid>
@@ -235,6 +221,7 @@ export default function SignUp() {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
+                                    helperText={error.email}
                                     onChange={changeEmail}
                                 />
                             </Grid>
@@ -248,6 +235,7 @@ export default function SignUp() {
                                     type="password"
                                     id="password"
                                     autoComplete="current-password"
+                                    helperText={error.password}
                                     onChange={changePassword}
                                 />
                             </Grid>
@@ -260,6 +248,7 @@ export default function SignUp() {
                                     label="Name"
                                     name="Name"
                                     autoComplete="Name"
+                                    helperText={error.firstname}
                                     onChange={changeName}
                                 />
                             </Grid>
@@ -272,36 +261,32 @@ export default function SignUp() {
                                     label="Phone Number"
                                     name="PhoneNumber"
                                     autoComplete="Phone Number"
+                                    helperText={error.phone}
                                     onChange={changePhone}
                                 />
                             </Grid>
-
-                            <Grid item xs={12}>
-                                <FormControlLabel
-                                    control={<Checkbox value="allowExtraEmails" color="primary"/>}
-                                    label="I want to receive inspiration, marketing promotions and updates via email."
-                                />
-                            </Grid>
                         </Grid>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            className={classes.submit}
-                            onClick={signup}
-                        >
-                            Sign Up
-                        </Button>
-                        <Grid container justifyContent="flex-end">
+                        <CardActions className={classes.cardAction}>
+                            <Button variant="outlined" className={classes.submit} onClick={(e)=> signup(e) }>
+                                Sign up
+                            </Button>
+                            <Typography className={classes.link} style={{ padding: "0 40px" }}>
+                                By signing up, you agree to our Terms, Data Policy and Cookies Policy
+                            </Typography>
+                        </CardActions>
+                        <Grid container>
                             <Grid item>
-                                <Link href="#" variant="body2">
-                                    Already have an account? Sign in
+                                <Link href="#" variant="body2"
+                                onClick={() => {
+                                    switchToSignin();
+                                    setAnimate(1);
+                                }}>
+                                    Already have an account?
                                 </Link>
                             </Grid>
                         </Grid>
                     </form>
-                </div>
+                </Card>
                 <Box mt={5}>
                     <Copyright/>
                 </Box>
