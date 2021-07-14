@@ -21,7 +21,6 @@ export default function Buttons (props){
             {...other}
             classes={{ root: classes.root, label:classes.label}}>
                 {text}
-
         </MuiButton>
 
     );
