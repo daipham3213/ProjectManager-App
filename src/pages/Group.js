@@ -31,7 +31,7 @@ const columns = [
           return(
             <>
             {/* <Route path="/roup/:userID"><DepEdit/></Route> */}
-            <Link to={"/Group/"+params.row.id}>
+            <Link to={"/DepList/"+params.row.id}>
             <button className="GroupListEdit">Edit</button>
             </Link>
             

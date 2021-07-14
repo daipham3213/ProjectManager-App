@@ -1,11 +1,11 @@
-import "./NewDep.css"
+import "./styles/DepCreate.css"
 import React, {Component, useState} from 'react';
 
-import {GroupService} from "../../services/services";
+import {GroupService} from "../../../services/services";
 
 
 
-export class NewDep extends Component {
+export class DepCreateModal extends Component {
     department = {
         name: '',
         description: ''

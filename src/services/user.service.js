@@ -8,12 +8,23 @@ const searchUser = (key) => {
             API_URL +
             "?key=" +
             key,
-            {headers : authHeader() }
+            {headers: authHeader()}
         )
         .catch((error) => {
             return error.response;
         });
 };
+
+const getAvailable = () => {
+    return axios
+        .get(
+            API_URL + "/available",
+            {headers: authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
 
 const getProfile = (Username) => {
     return axios
@@ -21,7 +32,7 @@ const getProfile = (Username) => {
             API_URL +
             "/profile?key=" +
             Username,
-            {headers : authHeader() }
+            {headers: authHeader()}
         )
         .catch((error) => {
             return error.response;
@@ -39,16 +50,17 @@ const changePassword = (UserName, CurrentPassword, NewPassword, NewPasswordConfi
                 NewPassword,
                 NewPasswordConfirm
             },
-            {headers : authHeader() }
+            {headers: authHeader()}
         )
         .catch((error) => {
-        return error.response;
-    });
+            return error.response;
+        });
 };
 const UserService = {
     searchUser,
     getProfile,
     changePassword,
+    getAvailable,
 };
 
 export default UserService;

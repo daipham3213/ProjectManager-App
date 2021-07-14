@@ -1,13 +1,14 @@
-import './Department.css';
-import React, {Component, useState} from 'react';
+import './styles/DepList.css';
+import React, {useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import {useHistory} from "react-router-dom";
-import {GroupService} from "../services/services";
+import {GroupService} from "../../../services/services";
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import {GridColumnHeaderParams} from "@material-ui/data-grid";
+import {Button} from "@material-ui/core";
+import {Label} from "@material-ui/icons";
 
-export default function DataTable() {
+const DepList = () => {
     const [data, setData] = useState([]);
     const history = useHistory();
     const handleDelete = (id) => {
@@ -19,20 +20,25 @@ export default function DataTable() {
     }
 
     function handleClick(id) {
-        history.push("/Department/" + id);
+        history.push("/DepList/" + id);
         window.location.reload(false);
     }
 
     React.useEffect(() => {
         async function fetchData() {
-            const result = await GroupService.getList("department");
-            setData(result.data);
+            await GroupService.getList("department")
+                .then(r => {
+                    console.log(r.status);
+                    if (r.status === 200)
+                        setData(r.data);
+                    else setData([]);
+                }, []);
         }
 
         fetchData();
     }, []);
     const columns = [
-        {field: 'name', headerName: 'Department Name', width: 200},
+        {field: 'name', headerName: 'DepList Name', width: 200},
         {
             field: 'groupType',
             headerName: 'Type',
@@ -50,7 +56,7 @@ export default function DataTable() {
             width: 150,
             renderCell: (params) => {
                 const link = {
-                    pathname: "/Department/" + params.row.id,
+                    pathname: "/DepList/" + params.row.id,
                     state: {
                         depId: params.row.id
                     }
@@ -70,29 +76,24 @@ export default function DataTable() {
                 )
             }
         },
-        {field: "", width: 150, type: 'date',
-            renderHeader: (prams : GridColumnHeaderParams) => {
-                <AddBoxIcon>Create</AddBoxIcon>
-            }},
     ];
-    return (<div className="depList">
+    return (
+        <div className="Department">
+            <div>
+                <Button>
+                    <Label>Create</Label>
+                    <AddBoxIcon/>
+                </Button>
+            </div>
             <DataGrid
                 rows={data}
                 disableSelectionOnClick
                 columns={columns}
-                pageSize={5}
-                checkboxSelection/>
+                pageSize={10}
+                checkboxSelection
+                className="MuiDataGrid-windowContainer"
+            />
         </div>
     );
 }
-
-export class Department extends Component {
-    render() {
-        return (
-            <div classname="Department">
-                <DataTable/>
-
-            </div>
-        )
-    }
-}
+export default DepList;
