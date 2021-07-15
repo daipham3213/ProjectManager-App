@@ -8,6 +8,7 @@ import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import AddMemberModal from "./AddMemberModal";
 import {useLoading} from "../../../component/hooks/hooks";
 import DepContext from "../depContext";
+import FullscreenLoading from "../../../component/FullScreenLoading";
 
 const DepEdit = (depId) => {
     const [depName, setDepName] = useState({});
@@ -48,10 +49,8 @@ const DepEdit = (depId) => {
     const {switchToList} = useContext(DepContext);
 
     React.useEffect(() => {
-        onLoading();
         async function fetchData() {
             onLoading();
-            debugger;
             const result = await GroupService.getDetail(depId.value);
             loadDepName(result.data.name);
             result.data.users.forEach(user => {
@@ -122,8 +121,9 @@ const DepEdit = (depId) => {
             >
                 <KeyboardBackspaceIcon></KeyboardBackspaceIcon>
                 Back
-        </Button>
+            </Button>
             <div className="DepContainer">
+                {loading? <FullscreenLoading/>: null}
                 <AddMemberModal
                     isShowing={isShowing}
                     toggleModal={toggle}
@@ -191,7 +191,7 @@ const kickHandle = async (depName, ids) => {
         if (res.status === 200)
             alert(res.data.message);
         else
-        window.location.reload(false);
+            window.location.reload(false);
     })
 }
 const promotionHandle = async (username) => {
@@ -203,6 +203,6 @@ const promotionHandle = async (username) => {
         if (res.status === 200)
             alert(res.data.message);
         else
-        window.location.reload(false);
+            window.location.reload(false);
     })
 }

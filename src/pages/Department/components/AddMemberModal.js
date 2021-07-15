@@ -1,4 +1,4 @@
-import useStyles from "./styles/modalStyles";
+import useStyles from "../../../component/styles/modalStyles";
 import {useLoading} from "../../../component/hooks/hooks";
 import React, {useEffect, useState} from "react";
 import {GroupService, UserService} from "../../../services/services";

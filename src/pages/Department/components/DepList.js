@@ -10,6 +10,8 @@ import {Label} from "@material-ui/icons";
 import DepContext from "../depContext";
 import AddMemberModal from "./AddMemberModal";
 import DepCreateModal from "./DepCreateModal";
+import useLoading from "../../../component/hooks/useLoading";
+import FullscreenLoading from "../../../component/FullScreenLoading";
 
 
 const DepList = () => {
@@ -17,6 +19,7 @@ const DepList = () => {
     const history = useHistory();
     const [isShowingCreate, setIsShowingCreate] = useState(false);
     const modalRef = useRef(null);
+    const {loading, onLoading, offLoading} = useLoading()
 
     const toggleCreate = () => {
         setIsShowingCreate(!isShowingCreate);
@@ -32,18 +35,20 @@ const DepList = () => {
     const {switchToEdit} = useContext(DepContext);
     React.useEffect(() => {
         async function fetchData() {
+            onLoading();
             await GroupService.getList("department")
                 .then((r) => {
                     console.log(r.status);
                     if (r.status === 200)
                         setData(r.data);
                     else setData([]);
+                    offLoading();
                 }, []);
         }
         fetchData();
     }, []);
     const columns = [
-        {field: 'name', headerName: 'DepList Name', width: 200},
+        {field: 'name', headerName: 'Department Name', width: 200},
         {
             field: 'groupType',
             headerName: 'Type',
@@ -84,7 +89,8 @@ const DepList = () => {
             }
         },
     ];
-    return (
+    return (<>
+        {loading ? <FullscreenLoading /> : null}
         <div className="Department">
             <DepCreateModal
                 isShowing={isShowingCreate}
@@ -106,6 +112,7 @@ const DepList = () => {
                 </Button>
             </div>
         </div>
+        </>
     );
 }
 export default DepList;

@@ -2,7 +2,7 @@ import "./styles/DepCreate.css"
 import React, {useState} from 'react';
 
 import {GroupService} from "../../../services/services";
-import useStyles from "./styles/modalStyles";
+import useStyles from "../../../component/styles/modalStyles";
 import {useHistory} from "react-router-dom";
 import {useLoading} from "../../../component/hooks/hooks";
 import * as ReactDOM from "react-dom";
