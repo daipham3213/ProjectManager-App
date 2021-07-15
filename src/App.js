@@ -4,7 +4,6 @@ import SlideBar from './SilderBar/SlideBar';
 import {User} from './pages/Usepage/User';
 import {NewUser} from './pages/NewUser/NewUser';
 import {UserProfile} from './pages/Usepage/UserProfile';
-import {DepCreateModal} from './pages/Department/components/DepCreateModal';
 import './App.css';
 import {NewTask} from './pages/PopupNewTask/NewTask';
 import {TaskEdit} from './pages/PopupNewTask/TaskEdit';
@@ -39,12 +38,11 @@ export default class App extends Component {
                 <div><AppBar/></div>
                 <div>
                     <Switch>
-                        <PrivateRoute exact path="/:username" component={User}/>
-                        <PrivateRoute exact path="/department/:depId" component={DepEdit}/>
+                        {/*<PrivateRoute exact path="/:username" component={User}/>*/}
+                        {/*<PrivateRoute exact path="/department/:depId" component={DepEdit}/>*/}
                         <PrivateRoute exact path="/department" component={Department}/>
                         <PrivateRoute exact path="/user/create" component={NewUser}/>
                         <PrivateRoute exact path="/profile?id=:userId" component={UserProfile}/>
-                        <PrivateRoute exact path="/department/create" component={DepCreateModal}/>
                         <PrivateRoute exact path="/group" component={Group}/>
                         <PrivateRoute exact path="/group/:groupID" component={EditGroup}/>
                         <PrivateRoute exact path="/group/create" component={NewGroup}/>

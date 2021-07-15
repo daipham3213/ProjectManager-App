@@ -3,14 +3,17 @@ import Grid from "@material-ui/core/Grid";
 import useStyles from "./styles/DepartmentStyle"
 import DepList from "./components/DepList";
 import DepEdit from "./components/DepEdit";
-import {DepCreateModal} from "./components/DepCreateModal";
-import {AppBar} from "@material-ui/core";
 const {useState} = require("react");
-
 
 const Department = () => {
     const classes = useStyles();
     const [active, setActive] = useState("list");
+
+
+    const [depId, setDepId] = useState("");
+    const loadDepId = (value) => {
+        setDepId(value);
+    }
 
     const switchToList = () => {
         setTimeout(() => {
@@ -18,19 +21,14 @@ const Department = () => {
         }, 600);
     };
 
-    const switchToEdit = () => {
+    const switchToEdit = (val) => {
+        loadDepId(val)
         setTimeout(() => {
             setActive("edit");
         }, 600);
     };
 
-    const switchToCreate = () => {
-        setTimeout(() => {
-            setActive("create");
-        }, 600);
-    };
-
-    const contextValue = {switchToEdit, switchToCreate, switchToList}
+    const contextValue = {switchToEdit, switchToList}
 
     return (
         <DepContext.Provider value={contextValue}>
@@ -45,8 +43,7 @@ const Department = () => {
                 >
                     <Grid>
                         {active === "list" && <DepList />}
-                        {active === "edit" && <DepEdit />}
-                        {active === "create" && <DepCreateModal />}
+                        {active === "edit" && <DepEdit value={depId}/>}
                     </Grid>
                 </Grid>
             </div>

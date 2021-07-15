@@ -1,15 +1,15 @@
-import React, {Component, useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import "./styles/DepEdit.css"
 import Button from "@material-ui/core/Button";
 import {GroupService, UserService} from "../../../services/services";
-import {
-    DataGrid,
-    } from '@material-ui/data-grid';
+import {DataGrid,} from '@material-ui/data-grid';
 import Avatar from '@material-ui/core/Avatar';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import AddMemberModal from "./AddMemberModal";
 import {useLoading} from "../../../component/hooks/hooks";
+import DepContext from "../depContext";
 
-const DepEdit = () =>{
+const DepEdit = (depId) => {
     const [depName, setDepName] = useState({});
     const [depLeader, setDepLeader] = useState({});
     const [member, setMember] = useState([]);
@@ -40,18 +40,19 @@ const DepEdit = () =>{
     const loadLeader = (e) => {
         setDepLeader(e)
     }
-    // eslint-disable-next-line no-restricted-globals
-    let myParam = window.location.pathname.split("/");
-
-    const loadCheck =  (e) => {
+    const loadCheck = (e) => {
         setChecked(e);
         console.log(checked);
     }
 
+    const {switchToList} = useContext(DepContext);
+
     React.useEffect(() => {
+        onLoading();
         async function fetchData() {
             onLoading();
-            const result = await GroupService.getDetail(myParam[2]);
+            debugger;
+            const result = await GroupService.getDetail(depId.value);
             loadDepName(result.data.name);
             result.data.users.forEach(user => {
                 FetchUser(user.id)
@@ -70,6 +71,7 @@ const DepEdit = () =>{
         fetchData().then(r => {
             console.log(r);
         });
+        offLoading();
     }, {});
 
     const columns = [
@@ -104,8 +106,9 @@ const DepEdit = () =>{
             field: "actions", headerName: "Actions", width: "100%",
             renderCell: params => {
                 return (<>
-                        <Button onClick={() => kickHandle(depName, checked) }>Kick</Button>
-                        <Button onClick={() => promotionHandle(params.getValue(params.id, 'userName'))}>Promotion</Button>
+                        <Button onClick={() => kickHandle(depName, checked)}>Kick</Button>
+                        <Button
+                            onClick={() => promotionHandle(params.getValue(params.id, 'userName'))}>Promotion</Button>
                     </>
                 );
             }
@@ -113,55 +116,64 @@ const DepEdit = () =>{
     ];
 
     return (
-        <div className="DepContainer">
-            <AddMemberModal
-                isShowing={isShowing}
-                toggleModal={toggle}
-                modalRef={modalRef}
-                groupName={depName}
-            />
-            <div className="DepUpDate">
-                <span className="DepUpdateTitle">Edit Department</span>
-                <from className="DepUpdateFrom">
-                    <div className="DepUpdateLeft">
-                        <div className="DepUpdateItem">
-                            <label>Department Name</label>
-                            <input
-                                type="text"
-                                className="DepUpdateInput"
-                                value={depName}
-                            />
+        <div>
+            <Button
+                onMouseDown={() => switchToList()}
+            >
+                <KeyboardBackspaceIcon></KeyboardBackspaceIcon>
+                Back
+        </Button>
+            <div className="DepContainer">
+                <AddMemberModal
+                    isShowing={isShowing}
+                    toggleModal={toggle}
+                    modalRef={modalRef}
+                    groupName={depName}
+                />
+                <div className="DepUpDate">
+                    <span className="DepUpdateTitle">Edit Department</span>
+                    <from className="DepUpdateFrom">
+                        <div className="DepUpdateLeft">
+                            <div className="DepUpdateItem">
+                                <label>Department Name</label>
+                                <input
+                                    type="text"
+                                    className="DepUpdateInput"
+                                    value={depName}
+                                />
+                            </div>
+                            <div className="DepUpdateItem">
+                                <label>Leader Name</label>
+                                <input
+                                    type="text"
+                                    className="DepUpdateInput"
+                                    value={depLeader}
+                                />
+                            </div>
+                            <button className="DepUpdateButton">Update</button>
+                            <button
+                                className="DepUpdateButton"
+                                onClick={toggle}
+                            >Add Member
+                            </button>
                         </div>
-                        <div className="DepUpdateItem">
-                            <label>Leader Name</label>
-                            <input
-                                type="text"
-                                className="DepUpdateInput"
-                                value={depLeader}
-                            />
+                        <div className="DepUpdateRight">
+                            <div className="memList">
+                                <DataGrid
+                                    onSelectionModelChange={m => {
+                                        console.log(m.selectionModel);
+                                        loadCheck(m.selectionModel);
+                                    }}
+                                    rows={member}
+                                    disableSelectionOnClick
+                                    columns={columns}
+                                    pageSize={5}
+                                    checkboxSelection
+                                />
+                            </div>
                         </div>
-                        <button className="DepUpdateButton">Update</button>
-                        <button
-                            className="DepUpdateButton"
-                            onClick={toggle}
-                        >Add Member
-                        </button>
-                    </div>
-                    <div className="DepUpdateRight">
-                        <div className="memList">
-                            <DataGrid
-                                onSelectionModelChange={ m => {
-                                    console.log(m.selectionModel);
-                                    loadCheck(m.selectionModel);
-                                }}
-                                rows={member}
-                                disableSelectionOnClick
-                                columns={columns}
-                                pageSize={5}
-                                checkboxSelection/>
-                        </div>
-                    </div>
-                </from>
+                    </from>
+                </div>
             </div>
         </div>
     );
@@ -170,21 +182,27 @@ const DepEdit = () =>{
 
 export default DepEdit;
 
-const kickHandle = async(depName, ids) => {
+const kickHandle = async (depName, ids) => {
     if (ids.length === 0) {
         alert("Please select at least one member!");
-        return  ;
+        return;
     }
-    await GroupService.removeMembers(depName,ids).then(res => {
-        alert(res.data.message);
+    await GroupService.removeMembers(depName, ids).then(res => {
+        if (res.status === 200)
+            alert(res.data.message);
+        else
+        window.location.reload(false);
     })
 }
-const promotionHandle = async(username) => {
+const promotionHandle = async (username) => {
     if (username == null) {
         alert("Please select at least one member!");
-        return  ;
+        return;
     }
     await GroupService.promotion(username).then(res => {
-        alert(res.data.message);
+        if (res.status === 200)
+            alert(res.data.message);
+        else
+        window.location.reload(false);
     })
 }

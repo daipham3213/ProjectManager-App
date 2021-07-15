@@ -1,5 +1,5 @@
 import './styles/DepList.css';
-import React, {useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import {useHistory} from "react-router-dom";
@@ -7,10 +7,19 @@ import {GroupService} from "../../../services/services";
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import {Button} from "@material-ui/core";
 import {Label} from "@material-ui/icons";
+import DepContext from "../depContext";
+import AddMemberModal from "./AddMemberModal";
+
 
 const DepList = () => {
     const [data, setData] = useState([]);
     const history = useHistory();
+    const [isShowingCreate, setIsShowingCreate] = useState(false);
+    const modalRef = useRef(null);
+
+    const toggle = () => {
+        setIsShowingCreate(!isShowingCreate);
+    };
     const handleDelete = (id) => {
         GroupService.deleteGroup(id).then(r => {
             if (r.status === 200) {
@@ -19,11 +28,7 @@ const DepList = () => {
         });
     }
 
-    function handleClick(id) {
-        history.push("/DepList/" + id);
-        window.location.reload(false);
-    }
-
+    const {switchToEdit} = useContext(DepContext);
     React.useEffect(() => {
         async function fetchData() {
             await GroupService.getList("department")
@@ -64,7 +69,9 @@ const DepList = () => {
                 return (<>
                         <button
                             className="depListEdit"
-                            onClick={() => handleClick(params.row.id)}
+                            onClick={() => {
+                                switchToEdit(params.row.id);
+                            }}
                         >
                             Edit
                         </button>
@@ -79,12 +86,11 @@ const DepList = () => {
     ];
     return (
         <div className="Department">
-            <div>
-                <Button>
-                    <Label>Create</Label>
-                    <AddBoxIcon/>
-                </Button>
-            </div>
+            <AddMemberModal
+                isShowing={isShowingCreate}
+                toggleModal={toggle}
+                modalRef={modalRef}
+            />
             <DataGrid
                 rows={data}
                 disableSelectionOnClick
@@ -93,6 +99,12 @@ const DepList = () => {
                 checkboxSelection
                 className="MuiDataGrid-windowContainer"
             />
+            <div>
+                <Button autoCapitalize={false} onClick={toggle}>
+                    <Label>Create</Label>
+                    <AddBoxIcon/>
+                </Button>
+            </div>
         </div>
     );
 }
