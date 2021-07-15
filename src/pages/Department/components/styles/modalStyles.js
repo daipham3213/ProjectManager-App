@@ -55,5 +55,11 @@ export default makeStyles(() => ({
         width: "600px",
         height: "400px",
         margin: "5px",
+    },
+    createDep: {
+        width: "500px",
+        height: "fit-content",
+        padding: "0 0 20px 20px",
+        margin: "5px",
     }
 }));

@@ -1,18 +1,19 @@
 import "./styles/DepCreate.css"
-import React, {Component, useState} from 'react';
+import React, {useState} from 'react';
 
 import {GroupService} from "../../../services/services";
 import useStyles from "./styles/modalStyles";
 import {useHistory} from "react-router-dom";
 import {useLoading} from "../../../component/hooks/hooks";
 import * as ReactDOM from "react-dom";
+import {Paper, TextField, Typography} from "@material-ui/core";
 
 
 const DepCreateModal = ({
-    isShowing,
-    modalRef,
-    toggleModal
-}) => {
+                            isShowing,
+                            modalRef,
+                            toggleModal
+                        }) => {
     const classes = useStyles();
     const history = useHistory();
     const {loading, onLoading, offLoading} = useLoading();
@@ -21,56 +22,100 @@ const DepCreateModal = ({
 
     const [depName, setDepName] = useState("");
     const [description, setDescription] = useState("");
+    const [error, setError] = useState({});
 
     const loadDepName = (value) => {
-        setDepName(value);
+        setDepName(value.target.value);
     }
 
     const loadDescription = (value) => {
-        setDescription(value);
+        setDescription(value.target.value);
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        toggleModal();
-        onLoading();
-        await GroupService.postDepartment(depName, description, "")
-            .then(r => {
-                if (r.status === 200){
-                    console.log("Create Success");
-                }
-                else console.log(r.data);
-            });
-        offLoading();
+    const validate = () => {
+        let isError = false;
+        if (depName === "") {
+            setError((prevError) => ({
+                ...prevError,
+                depName: "Name is required.",
+            }));
+            isError = true;
+        }
+        return isError;
+    }
+
+    const handleSubmit = async () => {
+        if (!validate()){
+            debugger;
+            await GroupService.postDepartment(depName, description, "")
+                .then((r) => {
+                    if (r.status === 200)
+                        toggleModal();
+                    else
+                        alert(r.message);
+                }, null);
+        }
         document.body.style.overflow = "auto";
     }
     return isShowing
         ? ReactDOM.createPortal(
-            <div className="newDep">
-            <h1 className="newDepTitle">New Dep</h1>
-            <from className="newDepFrom">
-                <div className="newDepItem">
-                    <label>Department Name</label>
-                    <input type="text" onChange={loadDepName}/>
-                </div>
+            <div>
+                <div className={classes.modalOverlay}></div>
+                <Paper className={classes.root} ref={modalRef}>
+                    <div className={classes.createDep}>
+                        <div className="newDep">
+                            <Typography component="h1" variant="h5" className="newDepTitle">
+                                Create New Department
+                            </Typography>
+                            <from className="newDepFrom">
+                                <div className="newDepItem">
+                                    <TextField
+                                        type="text"
+                                        onChange={loadDepName}
+                                        label="Department Name"
+                                        variant="outlined"
+                                        required
+                                        fullWidth
+                                        id="name"
+                                        name="name"
+                                        helperText={error!= null? error.depName:""}
+                                    />
+                                </div>
 
-                <div className="newDepItem">
-                    <label>Description</label>
-                    <input type="text"  onChange={loadDescription}/>
-                </div>
-                <button className="newDepButton" onClick={(event) => handleSubmit(event)}>Create</button>
-                <button
-                    className={classes.option}
-                    style={{borderRadius: 0, margin: 10}}
-                    onClick={() => {
-                        toggleModal();
-                        document.body.style.overflow = "auto";
-                    }}
-                >
-                    Cancel
-                </button>
-            </from>
-        </div>
-            , document.body): null;
+                                <div className="newDepItem">
+                                    <TextField
+                                        type="text"
+                                        onChange={loadDescription}
+                                        label="Description"
+                                        variant="outlined"
+                                        required
+                                        fullWidth
+                                        id="description"
+                                        name="description"
+                                    />
+                                </div>
+                            </from>
+                        </div>
+                    </div>
+                    <div className={classes.option}
+                         style={{borderRadius: 0}}
+                         onClick={() => handleSubmit()}
+                    >Create
+                    </div>
+                    <div
+                        className={classes.option}
+                        style={{borderRadius: 0, margin: 10}}
+                        onClick={() => {
+                            toggleModal();
+                            document.body.style.overflow = "auto";
+                        }}
+                    >
+                        Cancel
+                    </div>
+                </Paper>
+            </div>
+            , document.body
+        ) :
+        null;
 }
 export default DepCreateModal;

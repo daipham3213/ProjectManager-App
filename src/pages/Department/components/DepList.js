@@ -9,6 +9,7 @@ import {Button} from "@material-ui/core";
 import {Label} from "@material-ui/icons";
 import DepContext from "../depContext";
 import AddMemberModal from "./AddMemberModal";
+import DepCreateModal from "./DepCreateModal";
 
 
 const DepList = () => {
@@ -17,11 +18,11 @@ const DepList = () => {
     const [isShowingCreate, setIsShowingCreate] = useState(false);
     const modalRef = useRef(null);
 
-    const toggle = () => {
+    const toggleCreate = () => {
         setIsShowingCreate(!isShowingCreate);
     };
     const handleDelete = (id) => {
-        GroupService.deleteGroup(id).then(r => {
+        GroupService.deleteGroup(id).then((r) => {
             if (r.status === 200) {
                 console.log(r.statusText);
             } else alert("Failed");
@@ -32,14 +33,13 @@ const DepList = () => {
     React.useEffect(() => {
         async function fetchData() {
             await GroupService.getList("department")
-                .then(r => {
+                .then((r) => {
                     console.log(r.status);
                     if (r.status === 200)
                         setData(r.data);
                     else setData([]);
                 }, []);
         }
-
         fetchData();
     }, []);
     const columns = [
@@ -86,9 +86,9 @@ const DepList = () => {
     ];
     return (
         <div className="Department">
-            <AddMemberModal
+            <DepCreateModal
                 isShowing={isShowingCreate}
-                toggleModal={toggle}
+                toggleModal={toggleCreate}
                 modalRef={modalRef}
             />
             <DataGrid
@@ -100,7 +100,7 @@ const DepList = () => {
                 className="MuiDataGrid-windowContainer"
             />
             <div>
-                <Button autoCapitalize={false} onClick={toggle}>
+                <Button autoCapitalize={false} onClick={toggleCreate}>
                     <Label>Create</Label>
                     <AddBoxIcon/>
                 </Button>

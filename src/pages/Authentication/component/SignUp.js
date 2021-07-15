@@ -67,17 +67,17 @@ export default function SignUp() {
             isError = true;
         }
 
-        if (username === "") {
+        if (name === "") {
             setError((prevError) => ({
                 ...prevError,
-                firstname: "Name is required.",
+                name: "Name is required.",
             }));
             isError = true;
         }
-        if (username !== "") {
+        if (name !== "") {
             setError((prevError) => ({
                 ...prevError,
-                firstname: "",
+                name: "",
             }));
         }
         if (name === "") {
@@ -248,7 +248,7 @@ export default function SignUp() {
                                     label="Name"
                                     name="Name"
                                     autoComplete="Name"
-                                    helperText={error.firstname}
+                                    helperText={error.name}
                                     onChange={changeName}
                                 />
                             </Grid>
