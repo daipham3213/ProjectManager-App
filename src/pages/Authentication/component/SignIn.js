@@ -159,7 +159,7 @@ export default function SignIn() {
                         helperText={error.password}
                         autoComplete="current-password"
                         onChange={changePassword}
-                        onKeyPress={handleKeyPress}
+                        onKeyPress={(e) => handleKeyPress(e)}
                     />
                     <FormControlLabel
                         control={<Checkbox value="remember" color="primary"/>}

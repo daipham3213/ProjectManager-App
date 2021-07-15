@@ -9,7 +9,7 @@ import PeopleOutlineIcon from '@material-ui/icons/PeopleOutline';
 import PublishIcon from '@material-ui/icons/Publish';
 import {Link} from "react-router-dom";
 import "./MyProfile.css"
-export class MyProfile extends Component{
+export class UserProfile extends Component{
     render(){
         return(
             <div className="myprofile">

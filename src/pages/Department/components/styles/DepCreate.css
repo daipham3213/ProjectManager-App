@@ -4,18 +4,16 @@
 }
 
 .newDepTitle{
-        text-align: center;
+    text-align: center;
 }
 .newDepFrom{
     display:flex; 
     flex-wrap:wrap ;
-    padding: 0 400px 0 400px;
-    
-    
+    align-items: center;
 }
 
 .newDepItem{
-    width: 400;
+    width: 400px;
     display: flex;
     flex-direction: column;
     margin-top: 10px;
@@ -31,11 +29,10 @@
 
 .newDepItem>input{
     height: 30px;
-    width: 300px;
+    width: inherit;
     padding: 10px;
     border: 1px solid gray;
     border-radius: 5px;
-     
 }
 
 .newDepGender>label{

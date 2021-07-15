@@ -31,7 +31,7 @@ import MeetingRoomSharpIcon from '@material-ui/icons/MeetingRoomSharp';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 import {BrowserRouter as Router, Link, Route, useHistory} from 'react-router-dom';
 import {Employee} from "./pages/Employee";
-import Department from './pages/Department';
+import DepList from './pages/Department/components/DepList';
 import {Group} from './pages/Group';
 import {Report} from './pages/Report';
 import {Request} from './pages/Request';
@@ -340,7 +340,7 @@ export default function PrimarySearchAppBar() {
       </React.Fragment>
     }*/
     return (
-        <Router>
+        <>
             <div className={classes.grow}>
                 <AppBar position="static">
                     <Toolbar>
@@ -419,13 +419,7 @@ export default function PrimarySearchAppBar() {
                 {renderMobileMenu}
                 {renderMenu}
             </div>
-            <Route path="/Department" exact component={Department}/>
-            <Route path="/Employee" exact component={Employee}/>
-            <Route path="/Group" exact component={Group}/>
-            <Route path="/Task" exact component={Task}/>
-            <Route path="/Report" exact component={Report}/>
-            <Route path="/Request" exact component={Request}/>
-        </Router>
+        </>
     );
 
 }

@@ -1,38 +1,49 @@
-import './Department.css';
-import React, {Component, useState} from 'react';
+import './styles/DepList.css';
+import React, {useContext, useRef, useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import {useHistory} from "react-router-dom";
-import {GroupService} from "../services/services";
+import {GroupService} from "../../../services/services";
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import {GridColumnHeaderParams} from "@material-ui/data-grid";
+import {Button} from "@material-ui/core";
+import {Label} from "@material-ui/icons";
+import DepContext from "../depContext";
+import AddMemberModal from "./AddMemberModal";
+import DepCreateModal from "./DepCreateModal";
 
-export default function DataTable() {
+
+const DepList = () => {
     const [data, setData] = useState([]);
     const history = useHistory();
+    const [isShowingCreate, setIsShowingCreate] = useState(false);
+    const modalRef = useRef(null);
+
+    const toggleCreate = () => {
+        setIsShowingCreate(!isShowingCreate);
+    };
     const handleDelete = (id) => {
-        GroupService.deleteGroup(id).then(r => {
+        GroupService.deleteGroup(id).then((r) => {
             if (r.status === 200) {
                 console.log(r.statusText);
             } else alert("Failed");
         });
     }
 
-    function handleClick(id) {
-        history.push("/Department/" + id);
-        window.location.reload(false);
-    }
-
+    const {switchToEdit} = useContext(DepContext);
     React.useEffect(() => {
         async function fetchData() {
-            const result = await GroupService.getList("department");
-            setData(result.data);
+            await GroupService.getList("department")
+                .then((r) => {
+                    console.log(r.status);
+                    if (r.status === 200)
+                        setData(r.data);
+                    else setData([]);
+                }, []);
         }
-
         fetchData();
     }, []);
     const columns = [
-        {field: 'name', headerName: 'Department Name', width: 200},
+        {field: 'name', headerName: 'DepList Name', width: 200},
         {
             field: 'groupType',
             headerName: 'Type',
@@ -50,7 +61,7 @@ export default function DataTable() {
             width: 150,
             renderCell: (params) => {
                 const link = {
-                    pathname: "/Department/" + params.row.id,
+                    pathname: "/DepList/" + params.row.id,
                     state: {
                         depId: params.row.id
                     }
@@ -58,7 +69,9 @@ export default function DataTable() {
                 return (<>
                         <button
                             className="depListEdit"
-                            onClick={() => handleClick(params.row.id)}
+                            onClick={() => {
+                                switchToEdit(params.row.id);
+                            }}
                         >
                             Edit
                         </button>
@@ -70,29 +83,29 @@ export default function DataTable() {
                 )
             }
         },
-        {field: "", width: 150, type: 'date',
-            renderHeader: (prams : GridColumnHeaderParams) => {
-                <AddBoxIcon>Create</AddBoxIcon>
-            }},
     ];
-    return (<div className="depList">
+    return (
+        <div className="Department">
+            <DepCreateModal
+                isShowing={isShowingCreate}
+                toggleModal={toggleCreate}
+                modalRef={modalRef}
+            />
             <DataGrid
                 rows={data}
                 disableSelectionOnClick
                 columns={columns}
-                pageSize={5}
-                checkboxSelection/>
+                pageSize={10}
+                checkboxSelection
+                className="MuiDataGrid-windowContainer"
+            />
+            <div>
+                <Button autoCapitalize={false} onClick={toggleCreate}>
+                    <Label>Create</Label>
+                    <AddBoxIcon/>
+                </Button>
+            </div>
         </div>
     );
 }
-
-export class Department extends Component {
-    render() {
-        return (
-            <div classname="Department">
-                <DataTable/>
-
-            </div>
-        )
-    }
-}
+export default DepList;
