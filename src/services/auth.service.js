@@ -1,6 +1,6 @@
 import axios from "axios";
-import Cookies from 'js-cookie';
-
+import moment from "moment";
+import authHeader from "./auth-header";
 const API_URL = process.env.REACT_APP_API_URL + "/User";
 
 const register = (username, password, email, name, phoneNumber) => {
@@ -23,43 +23,78 @@ const login = (username, password, rememberme) => {
             username,
             password,
             rememberme,
-        })
+        }, {headers: authHeader()})
         .catch((error) => {
             return error.response;
         });
 };
 
 const isLoggedIn = () => {
-    const token = localStorage.getItem("token");
-    return !!token;
+    let token;
+    const exp = localStorage.getItem("expTime");
+    const nowTime = moment();
+    const clientTime = moment(exp);
 
+    if (exp !== null && nowTime>clientTime)
+        refreshToken().then((r) => {
+            if (r.status !== 200) {
+               revokeToken().then((r) => {
+                   if(r.status !== 200){
+                       logout();
+                       token = localStorage.getItem("token");
+                       alert("Please re-login. For security reason.");
+                   }
+               })
+            } else {
+                saveLogin(r.data);
+                console.log("token refreshed");
+            }
+            ;
+        }).catch((r) => {
+            console.log(r);
+        });
+    else token = localStorage.getItem("token");
+    return !!token;
 };
 
 const logout = () => {
     localStorage.removeItem("username");
     localStorage.removeItem("token");
-    localStorage.removeItem("data");
     localStorage.removeItem("roles");
+    localStorage.removeItem("id");
+    localStorage.removeItem("expTime");
+    localStorage.removeItem("refreshToken");
 };
+
+const saveLogin = (response) => {
+    localStorage.setItem("token", response.data.token);
+    localStorage.setItem("username", response.data.userName);
+    localStorage.setItem("roles", response.data.roleName);
+    localStorage.setItem("id", response.data.id);
+    localStorage.setItem("expTime", response.data.expTime);
+    localStorage.setItem("refreshToken",response.data.refreshToken);
+}
 
 const getCurrentUser = () => {
     return localStorage.getItem("username");
 };
 
 const refreshToken = () => {
+    let token = localStorage.getItem("refreshToken");
     return axios
         .post(
             API_URL +
-            "/refresh-token"
+            "/refresh-token?token=" + token,
+            {header: authHeader()}
         )
         .catch((error) => {
-        return error.response;
-    });
+            return error.response;
+        });
 };
 
 const revokeToken = () => {
-    let token = Cookies.get('refresh-token')
-    return  axios
+    let token = localStorage.getItem("refreshToken");
+    return axios
         .post(
             API_URL +
             "/revoke-token",
@@ -78,6 +113,7 @@ const AuthService = {
     getCurrentUser,
     refreshToken,
     revokeToken,
+    saveLogin,
 };
 
 export default AuthService;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {fade, makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -29,9 +29,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import MeetingRoomSharpIcon from '@material-ui/icons/MeetingRoomSharp';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
-import {BrowserRouter as Router, Link, Route, useHistory} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 import {Employee} from "./pages/Employee";
-import DepList from './pages/Department/components/DepList';
 import {Group} from './pages/Group';
 import {Report} from './pages/Report';
 import {Request} from './pages/Request';
@@ -40,6 +39,7 @@ import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import SmsIcon from '@material-ui/icons/Sms';
 import {AuthService} from "./services/services";
+import ContextProvider from "./component/ContextProvider";
 //-----------demo ---------------
 const useStylesDemo = makeStyles({
     list: {
@@ -125,8 +125,10 @@ export default function PrimarySearchAppBar() {
     let history = useHistory();
 
     const moveDepartment = () => {
-        history.push("/Department");
-
+        switchToListDep()
+    }
+    const moveProject = () => {
+        switchToListPro()
     }
     const moveGroup = () => {
         history.push("/Group");
@@ -137,8 +139,7 @@ export default function PrimarySearchAppBar() {
 
     }
     const moveReport = () => {
-        history.push("/Report");
-
+        switchToListRp();
     }
     const moveTask = () => {
         history.push("/Task");
@@ -170,6 +171,12 @@ export default function PrimarySearchAppBar() {
     const handleMobileMenuOpen = (event) => {
         setMobileMoreAnchorEl(event.currentTarget);
     };
+
+    const {
+        switchToListDep,
+        switchToListPro,
+        switchToListRp
+    } = useContext(ContextProvider)
 
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
@@ -270,11 +277,11 @@ export default function PrimarySearchAppBar() {
                     </Button>
                 </ListItem>
 
-                <ListItem onClick={moveEmployee}>
+                <ListItem onClick={moveProject}>
                     <Button>
                         <ListItemIcon>{"Employee" % 2 === 0 ? <SupervisedUserCircleIcon/> :
-                        <AccountBoxIcon/>}</ListItemIcon>
-                        <ListItemText primary={"Employee"}/>
+                            <AccountBoxIcon/>}</ListItemIcon>
+                        <ListItemText primary={"Project"}/>
                     </Button>
                 </ListItem>
 
@@ -282,7 +289,7 @@ export default function PrimarySearchAppBar() {
                 <ListItem onClick={moveGroup}>
                     <Button>
                         <ListItemIcon>{"Group" % 2 === 0 ? <MeetingRoomSharpIcon/> :
-                        <SupervisedUserCircleIcon/>}</ListItemIcon>
+                            <SupervisedUserCircleIcon/>}</ListItemIcon>
                         <ListItemText primary={"Group"}/>
                     </Button>
                 </ListItem>
@@ -291,7 +298,7 @@ export default function PrimarySearchAppBar() {
                 <ListItem onClick={moveTask}>
                     <Button>
                         <ListItemIcon>{"Task" % 2 === 0 ? <MeetingRoomSharpIcon/> :
-                        <ImportContactsIcon/>}</ListItemIcon>
+                            <ImportContactsIcon/>}</ListItemIcon>
                         <ListItemText primary={"Task"}/>
                     </Button>
                 </ListItem>

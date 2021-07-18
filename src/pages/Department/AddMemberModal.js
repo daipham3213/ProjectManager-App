@@ -1,8 +1,8 @@
-import useStyles from "./styles/modalStyles";
-import {useLoading} from "../../../component/hooks/hooks";
+import useStyles from "../../component/styles/modalStyles";
+import {useLoading} from "../../component/hooks/hooks";
 import React, {useEffect, useState} from "react";
-import {GroupService, UserService} from "../../../services/services";
-import FullscreenLoading from "../../../component/FullScreenLoading";
+import {GroupService, UserService} from "../../services/services";
+import FullscreenLoading from "../../component/FullScreenLoading";
 
 import * as ReactDOM from "react-dom";
 import Avatar from "@material-ui/core/Avatar";
@@ -15,6 +15,7 @@ const AddMemberModal = ({
                             modalRef,
                             toggleModal,
                             groupName,
+                            toggleMount
                         }) => {
 
     const classes = useStyles();
@@ -34,6 +35,7 @@ const AddMemberModal = ({
 
     const addMembers = async (groupName, ids) => {
         toggleModal();
+        toggleMount();
         onLoading();
         if (ids.length === 0) {
             alert("Please select a user.");
@@ -105,7 +107,7 @@ const AddMemberModal = ({
         ? ReactDOM.createPortal(
             <div>
                 {loading ? <FullscreenLoading/> : null}
-                <div className={classes.modalOverlay}></div>
+                <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
                     <div className={classes.userList}>
                         <DataGrid
@@ -123,9 +125,10 @@ const AddMemberModal = ({
                         className={classes.option}
                         style={{borderRadius: 0}}
                         onClick={() => {
-                            addMembers(groupName,userNames);
+                            addMembers(groupName, userNames);
                         }}
-                    > Update </div>
+                    > Update
+                    </div>
                     <div
                         className={classes.option}
                         style={{borderRadius: 0}}
@@ -140,7 +143,7 @@ const AddMemberModal = ({
                 </Paper>
             </div>, document.body
         ) : null;
-    }
+}
 
 
-    export default AddMemberModal;
+export default AddMemberModal;

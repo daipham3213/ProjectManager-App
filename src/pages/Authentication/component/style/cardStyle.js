@@ -19,7 +19,7 @@ export default makeStyles((theme) => ({
     },
     textField: {
         "& .MuiInputBase-input": {
-            color: "white",
+            color: "black",
         },
         "& .MuiInput-underline:after": {
             borderBottomColor: "#109cbb",

@@ -3,13 +3,14 @@ import React, {useContext, useRef, useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import {useHistory} from "react-router-dom";
-import {GroupService} from "../../../services/services";
+import {GroupService} from "../../services/services";
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import {Button} from "@material-ui/core";
+import {Button, Grid, Paper} from "@material-ui/core";
 import {Label} from "@material-ui/icons";
-import DepContext from "../depContext";
-import AddMemberModal from "./AddMemberModal";
 import DepCreateModal from "./DepCreateModal";
+import useLoading from "../../component/hooks/useLoading";
+import FullscreenLoading from "../../component/FullScreenLoading";
+import ContextProvider from "../../component/ContextProvider";
 
 
 const DepList = () => {
@@ -17,7 +18,10 @@ const DepList = () => {
     const history = useHistory();
     const [isShowingCreate, setIsShowingCreate] = useState(false);
     const modalRef = useRef(null);
+    const [mounted, setMounted] = useState(true);
+    const {loading, onLoading, offLoading} = useLoading()
 
+    const toggleMount = () => setMounted(!mounted);
     const toggleCreate = () => {
         setIsShowingCreate(!isShowingCreate);
     };
@@ -29,21 +33,24 @@ const DepList = () => {
         });
     }
 
-    const {switchToEdit} = useContext(DepContext);
+    const {switchToEditDep} = useContext(ContextProvider);
     React.useEffect(() => {
         async function fetchData() {
+            onLoading();
             await GroupService.getList("department")
                 .then((r) => {
                     console.log(r.status);
                     if (r.status === 200)
                         setData(r.data);
                     else setData([]);
+                    offLoading();
                 }, []);
         }
+
         fetchData();
-    }, []);
+    }, [mounted,setMounted]);
     const columns = [
-        {field: 'name', headerName: 'DepList Name', width: 200},
+        {field: 'name', headerName: 'Department Name', width: 200},
         {
             field: 'groupType',
             headerName: 'Type',
@@ -70,7 +77,7 @@ const DepList = () => {
                         <button
                             className="depListEdit"
                             onClick={() => {
-                                switchToEdit(params.row.id);
+                                switchToEditDep(params.row.id);
                             }}
                         >
                             Edit
@@ -84,28 +91,36 @@ const DepList = () => {
             }
         },
     ];
-    return (
-        <div className="Department">
+    return (<>
+            {loading ? <FullscreenLoading/> : null}
             <DepCreateModal
                 isShowing={isShowingCreate}
                 toggleModal={toggleCreate}
                 modalRef={modalRef}
+                toggleMount = {toggleMount}
             />
-            <DataGrid
-                rows={data}
-                disableSelectionOnClick
-                columns={columns}
-                pageSize={10}
-                checkboxSelection
-                className="MuiDataGrid-windowContainer"
-            />
-            <div>
-                <Button autoCapitalize={false} onClick={toggleCreate}>
-                    <Label>Create</Label>
-                    <AddBoxIcon/>
-                </Button>
-            </div>
-        </div>
+           <Paper>
+               <Grid container justify="center" spacing={3} xs={1}>
+                   <Grid item xs={1}>
+                       <Button autoCapitalize={false} onClick={toggleCreate}>
+                           <AddBoxIcon/>
+                       </Button>
+                   </Grid>
+               </Grid>
+               <Grid container className="Department" spacing={3}>
+                   <Grid item xs={12}>
+                       <DataGrid
+                           rows={data}
+                           disableSelectionOnClick
+                           columns={columns}
+                           pageSize={10}
+                           checkboxSelection
+                           className="MuiDataGrid-windowContainer"
+                       />
+                   </Grid>
+               </Grid>
+           </Paper>
+        </>
     );
 }
 export default DepList;

@@ -13,8 +13,8 @@ export default class Gantt extends Component {
     }
 
     render() {
-        return ( <
-            div ref = {
+        return (
+            <div ref = {
                 (input) => { this.ganttContainer = input } }
             style = {
                 { width: '100%', height: '100%' } } >

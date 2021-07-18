@@ -25,7 +25,7 @@ export default function DataTable() {
                     <
                     img className = "UserListImg"
                     src = { params.row.Avatar }
-                    alt = "" / > { params.row.username } <
+                    alt = "" /> { params.row.username } <
                     /div>
                 )
             }
@@ -126,7 +126,7 @@ export default function DataTable() {
         DataGrid rows = { data }
         disableSelectionOnClick columns = { columns }
         pageSize = { 5 }
-        checkboxSelection / >
+        checkboxSelection />
         <
         /div>
     );
@@ -136,7 +136,7 @@ export class Employee extends Component {
         return ( <
             div classname = "Employee" >
             <
-            DataTable / >
+            DataTable />
             <
             /div>
         )

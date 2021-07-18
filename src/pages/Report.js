@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Gantt from './Gantt';
 import './Gantt.css'
-import './Report.css'
 
 const data = {
     data: [
