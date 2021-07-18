@@ -20,7 +20,9 @@ const postReport = (name, remark, startDate, dueDate, progress, projectId, group
             API_URL,
             {name, remark, startDate, dueDate, progress, projectId, groupId},
             {headers : authHeader()}
-        )
+        ).catch((error) => {
+            return error.response;
+        });
 };
 
 const putReport = (id, name, remark, startDate, dueDate, progress, groupName, projectName) => {
@@ -30,7 +32,9 @@ const putReport = (id, name, remark, startDate, dueDate, progress, groupName, pr
             API_URL + "/" +id,
             {name, url, remark, startDate, dueDate, progress, groupName, projectName},
             {headers : authHeader()}
-        )
+        ) .catch((error) => {
+            return error.response;
+        });
 };
 
 const deleteReport = (projectId) => {
@@ -44,10 +48,10 @@ const deleteReport = (projectId) => {
         });
 };
 
-const getDetails = (projectId) => {
+const getDetails = (reportId) => {
     return axios
         .get(
-            API_URL + "?projectId=" + projectId,
+            API_URL + "/" + reportId,
             {headers : authHeader()}
         )
         .catch((error) => {

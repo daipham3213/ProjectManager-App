@@ -1,14 +1,15 @@
 import React, {useContext, useRef, useState} from 'react';
 import "./styles/DepEdit.css"
 import Button from "@material-ui/core/Button";
-import {GroupService, UserService} from "../../../services/services";
+import {GroupService, UserService} from "../../services/services";
 import {DataGrid,} from '@material-ui/data-grid';
 import Avatar from '@material-ui/core/Avatar';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import AddMemberModal from "./AddMemberModal";
-import {useLoading} from "../../../component/hooks/hooks";
-import DepContext from "../depContext";
-import FullscreenLoading from "../../../component/FullScreenLoading";
+import {useLoading} from "../../component/hooks/hooks";
+import FullscreenLoading from "../../component/FullScreenLoading";
+import ContextProvider from "../../component/ContextProvider";
+import BackButton from "../../component/BackButton";
 
 const DepEdit = (depId) => {
     const [depName, setDepName] = useState({});
@@ -19,7 +20,10 @@ const DepEdit = (depId) => {
     const [isShowing, setIsShowing] = useState(false);
     const modalRef = useRef(null);
     const {loading, onLoading, offLoading} = useLoading();
+    const [mounted, setMounted] = useState(true);
 
+
+    const toggleMount = () => setMounted(!mounted);
     const addMember = (m) => {
         setMember(oldArray => [...oldArray, m]);
     };
@@ -46,7 +50,7 @@ const DepEdit = (depId) => {
         console.log(checked);
     }
 
-    const {switchToList} = useContext(DepContext);
+    const {switchToListDep} = useContext(ContextProvider);
 
     React.useEffect(() => {
         async function fetchData() {
@@ -71,7 +75,7 @@ const DepEdit = (depId) => {
             console.log(r);
         });
         offLoading();
-    }, {});
+    }, [mounted, setMounted]);
 
     const columns = [
         {
@@ -116,12 +120,7 @@ const DepEdit = (depId) => {
 
     return (
         <div>
-            <Button
-                onMouseDown={() => switchToList()}
-            >
-                <KeyboardBackspaceIcon></KeyboardBackspaceIcon>
-                Back
-            </Button>
+            <BackButton children="Back" switchTo={() => switchToListDep()}/>
             <div className="DepContainer">
                 {loading? <FullscreenLoading/>: null}
                 <AddMemberModal
@@ -129,6 +128,7 @@ const DepEdit = (depId) => {
                     toggleModal={toggle}
                     modalRef={modalRef}
                     groupName={depName}
+                    toggleMount={toggleMount}
                 />
                 <div className="DepUpDate">
                     <span className="DepUpdateTitle">Edit Department</span>

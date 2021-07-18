@@ -4,11 +4,20 @@ export default makeStyles((theme) => ({
     root: {
         height: "100%",
         minHeight: "100vh",
+        margin: `${theme.spacing(1)}px auto`,
+        padding: theme.spacing(2),
+        flexGrow: true
     },
-    content: {
-        padding: "10px 15px",
-        height: "100%",
-        minHeight: 500
+    grid: {
+        spacing: 2,
+        direction: "row",
+        justifyContent: "center",
+        alignItems: "stretch",
+    },
+    paper: {
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
     },
     button: {
         display: "flex",
@@ -28,5 +37,8 @@ export default makeStyles((theme) => ({
     },
     projectList: {
         minHeight: "100vh",
+    },
+    topPaper: {
+        marginBottom: 10,
     }
-}));
+}))

@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import { green } from "@material-ui/core/colors";
 
-export default makeStyles(() => ({
+export default makeStyles((themes) => ({
     modalOverlay: {
         position: "fixed",
         top: 0,
@@ -61,5 +61,44 @@ export default makeStyles(() => ({
         height: "fit-content",
         padding: "0 0 20px 20px",
         margin: "5px",
-    }
+    },
+    textField: {
+        width: "100%",
+        "& .MuiInput-underline:after": {
+            borderBottom: "none",
+        },
+        "& .MuiInput-underline:before": {
+            borderBottom: "none",
+        },
+        "&:hover .MuiInput-underline:before": {
+            borderBottom: "none",
+        },
+    },
+    action: {
+        padding: "0 10px 10px 10px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+    button: {
+        width: 150,
+        height: 40,
+        borderRadius: 2,
+        border: "1px solid #eeeeee",
+        padding: 5,
+        cursor: "pointer",
+        "&:hover": {
+            backgroundColor: "teal",
+        },
+        "&:hover svg": {
+            color: "white",
+        },
+        textAlign:"center"
+    },
+    formControl: {
+        textAlign:"center",
+        margin: themes.spacing(1),
+        minWidth: 120,
+
+    },
 }));

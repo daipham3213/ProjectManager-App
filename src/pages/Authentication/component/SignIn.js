@@ -15,6 +15,8 @@ import Container from '@material-ui/core/Container';
 import {AuthService} from "../../../services/services";
 import AuthContext from "../AuthContext";
 import {Card} from "@material-ui/core";
+import {useLoading} from "../../../component/hooks/hooks";
+import FullscreenLoading from "../../../component/FullScreenLoading";
 
 function Copyright() {
     return (
@@ -36,6 +38,7 @@ export default function SignIn() {
     const [error, setError] = useState({});
     const [animate, setAnimate] = useState(0);
     const classes = useStyles();
+    const {loading, onLoading, offLoading} = useLoading();
 
 
 //------hàm sự kiệm lấy dữ liệu------------------
@@ -94,17 +97,11 @@ export default function SignIn() {
     const {switchToSignup} = useContext(AuthContext);
 
     async function Login() {
-        console.log(username + "/" + password);
+        onLoading()
         await AuthService.login(username, password, true).then((response) => {
             if (response.status === 200) {
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("username", username);
-                localStorage.setItem("roles", response.data.roleName);
-                localStorage.setItem("id", response.data.id);
-                localStorage.setItem("data", JSON.stringify(response.data));
+                AuthService.saveLogin(response);
                 window.location = window.location.origin;
-                console.log(response.data.role);
-
             } else {
                 setError((prevError) => ({
                     ...prevError,
@@ -112,7 +109,9 @@ export default function SignIn() {
                 }));
                 alert(response.data.message);
             }
-        });
+        }).catch((r) =>{
+            console.log(r)});
+        offLoading();
     }
 
     const handleKeyPress = (event) => {
@@ -123,6 +122,7 @@ export default function SignIn() {
 
     return (
         <Container component="main" maxWidth="xs">
+            {loading? <FullscreenLoading/> : null}
             <CssBaseline/>
             <Card className={classes.cardSignIn} animate={animate}>
                 <Avatar className={classes.avatar}>
@@ -137,10 +137,9 @@ export default function SignIn() {
                         margin="normal"
                         required
                         fullWidth
-                        id="email"
                         label="Username"
                         name="username"
-                        autoComplete="email"
+                        type="text"
                         helperText={error.username}
                         className={classes.textField}
                         autoFocus

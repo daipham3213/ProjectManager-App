@@ -1,17 +1,18 @@
 import {useContext, useEffect, useRef, useState} from "react";
-import {ProjectService} from "../../../services/services";
-import {useLoading} from "../../../component/hooks/hooks";
-import FullscreenLoading from "../../../component/FullScreenLoading";
+import {ProjectService} from "../../services/services";
+import {useLoading} from "../../component/hooks/hooks";
+import FullscreenLoading from "../../component/FullScreenLoading";
 import {DataGrid} from "@material-ui/data-grid";
-import {Paper, Typography} from "@material-ui/core";
+import {Grid, Paper, Typography} from "@material-ui/core";
 import useStyles from "./styles/listStyle";
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import DeleteSweepOutlinedIcon from '@material-ui/icons/DeleteSweepOutlined'
 import AddIcon from '@material-ui/icons/Add';
-import ProjectContext from "../projectContext";
-import DialogModal from "../../../component/DialogModal";
+import DialogModal from "../../component/DialogModal";
 import ProjectCreateModal from "./ProjectCreateModal";
 import moment from "moment";
+import ContextProvider from "../../component/ContextProvider";
+import BackButton from "../../component/BackButton";
 
 const ProjectList = () => {
     const [projects, setProjects] = useState([]);
@@ -21,6 +22,7 @@ const ProjectList = () => {
     const [id, setId] = useState("");
     const modalRef = useRef(null);
     const classes = useStyles();
+    const [mounted, setMounted] = useState(true);
 
     const loadProjects = (e) => {
         setProjects(e);
@@ -39,39 +41,39 @@ const ProjectList = () => {
         setId(e)
         handleOnYes(e);
     }
+    const toggleMount = () => setMounted(!mounted);
 
-    const fetchProject = () => {
-        ProjectService.getList()
+    const fetchProject = async () => {
+        await ProjectService.getList()
             .then((r) => {
                 if (r.status === 200) {
                     loadProjects(r.data);
                     console.log(r.data);
-                } else alert(r.error);
-            }, []).catch((r) => {
+                } else loadProjects([]);
+            }).catch((r) => {
             console.log(r);
         });
-
     }
 
-    const handleOnYes = (id) => {
+    const handleOnYes = async(id) => {
         onLoading();
-        ProjectService.deleteProject(id)
+        await ProjectService.deleteProject(id)
             .then((r) => {
                 if (r.status === 200) {
                     let index = projects.indexOf(id);
                     projects.splice(index, 1);
                     console.log("remove " + id);
                 } else console.log(r);
-            }, {})
+            }, null)
         offLoading();
     }
     useEffect(() => {
         onLoading();
         fetchProject();
         offLoading();
-    }, []);
+        }, [mounted,setMounted]);
 
-    const {switchToEdit} = useContext(ProjectContext);
+    const {switchToEditPro} = useContext(ContextProvider);
 
     const columns = [
         {field: 'name', headerName: 'Project Name', width: 200},
@@ -106,8 +108,8 @@ const ProjectList = () => {
                             <EditOutlinedIcon
                                 className={classes.icon}
                                 onClick={() => {
-                                    switchToEdit(p.rows?.id);
-                                    console.log(p.rows?.id);
+                                    switchToEditPro(p.row.id);
+                                    console.log(p.row.id);
                                 }}
                             />
                             <DeleteSweepOutlinedIcon
@@ -122,28 +124,40 @@ const ProjectList = () => {
     ];
 
     return (
-        <>
+        <div>
             {loading ? <FullscreenLoading/> : null}
+            <Grid item xs={3}>
+                <BackButton children="Back to home"/>
+            </Grid>
             <Paper className={classes.root}>
-                <div className={classes.content}>
-                    <div className={classes.button} onClick={toggleCreate} >
-                        <AddIcon className={classes.create} />
-                        <Typography className={classes.createText}>Create</Typography>
-                    </div>
-                    <ProjectCreateModal
-                        modalRef={modalRef}
-                        toggleModal={toggleCreate}
-                        isShowing={isCreate}
-                    />
-                    <DataGrid
-                        className={classes.projectList}
-                        rows={projects}
-                        columns={columns}
-                        pageSize={5}
-                    />
-                </div>
+                <ProjectCreateModal
+                    modalRef={modalRef}
+                    toggleModal={toggleCreate}
+                    isShowing={isCreate}
+                    onReload={fetchProject}
+                    toggleMount={toggleMount}
+                />
+                <Grid container>
+                    <Grid item xs={3} spacing={3} style={{padding:"15px 0 0 15px"}}>
+                        <div className={classes.button} onClick={toggleCreate} >
+                            <AddIcon className={classes.create} />
+                            <Typography className={classes.createText}>Create</Typography>
+                        </div>
+                    </Grid>
+
+                </Grid>
+                <Grid container style={{padding:10}}>
+                    <Grid item xs={12} >
+                        <DataGrid
+                            className={classes.projectList}
+                            rows={projects}
+                            columns={columns}
+                            pageSize={5}
+                        />
+                    </Grid>
+                </Grid>
             </Paper>
-        </>
+        </div>
     )
 }
 export default ProjectList

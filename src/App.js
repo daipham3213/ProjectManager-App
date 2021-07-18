@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import AppBar from './AppBar';
 import SlideBar from './SilderBar/SlideBar';
-import {User} from './pages/Usepage/User';
 import {NewUser} from './pages/NewUser/NewUser';
 import {UserProfile} from './pages/Usepage/UserProfile';
 import './App.css';
@@ -15,18 +14,18 @@ import AuthPage from "./pages/Authentication/AuthPage";
 import {Group} from "./pages/Group";
 import {Task} from "./pages/Task";
 import {AuthService} from "./services/services";
-import Department from "./pages/Department/Department";
 import {Employee} from "./pages/Employee";
-import Project from "./pages/Project/Project";
+import Home from "./pages/Home";
 
 
 export default class App extends Component {
+
+
     render() {
         if (!AuthService.isLoggedIn())
             return (
                 <BrowserRouter>
                     <Switch>
-                        <Route path="/login" component={AuthPage}/>
                         <Route path="/" component={AuthPage}/>
                     </Switch>
                 </BrowserRouter>
@@ -34,12 +33,9 @@ export default class App extends Component {
         else
         return (
             <BrowserRouter>
-                <div><AppBar/></div>
                 <div>
                     <Switch>
-                        {/*<PrivateRoute exact path="/:username" component={User}/>*/}
-                        <PrivateRoute exact path="/department" component={Department}/>
-                        <PrivateRoute exact path="/project" component={Project}/>
+                        <PrivateRoute path="/" component={Home}/>
                         <PrivateRoute exact path="/user/create" component={NewUser}/>
                         <PrivateRoute exact path="/profile?id=:userId" component={UserProfile}/>
                         <PrivateRoute exact path="/group" component={Group}/>

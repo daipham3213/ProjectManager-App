@@ -1,18 +1,20 @@
 import "./styles/DepCreate.css"
 import React, {useState} from 'react';
 
-import {GroupService} from "../../../services/services";
-import useStyles from "../../../component/styles/modalStyles";
+import {GroupService} from "../../services/services";
+import useStyles from "../../component/styles/modalStyles";
 import {useHistory} from "react-router-dom";
-import {useLoading} from "../../../component/hooks/hooks";
+import {useLoading} from "../../component/hooks/hooks";
 import * as ReactDOM from "react-dom";
 import {Paper, TextField, Typography} from "@material-ui/core";
+import FullscreenLoading from "../../component/FullScreenLoading";
 
 
 const DepCreateModal = ({
                             isShowing,
                             modalRef,
-                            toggleModal
+                            toggleModal,
+                            toggleMount,
                         }) => {
     const classes = useStyles();
     const history = useHistory();
@@ -45,6 +47,7 @@ const DepCreateModal = ({
     }
 
     const handleSubmit = async () => {
+        onLoading();
         if (!validate()){
             debugger;
             await GroupService.postDepartment(depName, description, "")
@@ -56,10 +59,13 @@ const DepCreateModal = ({
                 }, null);
         }
         document.body.style.overflow = "auto";
+        toggleMount();
+        offLoading();
     }
     return isShowing
         ? ReactDOM.createPortal(
             <div>
+                {loading? <FullscreenLoading/> : null}
                 <div className={classes.modalOverlay}></div>
                 <Paper className={classes.root} ref={modalRef}>
                     <div className={classes.createDep}>

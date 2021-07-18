@@ -46,7 +46,7 @@ const deleteProject = (idPro) => {
 const getDetails = (id) => {
     return axios
         .get(
-            API_URL + "?id=" + id,
+            API_URL + "/" + id,
             {headers : authHeader()}
         ).catch((error) => {
             return error.response;

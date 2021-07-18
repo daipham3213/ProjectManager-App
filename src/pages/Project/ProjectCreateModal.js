@@ -1,20 +1,22 @@
 import React, {useState} from 'react';
 
-import {ProjectService} from "../../../services/services";
-import useStyles from "../../../component/styles/modalStyles";
+import {ProjectService} from "../../services/services";
+import useStyles from "../../component/styles/modalStyles";
 import {useHistory} from "react-router-dom";
-import {useLoading} from "../../../component/hooks/hooks";
+import {useLoading} from "../../component/hooks/hooks";
 import * as ReactDOM from "react-dom";
-import {Paper, TextField, Typography} from "@material-ui/core";
-import FullscreenLoading from "../../../component/FullScreenLoading";
+import {Grid, Paper, TextField, Typography} from "@material-ui/core";
+import FullscreenLoading from "../../component/FullScreenLoading";
 import moment from "moment";
 
 
 const ProjectCreateModal = ({
-                            isShowing,
-                            modalRef,
-                            toggleModal
-                        }) => {
+                                isShowing,
+                                modalRef,
+                                toggleModal,
+                                onReload,
+                                toggleMount,
+                            }) => {
     const classes = useStyles();
     const history = useHistory();
     const {loading, onLoading, offLoading} = useLoading();
@@ -23,8 +25,8 @@ const ProjectCreateModal = ({
 
     const [name, setName] = useState("");
     const [remark, setRemark] = useState("");
-    const [startDate, setStartDate] = useState(moment.now);
-    const [dueDate, setDueDate] = useState(moment.now);
+    const [startDate, setStartDate] = useState(moment().format("DD-MM-YYYY"));
+    const [dueDate, setDueDate] = useState(moment().format("DD-MM-YYYY"));
     const [error, setError] = useState({});
 
     const loadName = (value) => {
@@ -55,8 +57,7 @@ const ProjectCreateModal = ({
             }));
         }
 
-        if(!moment(startDate, 'DD/MM/YYYY',true).isValid())
-        {
+        if (!moment(startDate, 'DD/MM/YYYY', true).isValid()) {
             setError((prevError) => ({
                 ...prevError,
                 startDate: "This is not a valid date.",
@@ -79,8 +80,7 @@ const ProjectCreateModal = ({
                 startDate: "",
             }));
         }
-        if(!moment(dueDate, 'DD/MM/YYYY',true).isValid())
-        {
+        if (!moment(dueDate, 'DD/MM/YYYY', true).isValid()) {
             setError((prevError) => ({
                 ...prevError,
                 dueDate: "This is not a valid date.",
@@ -107,34 +107,41 @@ const ProjectCreateModal = ({
     }
 
     const handleSubmit = async () => {
-        if (!validate()){
+        if (!validate()) {
             onLoading();
             await ProjectService.postProject(name, remark, dueDate, startDate)
                 .then((r) => {
-                    if (r.status === 200)
+                    if (r.status === 204 || r.status === 200) {
                         toggleModal();
+                        onReload();
+                        toggleMount();
+                    }
                     else
                         alert(r.message);
-                }, null).catch((r) =>{
+                }, null).catch((r) => {
                     console.log(r);
                 });
         }
         document.body.style.overflow = "auto";
         offLoading();
+        toggleModal();
     }
     return isShowing
         ? ReactDOM.createPortal(
             <div>
                 <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
-                    {loading? <FullscreenLoading/>:null}
+                    {loading ? <FullscreenLoading/> : null}
                     <div className={classes.createDep}>
                         <div className="newDep">
-                            <Typography component="h1" variant="h5" className="newDepTitle">
-                                Create New Department
-                            </Typography>
-                            <from className="newDepFrom">
-                                <div className="newDepItem">
+
+                            <Grid container={12} spacing={2}>
+                                <Grid item xs={12}>
+                                    <Typography component="h6" variant="overline" className="newDepTitle">
+                                        Create New Department
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={12}>
                                     <TextField
                                         type="text"
                                         onChange={loadName}
@@ -146,9 +153,8 @@ const ProjectCreateModal = ({
                                         name="name"
                                         helperText={error.name}
                                     />
-                                </div>
-
-                                <div className="newDepItem">
+                                </Grid>
+                                <Grid item xs={12}>
                                     <TextField
                                         type="text"
                                         onChange={loadRemark}
@@ -158,9 +164,8 @@ const ProjectCreateModal = ({
                                         id="description"
                                         name="description"
                                     />
-                                </div>
-
-                                <div className="newDepItem">
+                                </Grid>
+                                <Grid item xs={12}>
                                     <TextField
                                         type="date"
                                         onChange={loadStartDate}
@@ -176,8 +181,8 @@ const ProjectCreateModal = ({
                                         }}
                                         helperText={error.startDate}
                                     />
-                                </div>
-                                <div className="newDepItem">
+                                </Grid>
+                                <Grid item xs={12}>
                                     <TextField
                                         type="date"
                                         onChange={loadDueDate}
@@ -193,8 +198,8 @@ const ProjectCreateModal = ({
                                             shrink: true,
                                         }}
                                     />
-                                </div>
-                            </from>
+                                </Grid>
+                            </Grid>
                         </div>
                     </div>
                     <div className={classes.option}

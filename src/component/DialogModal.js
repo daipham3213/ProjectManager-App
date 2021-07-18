@@ -11,8 +11,22 @@ export default function DialogModal({
                                         isOpened,
                                         contents,
                                         heading,
-                                        onYes
+                                        onYes,
+                                        isYesNo
                                     }) {
+    const yesSnip = ({onYes, toggle}) =>{
+        return (
+            <Button
+                onClick={() => {
+                    onYes();
+                    toggle();
+                }}
+                color="primary"
+                autoFocus>
+                Agree
+            </Button>
+        )
+    };
     return (
         <div>
             <Dialog
@@ -28,15 +42,7 @@ export default function DialogModal({
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button
-                        onClick={() => {
-                            onYes();
-                            toggle();
-                        }}
-                        color="primary"
-                        autoFocus>
-                        Agree
-                    </Button>
+                    {isYesNo? yesSnip(onYes, toggle): null}
                     <Button onClick={toggle} color="secondary">
                         Cancel
                     </Button>
@@ -45,3 +51,5 @@ export default function DialogModal({
         </div>
     );
 }
+
+
