@@ -11,6 +11,8 @@ import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import moment from "moment";
 import BackButton from "../../component/BackButton";
 import ContextProvider from "../../component/ContextProvider";
+import AddIcon from "@material-ui/icons/Add";
+import TaskCreateModal from "../Task/TaskCreateModal";
 
 const ReportList = () => {
     const [groups, setGroups] = useState([]);
@@ -22,7 +24,6 @@ const ReportList = () => {
 
     const {loading, onLoading, offLoading} = useLoading();
     const [mounted, setMounted] = useState(true);
-    const [filter, setFilter] = useState(false);
     const [isShowCreate, setIsShowCreate] = useState(false);
     const modelRef = useRef();
     const classes = useStyles();
@@ -33,11 +34,11 @@ const ReportList = () => {
     const loadFData = (value) => setFData(value);
     const loadGroup = (value) => {
         setGroupName(value.target.value);
-        filterData(value.target.value,prjName);
+        filterData(value.target.value, prjName);
     }
     const loadPrjName = (value) => {
         setPrjName(value.target.value);
-        filterData(groupName,value.target.value);
+        filterData(groupName, value.target.value);
     }
 
     const toggleMount = () => setMounted(!mounted);
@@ -45,16 +46,16 @@ const ReportList = () => {
 
     const filterData = (gName, pName) => {
         let filtered;
-        if (gName==="All" &&  pName==="All"){
+        if (gName === "All" && pName === "All") {
             filtered = reports;
         }
-        if (gName!=="All" && pName==="All"){
+        if (gName !== "All" && pName === "All") {
             filtered = reports.filter(f => f.groupName === gName);
         }
-        if (gName==="All" && pName!=="All"){
+        if (gName === "All" && pName !== "All") {
             filtered = reports.filter(f => f.projectName === pName);
         }
-        if (gName!=="All" && pName!=="All"){
+        if (gName !== "All" && pName !== "All") {
             filtered = reports.filter(f => f.projectName === pName && f.groupName === gName);
         }
         loadFData(filtered);
@@ -104,26 +105,31 @@ const ReportList = () => {
     }, [mounted, setMounted]);
 
     useEffect(() => {
-        filterData(groupName,prjName);
-    },[groupName,prjName]);
+        filterData(groupName, prjName);
+    }, [groupName, prjName]);
 
     const {switchToEditRp} = useContext(ContextProvider);
 
     const columns = [
-        {field:"name", headerName:"Report name", width:200},
-        {field:"remark", headerName:"Description", width:200},
-        {field:"groupName", headerName:"Group", width:200},
-        {field:"projectName", headerName:"Project", width:200},
-        {field:"progress", headerName:"Progress", width:150},
-        {field:"startDate", headerName:"Start", width:120,
+        {field: "name", headerName: "Report name", width: 200},
+        {field: "remark", headerName: "Description", width: 200},
+        {field: "groupName", headerName: "Group", width: 200},
+        {field: "projectName", headerName: "Project", width: 200},
+        {field: "progress", headerName: "Progress", width: 150},
+        {
+            field: "startDate", headerName: "Start", width: 120,
             valueFormatter: (params) => {
                 return moment(params.value).format("Do MMM YYYY");
-            }},
-        {field:"dueDate", headerName:"End", width:120,
+            }
+        },
+        {
+            field: "dueDate", headerName: "End", width: 120,
             valueFormatter: (params) => {
                 return moment(params.value).format("Do MMM YYYY");
-            }},
-        {field: "actions" , headerName: "Actions", width: 150,
+            }
+        },
+        {
+            field: "actions", headerName: "Actions", width: 150,
             renderCell: (params) => {
                 return (
                     <>
@@ -135,7 +141,8 @@ const ReportList = () => {
                         </Button>
                     </>
                 );
-            }},
+            }
+        },
     ];
 
     return (
@@ -149,6 +156,7 @@ const ReportList = () => {
                 modalRef={modelRef}
                 isShowed={isShowCreate}
             />
+
             <Grid container spacing={3}
                   classes={classes.container}
                   direction="column"
@@ -163,7 +171,12 @@ const ReportList = () => {
                     <Grid item xs={2}>
                         <BackButton children="Back to Home"/>
                     </Grid>
-                    <Grid item xs={5}>
+                    <Grid item xs={2}>
+                        <Button>
+                            <AddIcon/> Create new report
+                        </Button>
+                    </Grid>
+                    <Grid item xs={3}>
                         <Typography variant="overline" display="block" gutterBottom align="right">
                             Filters
                         </Typography>
