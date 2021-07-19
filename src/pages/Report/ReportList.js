@@ -156,11 +156,15 @@ const ReportList = () => {
                 modalRef={modelRef}
                 isShowed={isShowCreate}
             />
-
+            <Grid container justify="center" spacing={3}>
+                <Grid item xs={1}>
+                    <Typography variant="h6" align="center">REPORTS</Typography>
+                </Grid>
+            </Grid>
             <Grid container spacing={3}
                   classes={classes.container}
                   direction="column"
-                  justifyContent="center"
+                  justify="center"
                   alignItems="stretch">
                 <Grid container
                       direction="row"
@@ -171,7 +175,7 @@ const ReportList = () => {
                     <Grid item xs={2}>
                         <BackButton children="Back to Home"/>
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item xs={2} onClick={toggleCreate}>
                         <Button>
                             <AddIcon/> Create new report
                         </Button>

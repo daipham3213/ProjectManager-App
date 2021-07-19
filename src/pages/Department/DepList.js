@@ -4,13 +4,12 @@ import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import {useHistory} from "react-router-dom";
 import {GroupService} from "../../services/services";
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import {Button, Grid, Paper} from "@material-ui/core";
-import {Label} from "@material-ui/icons";
+import {Button, Grid, Paper, Typography} from "@material-ui/core";
 import DepCreateModal from "./DepCreateModal";
 import useLoading from "../../component/hooks/useLoading";
 import FullscreenLoading from "../../component/FullScreenLoading";
 import ContextProvider from "../../component/ContextProvider";
+import AddIcon from "@material-ui/icons/Add";
 
 
 const DepList = () => {
@@ -99,23 +98,27 @@ const DepList = () => {
                 modalRef={modalRef}
                 toggleMount = {toggleMount}
             />
-           <Paper>
+           <Paper style={{height:"100%"}}>
+               <Grid container justify="center" spacing={3}>
+                   <Grid item xs={1}>
+                       <Typography variant="h6" align="center">DEPARTMENT</Typography>
+                   </Grid>
+               </Grid>
                <Grid container justify="center" spacing={3} xs={1}>
                    <Grid item xs={1}>
                        <Button autoCapitalize={false} onClick={toggleCreate}>
-                           <AddBoxIcon/>
+                           <AddIcon/> Create
                        </Button>
                    </Grid>
                </Grid>
                <Grid container className="Department" spacing={3}>
-                   <Grid item xs={12}>
+                   <Grid item xs={12} style={{minHeight:500}}>
                        <DataGrid
                            rows={data}
                            disableSelectionOnClick
                            columns={columns}
                            pageSize={10}
                            checkboxSelection
-                           className="MuiDataGrid-windowContainer"
                        />
                    </Grid>
                </Grid>

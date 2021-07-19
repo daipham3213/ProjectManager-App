@@ -1,4 +1,4 @@
-import {useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {ProjectService} from "../../services/services";
 import {useLoading} from "../../component/hooks/hooks";
 import FullscreenLoading from "../../component/FullScreenLoading";
@@ -13,6 +13,7 @@ import ProjectCreateModal from "./ProjectCreateModal";
 import moment from "moment";
 import ContextProvider from "../../component/ContextProvider";
 import BackButton from "../../component/BackButton";
+import Button from "@material-ui/core/Button";
 
 const ProjectList = () => {
     const [projects, setProjects] = useState([]);
@@ -126,9 +127,6 @@ const ProjectList = () => {
     return (
         <div>
             {loading ? <FullscreenLoading/> : null}
-            <Grid item xs={3}>
-                <BackButton children="Back to home"/>
-            </Grid>
             <Paper className={classes.root}>
                 <ProjectCreateModal
                     modalRef={modalRef}
@@ -137,14 +135,21 @@ const ProjectList = () => {
                     onReload={fetchProject}
                     toggleMount={toggleMount}
                 />
-                <Grid container>
-                    <Grid item xs={3} spacing={3} style={{padding:"15px 0 0 15px"}}>
-                        <div className={classes.button} onClick={toggleCreate} >
-                            <AddIcon className={classes.create} />
-                            <Typography className={classes.createText}>Create</Typography>
-                        </div>
+                <Grid container justify="center" spacing={3}>
+                    <Grid item xs={1}>
+                        <Typography variant="h6" align="center">PROJECTS</Typography>
                     </Grid>
-
+                </Grid>
+                <Grid container justify="center" >
+                    <Grid item xs={3} spacing={2}>
+                        <BackButton children="Back to home"/>
+                    </Grid>
+                    <Grid item xs={7}/>
+                    <Grid item xs={2}>
+                        <Button onClick={toggleCreate} >
+                            <AddIcon/> Create
+                        </Button>
+                    </Grid>
                 </Grid>
                 <Grid container style={{padding:10}}>
                     <Grid item xs={12} >
