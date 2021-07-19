@@ -10,6 +10,7 @@ import {useLoading} from "../../component/hooks/hooks";
 import FullscreenLoading from "../../component/FullScreenLoading";
 import ContextProvider from "../../component/ContextProvider";
 import BackButton from "../../component/BackButton";
+import {TextField} from "@material-ui/core";
 
 const DepEdit = (depId) => {
     const [depName, setDepName] = useState({});
@@ -55,20 +56,36 @@ const DepEdit = (depId) => {
     React.useEffect(() => {
         async function fetchData() {
             onLoading();
-            const result = await GroupService.getDetail(depId.value);
-            loadDepName(result.data.name);
-            result.data.users.forEach(user => {
-                FetchUser(user.id)
-            })
-            loadLeader(result.data.leader?.name);
-            loadDep(result.data);
-            offLoading();
+            await GroupService.getDetail(depId.value)
+                .then((result) => {
+                   if(result.status ===200) {
+                       loadDepName(result.data.name);
+                       result.data.users.forEach(user => {
+                           FetchUser(user.id)
+                       })
+                       loadDep(result.data);
+                   } else console.log(result.data.message);
+                    offLoading();
+                })
+                .catch(() => {
+                    console.log("Internal server error");
+                });
         }
 
         async function FetchUser(id) {
-            const user = await UserService.getProfile(id);
-            addMember(user.data);
-            console.log(user.data.id + " Fetched User");
+           await UserService.getProfile(id)
+                .then((result) => {
+                    if (result.status === 200){
+                        addMember(result.data);
+                        if (result.data.id === dep.leaderId){
+                            loadLeader(result.data.name);
+                        }
+                        console.log(result.data.id + " Fetched User");
+                    }
+                })
+               .catch(() => {
+                   console.log("Internal server error");
+               });
         }
 
         fetchData().then(r => {
@@ -136,7 +153,7 @@ const DepEdit = (depId) => {
                         <div className="DepUpdateLeft">
                             <div className="DepUpdateItem">
                                 <label>Department Name</label>
-                                <input
+                                <TextField
                                     type="text"
                                     className="DepUpdateInput"
                                     value={depName}
@@ -144,10 +161,11 @@ const DepEdit = (depId) => {
                             </div>
                             <div className="DepUpdateItem">
                                 <label>Leader Name</label>
-                                <input
+                                <TextField
                                     type="text"
                                     className="DepUpdateInput"
                                     value={depLeader}
+                                    disabled
                                 />
                             </div>
                             <button className="DepUpdateButton">Update</button>

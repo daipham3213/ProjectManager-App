@@ -12,7 +12,15 @@ const getAll = () => {
             return error.response;
         });
 };
-
+const getList = (reportId) => {
+    return axios
+        .get(
+            API_URL + "?reportId=" + reportId,
+            {headers : authHeader()}
+        ).catch((error) => {
+            return error.response;
+        });
+}
 const getDetails = (id) => {
     return axios
         .get(
@@ -37,26 +45,16 @@ const postPhase = (name, remark, startDate, dueDate, reportID) => {
     return axios
         .post(
             API_URL,
-            {name, remark, startDate, dueDate, reportID},
+            {name, remark, dueDate, startDate, reportID},
             {headers : authHeader()}
         ).catch((error) => {
             return error.response;
         });
 };
 
-// const getList = () => {
-//     return axios
-//         .get(
-//             API_URL ,
-//             {headers : authHeader()}
-//         ).catch((error) => {
-//             return error.response;
-//         });
-// };
-
 const PhaseService = {
     getAll,
-    //getList,
+    getList,
     getDetails,
     postPhase,
     deletePhase,

@@ -110,6 +110,17 @@ const leaveGroup = () => {
             return error.response;
         });
 };
+
+const memberList = (groupId) => {
+    return axios
+        .get(
+          API_URL + "/" + groupId + "/members",
+            {headers: authHeader()}
+        ).catch((error) => {
+            return error.response;
+        });
+};
+
 const GroupService = {
     postDepartment,
     postTeam,
@@ -121,6 +132,7 @@ const GroupService = {
     removeMembers,
     promotion,
     leaveGroup,
+    memberList,
 };
 
 export default GroupService;

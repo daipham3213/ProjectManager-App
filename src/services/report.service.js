@@ -7,7 +7,7 @@ const getList = (projectId) => {
     return axios
         .get(
             API_URL + "?projectId=" + projectId,
-            {headers : authHeader()}
+            {headers: authHeader()}
         )
         .catch((error) => {
             return error.response;
@@ -19,20 +19,20 @@ const postReport = (name, remark, startDate, dueDate, progress, projectId, group
         .post(
             API_URL,
             {name, remark, startDate, dueDate, progress, projectId, groupId},
-            {headers : authHeader()}
+            {headers: authHeader()}
         ).catch((error) => {
             return error.response;
         });
 };
 
 const putReport = (id, name, remark, startDate, dueDate, progress, groupName, projectName) => {
-    let url = API_URL + "/" +id;
+    let url = API_URL + "/" + id;
     return axios
         .post(
-            API_URL + "/" +id,
+            API_URL + "/" + id,
             {name, url, remark, startDate, dueDate, progress, groupName, projectName},
-            {headers : authHeader()}
-        ) .catch((error) => {
+            {headers: authHeader()}
+        ).catch((error) => {
             return error.response;
         });
 };
@@ -41,7 +41,7 @@ const deleteReport = (projectId) => {
     return axios
         .delete(
             API_URL + "?projectId=" + projectId,
-            {headers : authHeader()}
+            {headers: authHeader()}
         )
         .catch((error) => {
             return error.response;
@@ -52,7 +52,7 @@ const getDetails = (reportId) => {
     return axios
         .get(
             API_URL + "/" + reportId,
-            {headers : authHeader()}
+            {headers: authHeader()}
         )
         .catch((error) => {
             return error.response;

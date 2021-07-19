@@ -107,7 +107,7 @@ const ReportCreateModal = ({
             }));
             isError = true;
 
-        } else if (moment(dueDate).isBefore(startDate)) {
+        } else if (moment(dueDate) < moment(startDate)) {
             setError((prevError) => ({
                 ...prevError,
                 dueDate: "End date can not be before start date",
@@ -147,7 +147,7 @@ const ReportCreateModal = ({
             }));
         }
 
-        if (prjId === "") {
+        if (prjId === "" && projectId ==="") {
             setError((prevError) => ({
                 ...prevError,
                 project: "Please select a project.",
@@ -159,7 +159,6 @@ const ReportCreateModal = ({
                 project: "Please select a project.",
             }));
         }
-
         if (groupId === "") {
             setError((prevError) => ({
                 ...prevError,
@@ -177,8 +176,8 @@ const ReportCreateModal = ({
 
     const createReport = () => {
         onLoading();
-
         if (!validate()) {
+            debugger;
             ReportService.postReport(name, remark, startDate, dueDate, progress, projectId.value, groupId)
                 .then((r) => {
                     if (r.status === 200 || r.status === 204) {
@@ -230,6 +229,7 @@ const ReportCreateModal = ({
     const projectSelect = () => {
         return (
             <Grid item xs={12}>
+                <InputLabel id="group-label">Projects</InputLabel>
                 <Select
                     labelId="group-label"
                     id="group-select"
@@ -303,7 +303,6 @@ const ReportCreateModal = ({
                             />
                         </Grid>
                         <Grid item xs={12}>
-
                             <InputLabel id="group-label">Group</InputLabel>
                             <Select
                                 labelId="group-label"
@@ -373,7 +372,8 @@ const ReportCreateModal = ({
                                 className={classes.textField}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item={8}/>
+                        <Grid item xs={4}>
                             <Button
                                 color="primary"
                                 onClick={() => {

@@ -32,7 +32,7 @@ const ProjectEdit = (projectId) => {
     const [error, setError] = useState({});
     const [mounted, setMounted] = useState(true);
 
-    const {switchToListPro} = useContext(ContextProvider);
+    const {switchToListPro, switchToEditRp} = useContext(ContextProvider);
 
     const toggleCreateRp = () => {
         setIsShowing(!isShowing);
@@ -265,7 +265,7 @@ const ProjectEdit = (projectId) => {
                             columns={columns}
                             rows={reports}
                             pageSize={10}
-                            //onCellDoubleClick={handleReportClick(getIdFromRowElem())}
+                            onCellDoubleClick={(e) => {switchToEditRp(e.id);}}
                         />
                     </Grid>
                 </Grid>

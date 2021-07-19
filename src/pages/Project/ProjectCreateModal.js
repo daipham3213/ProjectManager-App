@@ -129,12 +129,11 @@ const ProjectCreateModal = ({
     return isShowing
         ? ReactDOM.createPortal(
             <div>
+                {loading ? <FullscreenLoading/> : null}
                 <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
-                    {loading ? <FullscreenLoading/> : null}
                     <div className={classes.createDep}>
                         <div className="newDep">
-
                             <Grid container={12} spacing={2}>
                                 <Grid item xs={12}>
                                     <Typography component="h6" variant="overline" className="newDepTitle">
