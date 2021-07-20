@@ -9,7 +9,6 @@
     "@material-ui/pickers": "^3.3.10",
     "@material-ui/x-grid": "^4.0.0-alpha.32",
     "@material-ui/x-grid-data-generator": "^4.0.0-alpha.32",
-    "@syncfusion/ej2-react-gantt": "^19.2.44",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
