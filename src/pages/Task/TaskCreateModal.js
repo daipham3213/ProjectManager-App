@@ -307,6 +307,17 @@ const TaskCreateModal = ({
                         }}
                     />
                 </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        type="number"
+                        onChange={changePercent}
+                        label="Progress"
+                        variant="outlined"
+                        fullWidth
+                        id="Progress"
+                        name="Progress"
+                    />
+                </Grid>
                 <Grid item={8}/>
                 <Grid item xs={4}>
                     <Button

@@ -12,7 +12,7 @@ import moment from "moment";
 import BackButton from "../../component/BackButton";
 import ContextProvider from "../../component/ContextProvider";
 import AddIcon from "@material-ui/icons/Add";
-import TaskCreateModal from "../Task/TaskCreateModal";
+
 
 const ReportList = () => {
     const [groups, setGroups] = useState([]);
@@ -164,11 +164,10 @@ const ReportList = () => {
             <Grid container spacing={3}
                   classes={classes.container}
                   direction="column"
-                  justify="center"
-                  alignItems="stretch">
+                  justify="center">
                 <Grid container
                       direction="row"
-                      justifyContent="flex-end"
+                      justify="flex-end"
                       alignItems="center"
                       spacing={3}
                 >

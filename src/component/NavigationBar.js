@@ -11,6 +11,8 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import {ClickAwayListener, Grow, MenuList, Paper, Popper} from "@material-ui/core";
 import {AppBarProps} from "@material-ui/core/AppBar/AppBar";
+import {AuthService} from "../services/services";
+import Notification from "./Notification";
 
 export default function NavigationBar(props: AppBarProps) {
     const classes = useStyles();
@@ -44,6 +46,11 @@ export default function NavigationBar(props: AppBarProps) {
         setOpenNotify(false);
     };
 
+    const handleLogout= () => {
+        AuthService.logout();
+        window.location.reload(false);
+    }
+
     const prevOpen = React.useRef(open);
     React.useEffect(() => {
         if (prevOpen.current === true && open === false) {
@@ -52,13 +59,7 @@ export default function NavigationBar(props: AppBarProps) {
         prevOpen.current = open;
     }, [open]);
 
-    const prevOpenN = React.useRef(openNotify);
-    React.useEffect(() => {
-        if (prevOpenN.current === true && openNotify === false) {
-            anchorRefN.current.focus();
-        }
-        prevOpen.current = openNotify;
-    }, [openNotify]);
+
 
     function handleListKeyDown(event) {
         if (event.key === 'Tab') {
@@ -79,7 +80,7 @@ export default function NavigationBar(props: AppBarProps) {
                             <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
                                 <MenuItem onClick={handleClose}>Profile</MenuItem>
                                 <MenuItem onClick={handleClose}>My account</MenuItem>
-                                <MenuItem onClick={handleClose}>Logout</MenuItem>
+                                <MenuItem onMouseDown={() => handleLogout()}>Logout</MenuItem>
                             </MenuList>
                         </ClickAwayListener>
                     </Paper>
@@ -88,26 +89,6 @@ export default function NavigationBar(props: AppBarProps) {
         </Popper>
     );
 
-    const renderRequest = (
-        <Popper open={openNotify} anchorEl={anchorRefN.current} role={undefined} transition disablePortal>
-            {({ TransitionProps, placement }) => (
-                <Grow
-                    {...TransitionProps}
-                    style={{ transformOrigin: placement === 'bottom' ? 'left top' : 'left bottom' }}
-                >
-                    <Paper >
-                        <ClickAwayListener onClickAway={handleCloseN}>
-                            <MenuList autoFocusItem={open} id="menu-notify-grow" onKeyDown={handleListKeyDown}>
-                                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                                <MenuItem onClick={handleClose}>My account</MenuItem>
-                                <MenuItem onClick={handleClose}>Logout</MenuItem>
-                            </MenuList>
-                        </ClickAwayListener>
-                    </Paper>
-                </Grow>
-            )}
-        </Popper>
-    )
 
     return (
         <div className={classes.grow}>
@@ -154,7 +135,7 @@ export default function NavigationBar(props: AppBarProps) {
                 </Toolbar>
             </AppBar>
             {renderMenu}
-            {renderRequest}
+            <Notification handleClose={handleCloseN} anchorRef={anchorRefN} open={openNotify} setOpen={setOpenNotify}/>
         </div>
     );
 }

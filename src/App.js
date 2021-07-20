@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import SlideBar from './SilderBar/SlideBar';
 import {UserProfile} from './pages/Usepage/UserProfile';
 import './App.css';
 import {EditGroup} from './pages/NewGroup/EditGroup';
@@ -11,7 +10,6 @@ import {Group} from "./pages/Group";
 import {AuthService} from "./services/services";
 import {Employee} from "./pages/Employee";
 import Home from "./pages/Home";
-import MiniDrawer from "./component/Drawer";
 
 
 export default class App extends Component {
@@ -37,7 +35,6 @@ export default class App extends Component {
                             <PrivateRoute exact path="/employee" component={Employee}/>
                         </Switch>
                     </div>
-                    <div className="container"><SlideBar/></div>
                 </BrowserRouter>
         );
     }
