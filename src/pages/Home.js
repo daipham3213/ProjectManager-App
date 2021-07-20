@@ -5,10 +5,10 @@ import DepEdit from "./Department/DepEdit";
 import ContextProvider from "../component/ContextProvider";
 import ProjectList from "./Project/ProjectList";
 import ProjectEdit from "./Project/ProjectEdit";
-import AppBar from "../AppBar";
 import React from "react";
 import ReportList from "./Report/ReportList";
 import ReportEdit from "./Report/ReportEdit";
+import MiniDrawer from "../component/Drawer";
 
 const {useState} = require("react");
 
@@ -76,9 +76,8 @@ const Home = () => {
         switchToEditRp
     }
 
-    return (
-        <ContextProvider.Provider value={contextValue}>
-            <div><AppBar/></div>
+    const homePage = () => {
+        return (
             <div>
                 <Grid
                     container
@@ -88,7 +87,7 @@ const Home = () => {
                     className={classes.container}
                     active={active}
                 >
-                    <Grid>
+                    <Grid item xs={12}>
                         {active === "listDep" && <DepList/>}
                         {active === "editDep" && <DepEdit value={depId}/>}
                         {active === "listPrj" && <ProjectList/>}
@@ -98,6 +97,12 @@ const Home = () => {
                     </Grid>
                 </Grid>
             </div>
+        )
+    }
+
+    return (
+        <ContextProvider.Provider value={contextValue}>
+        <MiniDrawer contents={homePage}/>
         </ContextProvider.Provider>
     )
 }

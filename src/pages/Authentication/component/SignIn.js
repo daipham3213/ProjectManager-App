@@ -36,7 +36,7 @@ export default function SignIn() {
     const [username, setusername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState({});
-    const [animate, setAnimate] = useState(0);
+    const [animate, setAnimate] = useState(1);
     const classes = useStyles();
     const {loading, onLoading, offLoading} = useLoading();
 

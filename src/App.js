@@ -1,6 +1,4 @@
 import React, {Component} from 'react';
-import SlideBar from './SilderBar/SlideBar';
-import {NewUser} from './pages/NewUser/NewUser';
 import {UserProfile} from './pages/Usepage/UserProfile';
 import './App.css';
 import {EditGroup} from './pages/NewGroup/EditGroup';
@@ -15,8 +13,6 @@ import Home from "./pages/Home";
 
 
 export default class App extends Component {
-
-
     render() {
         if (!AuthService.isLoggedIn())
             return (
@@ -27,20 +23,19 @@ export default class App extends Component {
                 </BrowserRouter>
             )
         else
-        return (
-            <BrowserRouter>
-                <div>
-                    <Switch>
-                        <PrivateRoute path="/" component={Home}/>
-                        <PrivateRoute exact path="/profile?id=:userId" component={UserProfile}/>
-                        <PrivateRoute exact path="/group" component={Group}/>
-                        <PrivateRoute exact path="/group/:groupID" component={EditGroup}/>
-                        <PrivateRoute exact path="/group/create" component={NewGroup}/>
-                        <PrivateRoute exact path="/employee" component={Employee}/>
-                    </Switch>
-                </div>
-                <div className="container"><SlideBar/></div>
-            </BrowserRouter>
+            return (
+                <BrowserRouter>
+                    <div>
+                        <Switch>
+                            <PrivateRoute path="/" component={Home}/>
+                            <PrivateRoute exact path="/profile?id=:userId" component={UserProfile}/>
+                            <PrivateRoute exact path="/group" component={Group}/>
+                            <PrivateRoute exact path="/group/:groupID" component={EditGroup}/>
+                            <PrivateRoute exact path="/group/create" component={NewGroup}/>
+                            <PrivateRoute exact path="/employee" component={Employee}/>
+                        </Switch>
+                    </div>
+                </BrowserRouter>
         );
     }
 }

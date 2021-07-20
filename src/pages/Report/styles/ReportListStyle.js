@@ -5,7 +5,7 @@ export default makeStyles ((themes) => ({
         padding: "10px 20px 20px 20px"
     },
     container: {
-
+        height:"inherit",
     },
     formControl: {
         margin: themes.spacing(2),

@@ -118,7 +118,7 @@ const TaskCreateModal = ({
         if (phaseId !== "") fetchTasks(phaseId);
         if (groupUrl !== null && groupUrl !== "undefined") fetchMember();
         offLoading();
-    }, [modalRef, toggle]);
+    }, [modalRef, toggle, phaseId, setPhaseId]);
 
     const reportSelect = () => {
         return (
@@ -161,6 +161,30 @@ const TaskCreateModal = ({
                 >
                     <MenuItem value={""}>Select</MenuItem>
                     {phases.map(({id, name}, index) =>
+                        <MenuItem key={index} value={id}>
+                            {name}
+                        </MenuItem>
+                    )}
+                </Select>
+            </Grid>
+        )
+    };
+
+    const taskSelect = () => {
+        return (
+            <Grid item xs={12}>
+                <InputLabel id="phase-label">Parent Task</InputLabel>
+                <Select
+                    labelId="phase-label"
+                    id="phase-select"
+                    value={parent_n}
+                    variant="outlined"
+                    onChange={changeParent_n}
+                    label="Parent Task"
+                    fullWidth
+                >
+                    <MenuItem value={""}>Select</MenuItem>
+                    {tasks.map(({id, name}, index) =>
                         <MenuItem key={index} value={id}>
                             {name}
                         </MenuItem>
@@ -247,6 +271,7 @@ const TaskCreateModal = ({
                 </Grid>
                 {!isOnReport ? reportSelect() : null}
                 {phases?.length ? phaseSelect() : null}
+                {phaseId !== "" ? taskSelect() : null}
                 {phaseId !== "" ? memberSelect() : null}
                 <Grid item xs={12}>
                     <TextField
@@ -280,6 +305,17 @@ const TaskCreateModal = ({
                         InputLabelProps={{
                             shrink: true,
                         }}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        type="number"
+                        onChange={changePercent}
+                        label="Progress"
+                        variant="outlined"
+                        fullWidth
+                        id="Progress"
+                        name="Progress"
                     />
                 </Grid>
                 <Grid item={8}/>

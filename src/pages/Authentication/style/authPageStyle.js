@@ -1,14 +1,15 @@
 import {makeStyles} from "@material-ui/core";
+import url from "url";
 
 export default makeStyles((themes) =>({
     root: {
         height: "100%"
     },
     background: {
-        backgroundColor: "white",
-        backgroundSize: "cover",
+        backgroundSize: "100%",
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "center center",
+        backgroundImage: "images/background.jpg",
+        backgroundColor:"#fff"
     },
     container: {
         alignItems: "flex-end",

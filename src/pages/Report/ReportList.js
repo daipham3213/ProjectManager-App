@@ -12,7 +12,7 @@ import moment from "moment";
 import BackButton from "../../component/BackButton";
 import ContextProvider from "../../component/ContextProvider";
 import AddIcon from "@material-ui/icons/Add";
-import TaskCreateModal from "../Task/TaskCreateModal";
+
 
 const ReportList = () => {
     const [groups, setGroups] = useState([]);
@@ -156,22 +156,25 @@ const ReportList = () => {
                 modalRef={modelRef}
                 isShowed={isShowCreate}
             />
-
+            <Grid container justify="center" spacing={3}>
+                <Grid item xs={1}>
+                    <Typography variant="h6" align="center">REPORTS</Typography>
+                </Grid>
+            </Grid>
             <Grid container spacing={3}
                   classes={classes.container}
                   direction="column"
-                  justifyContent="center"
-                  alignItems="stretch">
+                  justify="center">
                 <Grid container
                       direction="row"
-                      justifyContent="flex-end"
+                      justify="flex-end"
                       alignItems="center"
                       spacing={3}
                 >
                     <Grid item xs={2}>
                         <BackButton children="Back to Home"/>
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item xs={2} onClick={toggleCreate}>
                         <Button>
                             <AddIcon/> Create new report
                         </Button>

@@ -23,7 +23,7 @@ const formatData = (data) => {
         let end = convertToDateSTD(row.dueDate);
 
         //Adding new Records
-        let temp = [row.id,row.name, row.remark === "" ? null : row.remark, start, end, daysToMilliseconds(row.duration), row.percent, p_n];
+        let temp = [row.id, row.name, row.remark === "" ? null : row.remark, start, end, daysToMilliseconds(row.duration), row.percent, p_n];
         r.push(temp);
     })
     return r;
@@ -45,7 +45,6 @@ function convertToDateSTD(string) {
 }
 
 
-
 const GanttChart = ({data = []}) => {
     let records = formatData(data);
     let rowHeight = 45;
@@ -53,9 +52,14 @@ const GanttChart = ({data = []}) => {
     let options = {
         height: ((data.length * rowHeight) + rowHeight),
         gantt: {
+            animation: {
+                duration: 300,
+                easing: 'linear',
+                startup: true,
+            },
             chartArea: {
                 width: '100%',
-                height: '100%',
+                height: '150%',
             },
             palette: [
                 {
@@ -67,14 +71,33 @@ const GanttChart = ({data = []}) => {
             title: "Gantt Chart"
         }
     };
+
+    let chartEvents = [
+        {
+            eventName: 'select',
+            callback: ({chartWrapper}) => {
+                const chart = chartWrapper.getChart()
+                const selection = chart.getSelection()
+                if (selection.length === 1) {
+                    const [selectedItem] = selection
+                    const dataTable = chartWrapper.getDataTable()
+                    const {row} = selectedItem
+                    console.log(
+                       dataTable.getValue(row,0)
+                    )
+                }
+            },
+        },
+    ];
     return (
         <Chart
             loader={<div><FullscreenLoading/></div>}
             width={'100%'}
             height={'100%'}
             chartType="Gantt"
-            data={[columns,...records]}
+            data={[columns, ...records]}
             options={options}
+            chartEvents={chartEvents}
         />
     )
 }
