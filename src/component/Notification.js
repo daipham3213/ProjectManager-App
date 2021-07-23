@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import {RequestService} from "../services/services";
-import {ClickAwayListener, Grow, MenuList, Paper, Popper} from "@material-ui/core";
-import MenuItem from "@material-ui/core/MenuItem";
+import {Grow, Paper, Popper} from "@material-ui/core";
 
 
 const Notification = ({setOpen, open, anchorRef, handleClose}) => {

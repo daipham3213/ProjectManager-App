@@ -9,10 +9,12 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import {ClickAwayListener, Grow, MenuList, Paper, Popper} from "@material-ui/core";
+import {ClickAwayListener, Grow, Link, MenuList, Paper, Popper} from "@material-ui/core";
 import {AppBarProps} from "@material-ui/core/AppBar/AppBar";
 import {AuthService} from "../services/services";
 import Notification from "./Notification";
+import {Link as RouterLink} from 'react-router-dom';
+import Linker from "./Linker";
 
 export default function NavigationBar(props: AppBarProps) {
     const classes = useStyles();
@@ -20,7 +22,7 @@ export default function NavigationBar(props: AppBarProps) {
     const [openNotify, setOpenNotify] = React.useState(false);
     const anchorRef = useRef(null);
     const anchorRefN = useRef(null);
-    const AppName = () =>{
+    const AppName = () => {
         return process.env.app_name;
     }
 
@@ -46,19 +48,18 @@ export default function NavigationBar(props: AppBarProps) {
         setOpenNotify(false);
     };
 
-    const handleLogout= () => {
+    const handleLogout = () => {
         AuthService.logout();
         window.location.reload(false);
     }
-
     const prevOpen = React.useRef(open);
     React.useEffect(() => {
         if (prevOpen.current === true && open === false) {
             anchorRef.current.focus();
         }
         prevOpen.current = open;
+        AppName();
     }, [open]);
-
 
 
     function handleListKeyDown(event) {
@@ -68,18 +69,32 @@ export default function NavigationBar(props: AppBarProps) {
         }
     }
 
+
     const renderMenu = (
         <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
-            {({ TransitionProps, placement }) => (
+            {({TransitionProps, placement}) => (
                 <Grow
                     {...TransitionProps}
-                    style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+                    style={{transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom'}}
                 >
                     <Paper>
                         <ClickAwayListener onClickAway={handleClose}>
                             <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                                <MenuItem onClick={handleClose}>My account</MenuItem>
+                                <Linker to={"/profile/" + localStorage.getItem("username")} isButton={false} content={(
+                                    <MenuItem>
+                                        Profile
+                                    </MenuItem>
+                                )}/>
+
+                                <MenuItem onClick={handleClose}>
+                                    <Link
+                                        component={RouterLink} to={"/profile/" + localStorage.getItem("username")}
+                                        variant="body1"
+                                        color="secondary"
+                                        underline="none"
+                                    >
+                                        Account Settings</Link>
+                                </MenuItem>
                                 <MenuItem onMouseDown={() => handleLogout()}>Logout</MenuItem>
                             </MenuList>
                         </ClickAwayListener>
@@ -101,23 +116,22 @@ export default function NavigationBar(props: AppBarProps) {
                         aria-label="open drawer"
                         onClick={props.toggleDrawer}
                     >
-                        <MenuIcon />
+                        <MenuIcon/>
                     </IconButton>
                     <Typography className={classes.title} variant="h6" noWrap>
-                        {AppName}
+                        Project Manager
                     </Typography>
-
-                    <div className={classes.grow} />
+                    <div className={classes.grow}/>
                     <div className={classes.sectionDesktop}>
                         <IconButton aria-label="show 17 new notifications"
                                     color="inherit"
                                     ref={anchorRefN}
                                     aria-controls={openNotify ? 'menu-notify-grow' : undefined}
                                     onClick={handleToggleN}
-                                    style={{marginRight:30}}
+                                    style={{marginRight: 30}}
                         >
-                            <Badge badgeContent={17}  color="secondary">
-                                <NotificationsIcon />
+                            <Badge badgeContent={17} color="secondary">
+                                <NotificationsIcon/>
                             </Badge>
                         </IconButton>
                         <IconButton
@@ -129,7 +143,7 @@ export default function NavigationBar(props: AppBarProps) {
                             onClick={handleToggle}
                             color="inherit"
                         >
-                            <AccountCircle />
+                            <AccountCircle/>
                         </IconButton>
                     </div>
                 </Toolbar>

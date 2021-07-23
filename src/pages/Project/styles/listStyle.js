@@ -4,11 +4,11 @@ export default makeStyles((theme) => ({
     root: {
         height: "100%",
         minHeight: "100vh",
+        width:"100%",
     },
     content: {
         padding: "10px 15px",
         height: "100%",
-        minHeight: 500
     },
     button: {
         display: "flex",

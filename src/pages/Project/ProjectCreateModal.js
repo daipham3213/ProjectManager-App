@@ -106,10 +106,10 @@ const ProjectCreateModal = ({
         return isError;
     }
 
-    const handleSubmit = async () => {
+    const handleSubmit =  () => {
         if (!validate()) {
             onLoading();
-            await ProjectService.postProject(name, remark, dueDate, startDate)
+             ProjectService.postProject(name, remark, dueDate, startDate)
                 .then((r) => {
                     if (r.status === 204 || r.status === 200) {
                         toggleModal();

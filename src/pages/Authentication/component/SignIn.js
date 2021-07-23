@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -40,7 +40,9 @@ export default function SignIn() {
     const classes = useStyles();
     const {loading, onLoading, offLoading} = useLoading();
 
-
+    useEffect(() => {
+        document.title = "Sign In";
+    }, []);
 //------hàm sự kiệm lấy dữ liệu------------------
     const changeUsername = (e) => {
         setusername(e.target.value);
@@ -107,7 +109,6 @@ export default function SignIn() {
                     ...prevError,
                     username: response.data.message,
                 }));
-                alert(response.data.message);
             }
         }).catch((r) =>{
             console.log(r)});

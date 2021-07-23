@@ -1,6 +1,7 @@
-import React,{Component} from 'react'; 
+import React, {Component} from 'react';
 import "./EditGroup.css"
 import {Link} from "react-router-dom";
+
 export class EditGroup extends Component{
     render(){
         return(

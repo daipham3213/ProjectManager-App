@@ -1,10 +1,12 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {GroupService, PhaseService, ReportService} from "../../services/services";
 import TaskServices from "../../services/task.service";
 import * as ReactDOM from "react-dom";
 import useStyles from "../../component/styles/modalStyles"
 import {Button, InputLabel, MenuItem, Paper, Select, TextField, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
+import SliderCustom from "../../component/PrettoSlider";
+import moment from "moment";
 
 const TaskCreateModal = ({
                              toggle,
@@ -13,7 +15,7 @@ const TaskCreateModal = ({
                              isShowed,
                              isOnReport = true,
                              reportId,
-                             groupUrl = "",
+                             groupId = "",
                              onLoading,
                              offLoading
                          }) => {
@@ -33,72 +35,34 @@ const TaskCreateModal = ({
 
     const loadReports = (value) => setReports(value);
     const loadPhases = (value) => setPhases(value);
-    const loadTasks = (value) => setTask(value);
+    const loadTasks = (value) => {
+        setTask(value);
+    };
     const loadMember = (value) => setMember(value);
 
     const changeRpId = (e) => setRpId(e.target.value);
-    const changeParent_n = (e) => setParent_n(e.target.value);
+    const changeParent_n = (e) => {
+        setParent_n(e.target.value);
+        let p = tasks.find(t => t.id === e.target.value);
+        if (p !== null) loadStartDate(moment(p.dueDate).format("YYYY-MM-DD"));
+    }
     const changePhaseId = (e) => setPhaseId(e.target.value);
     const changeMemberId = (e) => setMemberId(e.target.value);
     const changeName = (e) => setName(e.target.value);
     const changeRemark = (e) => setRemark(e.target.value);
     const changeDueDate = (e) => setDueDate(e.target.value);
     const changeStartDate = (e) => setStartDate(e.target.value);
-    const changePercent = (e) => setPercent(e.target.value);
+    const changePercent = (e,value) => setPercent(value);
+    const loadStartDate = (e) => setStartDate(e);
+
 
     isShowed && (document.body.style.overflow = "hidden");
     const classes = useStyles();
     const [error, setError] = useState({});
 
-    const fetchPhases = async () => {
-        await PhaseService.getList(reportId)
-            .then((result) => {
-                if (result.status === 200) {
-                    loadPhases(result.data);
-                } else console.log(result.data.message);
-            })
-            .catch(() => {
-                console.log("Internal Server Error");
-            });
-    }
-    const fetchReports = async () => {
-        await ReportService.getList("")
-            .then((r) => {
-                if (r.status === 200) {
-                    loadReports(r.data);
-                } else console.log(r.data.message);
-            })
-            .catch(() => {
-                console.log("Internal Server Error");
-            });
-    }
-    const fetchTasks = async (phaseId) => {
-        await TaskServices.getListByPhase(phaseId)
-            .then((r) => {
-                if (r.status === 200) {
-                    loadTasks(r.data);
-                } else console.log(r.data.message);
-            })
-            .catch(() => {
-                console.log("Internal Server Error");
-            });
-    }
-    const fetchMember = async () => {
-        let groupId = groupUrl.split("/");
-        if  (groupId.length !== 0 && groupUrl !== null)
-        await GroupService.memberList(groupId[2])
-            .then((r) => {
-                if (r.status === 200) {
-                    loadMember(r.data);
-                } else console.log(r.data.message);
-            })
-            .catch(() => {
-                console.log("Internal Server Error");
-            })
-    }
 
-    const createHandler = async () => {
-        await TaskServices.postTask(name, remark, dueDate, startDate, percent, phaseId, memberId, parent_n)
+    const createHandler =  () => {
+        TaskServices.postTask(name, remark, dueDate, startDate, percent, phaseId, memberId, parent_n)
             .then((r) => {
                 if (r.status === 200) {
                     console.log("created task " + name);
@@ -112,13 +76,58 @@ const TaskCreateModal = ({
     }
 
     useEffect(() => {
-        onLoading();
+        const fetchPhases =  () => {
+            PhaseService.getList(reportId)
+                .then((result) => {
+                    if (result.status === 200) {
+                        loadPhases(result.data);
+                    } else console.log(result.data.message);
+                })
+                .catch(() => {
+                    console.log("Internal Server Error");
+                });
+        }
+        const fetchReports =  () => {
+            ReportService.getList("")
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadReports(r.data);
+                    } else console.log(r.data.message);
+                })
+                .catch(() => {
+                    console.log("Internal Server Error");
+                });
+        }
+
+        const fetchMember =  (groupId) => {
+            if (groupId !== "")
+                GroupService.memberList(groupId)
+                    .then((r) => {
+                        if (r.status === 200) {
+                            loadMember(r.data);
+                        } else console.log(r.data.message);
+                    })
+                    .catch(() => {
+                        console.log("Internal Server Error");
+                    })
+        }
+        const fetchTasks =  (phaseId) => {
+            if (phaseId !== "")
+            TaskServices.getListByPhase(phaseId)
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadTasks(r.data);
+                    } else console.log(r.data.message);
+                })
+                .catch(() => {
+                    console.log("Internal Server Error");
+                });
+        }
         fetchPhases();
         if (!isOnReport) fetchReports();
-        if (phaseId !== "") fetchTasks(phaseId);
-        if (groupUrl !== null && groupUrl !== "undefined") fetchMember();
-        offLoading();
-    }, [modalRef, toggle, phaseId, setPhaseId]);
+        fetchTasks(phaseId);
+        fetchMember(groupId);
+    }, [groupId, phaseId]);
 
     const reportSelect = () => {
         return (
@@ -132,6 +141,7 @@ const TaskCreateModal = ({
                     onChange={changeRpId}
                     label="Reports"
                     fullWidth
+                    size={"small"}
                     required
                 >
                     <MenuItem value={""}>Select</MenuItem>
@@ -158,6 +168,7 @@ const TaskCreateModal = ({
                     label="Phases"
                     fullWidth
                     required
+                    size={"small"}
                 >
                     <MenuItem value={""}>Select</MenuItem>
                     {phases.map(({id, name}, index) =>
@@ -173,15 +184,16 @@ const TaskCreateModal = ({
     const taskSelect = () => {
         return (
             <Grid item xs={12}>
-                <InputLabel id="phase-label">Parent Task</InputLabel>
+                <InputLabel id="parent-label">Parent Task</InputLabel>
                 <Select
-                    labelId="phase-label"
-                    id="phase-select"
+                    labelId="parent-label"
+                    id="parent-select"
                     value={parent_n}
                     variant="outlined"
                     onChange={changeParent_n}
                     label="Parent Task"
                     fullWidth
+                    size={"small"}
                 >
                     <MenuItem value={""}>Select</MenuItem>
                     {tasks.map(({id, name}, index) =>
@@ -207,6 +219,7 @@ const TaskCreateModal = ({
                     label="Member"
                     fullWidth
                     required
+                    size={"small"}
                 >
                     <MenuItem value={""}>Select</MenuItem>
                     {member.map(({id, name}, index) =>
@@ -256,6 +269,7 @@ const TaskCreateModal = ({
                         id="name"
                         name="name"
                         helperText={error.name}
+                        size={"small"}
                     />
                 </Grid>
                 <Grid item xs={12}>
@@ -267,29 +281,33 @@ const TaskCreateModal = ({
                         fullWidth
                         id="description"
                         name="description"
+                        size={"small"}
                     />
                 </Grid>
                 {!isOnReport ? reportSelect() : null}
                 {phases?.length ? phaseSelect() : null}
                 {phaseId !== "" ? taskSelect() : null}
                 {phaseId !== "" ? memberSelect() : null}
-                <Grid item xs={12}>
-                    <TextField
-                        type="date"
-                        onChange={changeStartDate}
-                        value={startDate}
-                        label="Start Date"
-                        variant="outlined"
-                        required
-                        fullWidth
-                        id="startDate"
-                        name="startDate"
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        helperText={error.startDate}
-                    />
-                </Grid>
+                {tasks.length !== 0?(
+                    <Grid item xs={12}>
+                        <TextField
+                            type="date"
+                            onChange={changeStartDate}
+                            value={startDate}
+                            label="Start Date"
+                            variant="outlined"
+                            required
+                            fullWidth
+                            id="startDate"
+                            name="startDate"
+                            size={"small"}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            helperText={error.startDate}
+                        />
+                    </Grid>
+                ):null}
                 <Grid item xs={12}>
                     <TextField
                         type="date"
@@ -301,6 +319,7 @@ const TaskCreateModal = ({
                         fullWidth
                         id="endDate"
                         name="endDate"
+                        size={"small"}
                         helperText={error.dueDate}
                         InputLabelProps={{
                             shrink: true,
@@ -308,14 +327,10 @@ const TaskCreateModal = ({
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField
-                        type="number"
+                    <SliderCustom
+                        title={"Progress"}
+                        value={percent}
                         onChange={changePercent}
-                        label="Progress"
-                        variant="outlined"
-                        fullWidth
-                        id="Progress"
-                        name="Progress"
                     />
                 </Grid>
                 <Grid item={8}/>
@@ -346,7 +361,7 @@ const TaskCreateModal = ({
             <div>
                 <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
-                    <Grid container xs={12} spacing={2} style={{padding: 10}} justifyContent="center" direction="row">
+                    <Grid container xs={12} spacing={2} style={{padding: 10}} justify="center" direction="row">
                         <Grid item xs={12}>
                             <Typography
                                 variant="h6"

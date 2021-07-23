@@ -1,12 +1,12 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
     Avatar,
     Box,
-    Button, Card, CardActions,
-    Checkbox,
+    Button,
+    Card,
+    CardActions,
     Container,
     CssBaseline,
-    FormControlLabel,
     Grid,
     Link,
     TextField,
@@ -16,7 +16,6 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import useStyles from "./style/cardStyle";
 import {AuthService} from "../../../services/services";
 import AuthContext from "../AuthContext";
-
 
 
 export default function SignUp() {
@@ -186,6 +185,9 @@ export default function SignUp() {
         );
     }
     const { switchToSignin } = useContext(AuthContext);
+    useEffect(() => {
+        document.title = "Sign Up";
+    }, []);
     return (<>
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>

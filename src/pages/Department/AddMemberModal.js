@@ -6,9 +6,10 @@ import FullscreenLoading from "../../component/FullScreenLoading";
 
 import * as ReactDOM from "react-dom";
 import Avatar from "@material-ui/core/Avatar";
-import {Button, Paper} from "@material-ui/core";
+import {Paper} from "@material-ui/core";
 import {useHistory} from "react-router-dom";
 import {DataGrid} from "@material-ui/data-grid";
+import Linker from "../../component/Linker";
 
 const AddMemberModal = ({
                             isShowing,
@@ -93,15 +94,12 @@ const AddMemberModal = ({
             renderCell: (params) => {
                 let id = params.rows?.id;
                 return (
-                    <Button onClick={() => handleProfile(id)}>See profile</Button>
+                    <Linker to={"/profile/"+id} isButton={true} content={"See profile"}/>
                 )
             }
         }
     ];
 
-    const handleProfile = (e) => {
-        history.push("/profile?id=" + e)
-    }
 
     return isShowing
         ? ReactDOM.createPortal(

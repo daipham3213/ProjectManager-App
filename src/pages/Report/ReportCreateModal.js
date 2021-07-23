@@ -7,6 +7,7 @@ import FullscreenLoading from "../../component/FullScreenLoading";
 import useStyles from "../../component/styles/modalStyles";
 import {Button, InputLabel, MenuItem, Paper, Select, TextField, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
+import SliderCustom from "../../component/PrettoSlider";
 
 const ReportCreateModal = ({
                                isShowed,
@@ -44,8 +45,8 @@ const ReportCreateModal = ({
     const loadStartDate = (value) => {
         setStartDate(value.target.value);
     }
-    const loadProgress = (value) => {
-        setProgress(value.target.value);
+    const loadProgress = (e,value) => {
+        setProgress(value);
     }
     const loadGroups = (values) => {
         setGroups(values);
@@ -197,33 +198,34 @@ const ReportCreateModal = ({
         offLoading();
     }
 
-    const fetchGroups = async () => {
-        await GroupService.getList("")
-            .then((r) => {
-                if (r.status === 200) {
-                    loadGroups(r.data);
-                    console.log(r.data);
-                } else console.log(r.data.message);
-            }).catch((r) => {
+
+    useEffect(() => {
+
+        const fetchGroups =  () => {
+            onLoading();
+            GroupService.getList("")
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadGroups(r.data);
+                    } else console.log(r.data.message);
+                }).catch((r) => {
                 console.log(r);
             })
-    }
-    const fetchProjects = async () => {
-        await ProjectService.getList()
-            .then((r) => {
-                if (r.status === 200) {
-                    loadProject(r.data);
-                } else console.log(r.data.message);
-            })
-            .catch(() => {
-                console.log("Internal server error.")
-            })
-    }
-    useEffect(() => {
-        onLoading()
+        }
+        const fetchProjects =  () => {
+            ProjectService.getList()
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadProject(r.data);
+                    } else console.log(r.data.message);
+                })
+                .catch(() => {
+                    console.log("Internal server error.")
+                });
+            offLoading();
+        }
         fetchGroups();
         if (showPrjList) fetchProjects();
-        offLoading()
     }, [modalRef, toggle]);
 
     const projectSelect = () => {
@@ -270,7 +272,7 @@ const ReportCreateModal = ({
                 {loading ? <FullscreenLoading/> : null}
                 <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
-                    <Grid container xs={12} spacing={2} style={{padding: 10}} justifyContent="center" direction="row">
+                    <Grid container xs={12} spacing={2} style={{padding: 10}} justify="center" direction="row">
                         <Grid item xs={12}>
                             <Typography
                                 variant="h6"
@@ -358,18 +360,11 @@ const ReportCreateModal = ({
                             />
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField
-                                type="number"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                autoFocus={true}
-                                variant="outlined"
-                                value={progress}
-                                label="Progress"
+                            <SliderCustom
+                                title={"Progress"}
                                 onChange={loadProgress}
-                                helperText={error.progress}
-                                className={classes.textField}
+                                width={"100%"}
+                                value={progress}
                             />
                         </Grid>
                         <Grid item={8}/>

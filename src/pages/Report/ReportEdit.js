@@ -1,96 +1,108 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {ReportService} from "../../services/services";
-import {Paper, Typography} from "@material-ui/core";
+import {InputLabel, MenuItem, Paper, Select, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import GanttChart from "../../component/Gantt";
 import useStyles from "./styles/ReportEditStyle"
 import {useLoading} from "../../component/hooks/hooks";
 import FullscreenLoading from "../../component/FullScreenLoading";
 import BackButton from "../../component/BackButton";
-import ContextProvider from "../../component/ContextProvider";
 import AddIcon from "@material-ui/icons/Add";
 import Button from "@material-ui/core/Button";
 import PhaseCreateModal from "../Phase/PhaseCreateModal";
 import TaskCreateModal from "../Task/TaskCreateModal";
 import TaskServices from "../../services/task.service";
 import moment from "moment";
+import {useParams} from "react-router-dom";
+import PhaseEditModal from "../Phase/PhaseEditModal";
+import EditIcon from "@material-ui/icons/Edit";
 
+const Chart = ({phase, loadPhaseId, togglePhaseEdit, toggleMount}) => {
+    let start = moment(phase.startDate).format("MMM Do YYYY");
+    let end = moment(phase.endDate).format("MMM Do YYYY");
+    const NoValue = (
+        <Grid item xs={12}>
+            <Typography variant="body2" align="center">No value</Typography>
+        </Grid>
+    );
 
-const ReportEdit = (reportId) => {
+    return (
+        <Grid container justify={"center"} spacing={3}>
+            <Grid item xs={12}>
+                <Typography variant="overline">Phase: {phase.name} ({start} - {end})</Typography>
+                <Button>
+                    <EditIcon color={"primary"} onClick={() => {
+                        loadPhaseId(phase.id);
+                        togglePhaseEdit();
+                    }}/>
+                </Button>
+            </Grid>
+            {phase.tasks.length > 0? (
+                <Grid item xs={12}>
+                    <GanttChart data={phase.tasks} id={phase.id} toggleMount={toggleMount}/>
+                </Grid>
+            ) : NoValue}
+        </Grid>
+    )
+}
+
+const ReportEdit = () => {
     const classes = useStyles();
     const {loading, onLoading, offLoading} = useLoading();
     const [mounted, setMounted] = useState(true);
     const modalRef = useRef(null);
     const [showTask, setShowTask] = useState(false);
     const [showPhase, setShowPhase] = useState(false);
+    const [showPhaseEdit, setShowPhaseEdit] = useState(false);
+
+    const [phaseId, setPhaseId] = useState("");
+    let {reportId} = useParams();
 
     const [report, setReport] = useState({});
-    const [phases, setPhases] = useState([]);
+    const {phases = [] , ...props} = report;
+    //const [phases, setPhases] = useState([]);
 
-    const loadReport = (value) => setReport(value);
-    const loadPhases = (value) => setPhases(value);
+    const loadReport = (value) => {
+        setReport(value);
+    };
+    //const loadPhases = (value) => setPhases(value);
+    const loadPhaseId = (value) => setPhaseId(value);
 
     const toggleMount = () => setMounted(!mounted);
     const toggleTask = () => setShowTask(!showTask);
     const togglePhase = () => setShowPhase(!showPhase);
-
-    const {switchToListRp} = useContext(ContextProvider);
-
-    const fetchReport = async () => {
-        await ReportService.getDetails(reportId.value)
-            .then((r) => {
-                if (r.status === 200) loadReport(r.data);
-                else
-                    console.log()
-            })
-            .catch(() => {
-                console.log("Internal server error.")
-            })
-    }
-
-    const fetchTaskInReport = async (reportId) => {
-        await TaskServices.getList(reportId)
-            .then((r) => {
-                if (r.status === 200) {
-                    loadPhases(r.data.phases);
-                    console.log(r.data.phases);
-                } else console.log(r.data.message);
-            })
-            .catch(() => {
-                console.log("Internal server error.")
-            })
+    const togglePhaseEdit = () => {
+        setShowPhaseEdit(!showPhaseEdit);
     }
 
     useEffect(() => {
-        onLoading();
-        fetchReport();
-        fetchTaskInReport(reportId.value);
-        offLoading();
+        const fetchTaskInReport = () => {
+            TaskServices.getList(reportId)
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadReport(r.data);
+                    } else console.log(r.data.message);
+                })
+                .catch((r) => {
+                    console.log(r);
+                })
+            offLoading();
+        }
+        fetchTaskInReport();
+        document.title = "Report Edit - " + report.name;
     }, [mounted, setMounted]);
-
-    const Chart = (data) => {
-        let start = moment(data.start).format("MMM Do YYYY")
-        let end = moment(data.end).format("MMM Do YYYY")
-        if (data !== null && data.tasks.length > 0)
-            return (
-                <>
-                    <Grid item xs={12}><Typography variant="overline">Phase: {data.name} ({start} - {end})</Typography></Grid>
-                    <Grid item xs={12}>
-                        <GanttChart data={data.tasks}/>
-                    </Grid>
-                </>
-            )
-        else return (<>
-                <Grid item xs={12}><Typography variant="overline">Phase: {data.name} ({start} - {end})</Typography></Grid>
-                <Grid item xs={12} justifyContent="center"><Typography variant="body2" align="center">No value</Typography></Grid>
-            </>
-        )
-    }
 
     return (
         <>
             {loading ? <FullscreenLoading/> : null}
             <Paper className={classes.root}>
+                <PhaseEditModal
+                    toggle={togglePhaseEdit}
+                    toggleMount={toggleMount}
+                    modalRef={modalRef}
+                    phaseId={phaseId}
+                    isShow={showPhaseEdit}
+                />
                 <PhaseCreateModal
                     modalRef={modalRef}
                     toggleMount={toggleMount}
@@ -100,20 +112,20 @@ const ReportEdit = (reportId) => {
                     reportId={reportId}
                 />
                 <TaskCreateModal
-                    reportId={reportId.value}
+                    reportId={reportId}
                     isOnReport={true}
                     toggle={toggleTask}
                     toggleMount={toggleMount}
                     modalRef={modalRef}
                     isShowed={showTask}
-                    groupUrl={report.groupUrl}
+                    groupId={report.groupId}
                     offLoading={offLoading}
                     onLoading={onLoading}
                 />
                 <Grid container className={classes.container}>
-                    <Grid container xs={6} spacing={1}>
+                    <Grid container item xs={6} spacing={2}>
                         <Grid item xs={3}>
-                            <BackButton switchTo={switchToListRp} children="Back to list"/>
+                            <BackButton switchTo={"/report"} children="Back to list"/>
                         </Grid>
                         <Grid item xs={3}>
                             <Button onClick={toggleTask}>
@@ -128,7 +140,7 @@ const ReportEdit = (reportId) => {
                             </Button>
                         </Grid>
                     </Grid>
-                    <Grid container xs={6} spacing={2}>
+                    <Grid container item xs={6} spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="button" display="block" gutterBottom align="right" color="primary">
                                 Report Editor
@@ -138,13 +150,19 @@ const ReportEdit = (reportId) => {
                             </Typography>
                         </Grid>
                     </Grid>
-                    <Grid container spacing={3} xs={12}>
-                        {phases.map(opt => {
-                            return (
-                                <Chart tasks={opt.tasks} name={opt.name} start={opt.startDate} end={opt.dueDate}/>
-                            )
-                        })}
-                    </Grid>
+                    {phases.length > 0 ? (
+                        phases.map((phase) => {
+                                return <Chart phase={phase}
+                                              togglePhaseEdit={togglePhaseEdit}
+                                              loadPhaseId={loadPhaseId}
+                                              toggleMount={toggleMount}
+                                />
+                            })
+                    ): (
+                        <Grid item xs={12}>
+                            <Typography variant="body2" align="center">No value, Please create a new Phase</Typography>
+                        </Grid>
+                    )}
                 </Grid>
             </Paper>
         </>

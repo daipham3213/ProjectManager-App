@@ -25,6 +25,16 @@ const getAll = () => {
             return error.response;
         });
 }
+const getListByUser = () => {
+    return axios
+        .get(
+            API_URL,
+            {headers: authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
 
 const getList = (reportId) => {
     return axios
@@ -48,11 +58,48 @@ const getListByPhase = (phaseId) => {
         });
 }
 
+const getDetail = (taskId) => {
+    return axios
+        .get(
+            API_URL + "/" + taskId,
+            {headers: authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
+
+const deleteTask = (taskId) => {
+    return axios
+        .delete(
+            API_URL + "?id=" + taskId,
+            {headers: authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
+
+const editTask = (taskId, name, remark, dueDate, startDate, percent, phaseId, userId, parentNId) => {
+    return axios
+        .put(
+            API_URL + "/" + taskId,
+            {name, remark, dueDate, startDate, percent, phaseId, userId, parentNId},
+            {headers: authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
 
 const TaskServices = {
     postTask,
     getAll,
     getList,
     getListByPhase,
+    getDetail,
+    deleteTask,
+    editTask,
+    getListByUser,
 }
 export default TaskServices;

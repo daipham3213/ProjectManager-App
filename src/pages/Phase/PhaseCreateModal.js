@@ -28,22 +28,12 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
 
     isShowing && (document.body.style.overflow = "hidden");
 
-    const fetchReports = async () => {
-        await ReportService.getList(isOnReport ? reportId : rpId)
-            .then((r) => {
-                if (r.status === 200) {
-                    loadReports(r.data);
-                } else alert(r.data.message);
-            })
-            .catch(() => {
-                console.log("Internal server error");
-            });
-    }
 
-    const createPhase = async () => {
+
+    const createPhase = () => {
         onLoading();
         debugger;
-        await PhaseService.postPhase(name, remark, startDate, dueDate, reportId.value !== "" ? reportId.value : rpId)
+         PhaseService.postPhase(name, remark, startDate, dueDate, reportId.value !== "" ? reportId.value : rpId)
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     console.log(r.data);
@@ -59,7 +49,20 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
 
     useEffect(() => {
         onLoading();
-        if (!isOnReport) fetchReports();
+        if (!isOnReport) {
+            const fetchReports =  () => {
+                 ReportService.getList(isOnReport ? reportId : rpId)
+                    .then((r) => {
+                        if (r.status === 200) {
+                            loadReports(r.data);
+                        } else alert(r.data.message);
+                    })
+                    .catch(() => {
+                        console.log("Internal server error");
+                    });
+            };
+            fetchReports();
+        }
         offLoading();
     }, [modalRef, toggle])
 
@@ -74,6 +77,7 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
                 onChange={changeReportId}
                 label="Report"
                 fullWidth
+                size={"small"}
                 required
             >
                 <MenuItem value={null}>Select</MenuItem>
@@ -110,6 +114,7 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
                                 value={name}
                                 onChange={changeName}
                                 required
+                                size={"small"}
                                 className={classes.textField}
                                 helperText={error.name}
                             />
@@ -121,6 +126,7 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
                                 variant="outlined"
                                 label="Descriptions"
                                 value={remark}
+                                size={"small"}
                                 onChange={changeRemark}
                                 className={classes.textField}
                             />
@@ -133,6 +139,7 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
                                 variant="outlined"
                                 value={startDate}
                                 label="Start Date"
+                                size={"small"}
                                 onChange={changeStartDate}
                                 required
                                 className={classes.textField}
@@ -149,6 +156,7 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
                                 variant="outlined"
                                 label="End Date"
                                 value={dueDate}
+                                size={"small"}
                                 onChange={changeDueDate}
                                 required
                                 className={classes.textField}

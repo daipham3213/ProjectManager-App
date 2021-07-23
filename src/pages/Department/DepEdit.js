@@ -1,18 +1,17 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import "./styles/DepEdit.css"
 import Button from "@material-ui/core/Button";
 import {GroupService, UserService} from "../../services/services";
 import {DataGrid,} from '@material-ui/data-grid';
 import Avatar from '@material-ui/core/Avatar';
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import AddMemberModal from "./AddMemberModal";
 import {useLoading} from "../../component/hooks/hooks";
 import FullscreenLoading from "../../component/FullScreenLoading";
-import ContextProvider from "../../component/ContextProvider";
 import BackButton from "../../component/BackButton";
 import {TextField} from "@material-ui/core";
+import {useParams} from "react-router";
 
-const DepEdit = (depId) => {
+const DepEdit = () => {
     const [depName, setDepName] = useState({});
     const [depLeader, setDepLeader] = useState({});
     const [member, setMember] = useState([]);
@@ -22,7 +21,7 @@ const DepEdit = (depId) => {
     const modalRef = useRef(null);
     const {loading, onLoading, offLoading} = useLoading();
     const [mounted, setMounted] = useState(true);
-
+    let {depId} = useParams();
 
     const toggleMount = () => setMounted(!mounted);
     const addMember = (m) => {
@@ -48,15 +47,12 @@ const DepEdit = (depId) => {
     }
     const loadCheck = (e) => {
         setChecked(e);
-        console.log(checked);
     }
 
-    const {switchToListDep} = useContext(ContextProvider);
-
     React.useEffect(() => {
-        async function fetchData() {
+         function fetchData() {
             onLoading();
-            await GroupService.getDetail(depId.value)
+             GroupService.getDetail(depId)
                 .then((result) => {
                    if(result.status ===200) {
                        loadDepName(result.data.name);
@@ -72,15 +68,14 @@ const DepEdit = (depId) => {
                 });
         }
 
-        async function FetchUser(id) {
-           await UserService.getProfile(id)
+         function FetchUser(id) {
+            UserService.getProfile(id)
                 .then((result) => {
                     if (result.status === 200){
                         addMember(result.data);
                         if (result.data.id === dep.leaderId){
                             loadLeader(result.data.name);
                         }
-                        console.log(result.data.id + " Fetched User");
                     }
                 })
                .catch(() => {
@@ -88,11 +83,10 @@ const DepEdit = (depId) => {
                });
         }
 
-        fetchData().then(r => {
-            console.log(r);
-        });
+        fetchData();
         offLoading();
-    }, [mounted, setMounted]);
+        document.title = "Department Edit - " + depName;
+    }, [mounted, setMounted, dep.leaderId]);
 
     const columns = [
         {
@@ -137,7 +131,7 @@ const DepEdit = (depId) => {
 
     return (
         <div>
-            <BackButton children="Back" switchTo={() => switchToListDep()}/>
+            <BackButton children="Back" switchTo="/department"/>
             <div className="DepContainer">
                 {loading? <FullscreenLoading/>: null}
                 <AddMemberModal
@@ -149,7 +143,7 @@ const DepEdit = (depId) => {
                 />
                 <div className="DepUpDate">
                     <span className="DepUpdateTitle">Edit Department</span>
-                    <from className="DepUpdateFrom">
+                    <form className="DepUpdateFrom">
                         <div className="DepUpdateLeft">
                             <div className="DepUpdateItem">
                                 <label>Department Name</label>
@@ -190,7 +184,7 @@ const DepEdit = (depId) => {
                                 />
                             </div>
                         </div>
-                    </from>
+                    </form>
                 </div>
             </div>
         </div>

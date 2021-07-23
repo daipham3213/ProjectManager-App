@@ -1,9 +1,8 @@
-.Group {
-    flex: 4;
-}
 
 .Group {
     padding: 0px 100px 0 100px;
+    flex: 4;
+    width: 1400px;
 }
 
 .GroupList {

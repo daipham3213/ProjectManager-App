@@ -1,27 +1,27 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useLoading} from "../../component/hooks/hooks";
 import FullscreenLoading from "../../component/FullScreenLoading";
 import {ProjectService, ReportService} from "../../services/services";
 import useStyles from "./styles/editStyles";
-import {Grid, Paper, TextField, Typography} from "@material-ui/core";
+import {Button, Grid, Paper, TextField, Typography} from "@material-ui/core";
 import moment from "moment";
-import {DataGrid, getIdFromRowElem} from "@material-ui/data-grid";
+import {DataGrid} from "@material-ui/data-grid";
 import AddIcon from "@material-ui/icons/Add";
-import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 import ReportCreateModal from "../Report/ReportCreateModal";
-import {GridCellParams} from "@material-ui/data-grid";
-import {useHistory} from "react-router-dom";
-import ContextProvider from "../../component/ContextProvider";
+import {useHistory, useParams} from "react-router-dom";
 import BackButton from "../../component/BackButton";
+import DialogModal from "../../component/DialogModal";
+import Linker from "../../component/Linker";
+import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 
 
-
-const ProjectEdit = (projectId) => {
+const ProjectEdit = () => {
     const [isShowing, setIsShowing] = useState(false);
+    const [showDialog, setShowDialog] = useState(false);
     const modalRef = useRef(null);
     const {loading, onLoading, offLoading} = useLoading();
     const classes = useStyles();
-    const history = useHistory();
+    let {projectId} = useParams();
 
     const [project, setProject] = useState({});
     const [reports, setReports] = useState([]);
@@ -32,7 +32,6 @@ const ProjectEdit = (projectId) => {
     const [error, setError] = useState({});
     const [mounted, setMounted] = useState(true);
 
-    const {switchToListPro, switchToEditRp} = useContext(ContextProvider);
 
     const toggleCreateRp = () => {
         setIsShowing(!isShowing);
@@ -124,9 +123,8 @@ const ProjectEdit = (projectId) => {
         return isError;
     }
 
-    const fetchProject = async () => {
-
-        await ProjectService.getDetails(projectId.value)
+    const fetchProject =  () => {
+         ProjectService.getDetails(projectId)
             .then((r) => {
                 if (r.status === 200) {
                     loadProject(r.data);
@@ -141,16 +139,34 @@ const ProjectEdit = (projectId) => {
             })
 
     }
-    async function fetchReports () {
-        await ReportService.getList(projectId.value)
+
+     function fetchReports() {
+         ReportService.getList(projectId.value)
             .then((r) => {
-                if (r.status === 200 || r.status ===204){
+                if (r.status === 200 || r.status === 204) {
                     loadReport(r.data);
                     console.log(r.data);
-                }else console.log(r.data.message);
+                } else console.log(r.data.message);
             }).catch(() => {
                 alert("Internal Server Error.");
             },)
+    }
+
+    const toggleDelete = () => {
+        setShowDialog(!showDialog);
+    }
+    const handleOnYes =  (id) => {
+        onLoading();
+         ProjectService.deleteProject(id)
+            .then((r) => {
+                if (r.status === 200) {
+                    console.log("remove " + id);
+                } else console.log(r);
+            }, null)
+        offLoading();
+    }
+    const loadId = (e) => {
+        handleOnYes(e);
     }
 
     useEffect(() => {
@@ -158,120 +174,166 @@ const ProjectEdit = (projectId) => {
         fetchProject();
         fetchReports();
         offLoading();
-    },[mounted, setMounted]);
+        document.title = "Project Edit - " + project.name;
+    }, [mounted, setMounted]);
 
     const columns = [
-        {field:"name", headerName:"Report Name", width: 200},
-        {field:"remark", headerName:"Description", width: 200},
-        {field:"groupName", headerName:"Group Name", width: 200},
-        {field:"startDate", headerName:"Start Date", width: 200,
+        {field: "name", headerName: "Report Name", width: 200},
+        {field: "remark", headerName: "Description", width: 200},
+        {field: "groupName", headerName: "Group Name", width: 200},
+        {
+            field: "startDate", headerName: "Start Date", width: 200,
             valueFormatter: (params) => {
-                return moment(params.value).format("Do MMM YYYY");}
+                return moment(params.value).format("Do MMM YYYY");
+            }
         },
-        {field:"dueDate", headerName:"End Date", width: 200,
+        {
+            field: "dueDate", headerName: "End Date", width: 200,
             valueFormatter: (params) => {
-                return moment(params.value).format("Do MMM YYYY");}
+                return moment(params.value).format("Do MMM YYYY");
+            }
         },
-        {field:"progress", headerName:"Progress", width: 200},
+        {field: "progress", headerName: "Progress", width: 200},
+        {
+            field: "actions", headerName: "Action", width: 200,
+            renderCell: (p) => {
+                return (
+                    <Linker to={"/report/"+p.row.id} content={<EditOutlinedIcon/>}/>
+                )
+            }
+        }
     ];
 
-    function handleReportClick(idFromRowElem) {
-        return function (p1: GridCellParams, p2: React.MouseEvent) {
-            history.push("/reports")
-        };
-    }
 
     return (
         <>
-        {loading ? <FullscreenLoading/> : null}
-        <Paper className={classes.root}>
-            <ReportCreateModal
-                isShowed={isShowing}
-                toggle={toggleCreateRp}
-                modalRef={modalRef}
-                projectId={projectId}
-                toggleMount={toggleMount}
-            />
-            <Grid container className={classes.topPaper}>
-                <Grid item xs={3}>
-                    <BackButton children="Back" switchTo={() => switchToListPro()}/>
-                </Grid>
-                <Grid item xs={3}>
-                    <div className={classes.button} onClick={toggleCreateRp}>
-                        <AddIcon className={classes.create} />
-                        <Typography className={classes.createText}>Create</Typography>
-                    </div>
-                </Grid>
-            </Grid>
-            <Grid className={classes.grid} container>
-                <Grid container xs={3} spacing={3}>
-                    <Grid item xs={12}>
-                        <TextField
-                            value={name}
-                            label="Name"
-                            variant="outlined"
-                            id="name"
-                            required
-                            helperText={error.name}
-                            onChange={(e) => loadName(e.target.value)}
-                        />
+            {loading ? <FullscreenLoading/> : null}
+            <Paper className={classes.root}>
+                <DialogModal
+                    isOpened={showDialog}
+                    toggle={toggleDelete}
+                    contents={"Are you sure that you want to delete this?"}
+                    heading={"Delete confirmation"}
+                    onYes={() => {
+                        loadId(projectId.value);
+                    }}
+                    isYesNo={true}
+                />
+                <ReportCreateModal
+                    isShowed={isShowing}
+                    toggle={toggleCreateRp}
+                    modalRef={modalRef}
+                    projectId={projectId}
+                    toggleMount={toggleMount}
+                />
+                <Grid container className={classes.topPaper}>
+                    <Grid item xs={3}>
+                        <BackButton children="Back" switchTo={"project"}/>
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            id="Description"
-                            label="Description"
-                            multiline
-                            variant="outlined"
-                            value={remark}
-                            onChange={(e) => loadRemark(e.target.value)}
-                        />
+                    <Grid item xs={3}>
+                        <div className={classes.button} onClick={toggleCreateRp}>
+                            <AddIcon className={classes.create}/>
+                            <Typography className={classes.createText}>Create</Typography>
+                        </div>
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            id="startDate"
-                            label="Start Date"
-                            required
-                            type="date"
-                            defaultValue={startDate}
-                            variant="outlined"
-                            helperText={error.startDate}
-                            value={startDate}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            onChange={(e) => loadStartDate(e.target.value)}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            id="endDate"
-                            label="End Date"
-                            required
-                            type="date"
-                            variant="outlined"
-                            defaultValue={endDate}
-                            helperText={error.endDate}
-                            value={endDate}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            onChange={(e) => loadEndDate(e.target.value)}
-                        />
+                    <Grid container item xs={6} justify="flex-end">
+                        <Grid item xs={3}>
+                            <Typography variant="body1" color="primary" align="right">PROJECT EDITOR</Typography>
+                            <Typography variant="body2" color="secondary" align="right">{name}</Typography>
+                        </Grid>
                     </Grid>
                 </Grid>
-                <Grid container xs={9}>
-                    <Grid item xs={12}>
-                        <DataGrid
-                            columns={columns}
-                            rows={reports}
-                            pageSize={10}
-                            onCellDoubleClick={(e) => {switchToEditRp(e.id);}}
-                        />
+                <Grid className={classes.grid} container>
+                    <Grid container item xs={3} style={{padding:10}} justify={"flex-start"} spacing={1}>
+                        <Grid item xs={12}>
+                            <Typography variant={"h6"}>PROJECT INFORMATION</Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                value={name}
+                                label="Name"
+                                variant="outlined"
+                                id="name"
+                                required
+                                helperText={error.name}
+                                fullWidth
+                                onChange={(e) => loadName(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                id="Description"
+                                label="Description"
+                                multiline
+                                variant="outlined"
+                                fullWidth
+                                value={remark}
+                                onChange={(e) => loadRemark(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                id="startDate"
+                                label="Start Date"
+                                required
+                                type="date"
+                                variant="outlined"
+                                helperText={error.startDate}
+                                value={startDate}
+                                fullWidth
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                onChange={(e) => loadStartDate(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                id="endDate"
+                                label="End Date"
+                                required
+                                type="date"
+                                variant="outlined"
+                                helperText={error.endDate}
+                                value={endDate}
+                                fullWidth
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                onChange={(e) => loadEndDate(e.target.value)}
+                            />
+                        </Grid>
+
+                        <Grid container justify="flex-start" style={{padding: "10px 0 0 12px"}}>
+                            <Grid item xs={4}>
+                                <Button variant="outlined" color="primary">
+                                    Update
+                                </Button>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Button variant="outlined" color="secondary" onClick={toggleDelete}>
+                                    Remove
+                                </Button>
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={12}/>
+                        <Grid item xs={12}/>
+                        <Grid item xs={12}/>
+                        <Grid item xs={12}/>
+                    </Grid>
+                    <Grid container item xs={9}>
+                        <Grid item xs={12}>
+                            <DataGrid
+                                className={classes.projectList}
+                                columns={columns}
+                                rows={reports}
+                                pageSize={10}
+                            />
+                        </Grid>
                     </Grid>
                 </Grid>
-            </Grid>
-        </Paper>
-</>
-)
+            </Paper>
+        </>
+    )
 }
 export default ProjectEdit

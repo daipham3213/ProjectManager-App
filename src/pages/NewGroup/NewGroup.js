@@ -1,5 +1,5 @@
 import "./NewGroup.css"
-import React,{Component} from 'react';
+import React, {Component} from 'react';
 
 export class NewGroup extends Component{
     render(){

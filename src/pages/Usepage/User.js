@@ -1,4 +1,4 @@
-import React,{Component} from 'react'; 
+import React, {Component} from 'react';
 import "./User.css"
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import CalendarTodayIcon from '@material-ui/icons/CalendarToday';
@@ -9,6 +9,7 @@ import PublishIcon from '@material-ui/icons/Publish';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import PeopleOutlineIcon from '@material-ui/icons/PeopleOutline';
 import {Link} from "react-router-dom";
+
 export class User extends Component{
     render(){
         return(

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {ProjectService} from "../../services/services";
 import {useLoading} from "../../component/hooks/hooks";
 import FullscreenLoading from "../../component/FullScreenLoading";
@@ -11,9 +11,10 @@ import AddIcon from '@material-ui/icons/Add';
 import DialogModal from "../../component/DialogModal";
 import ProjectCreateModal from "./ProjectCreateModal";
 import moment from "moment";
-import ContextProvider from "../../component/ContextProvider";
+
 import BackButton from "../../component/BackButton";
 import Button from "@material-ui/core/Button";
+import Linker from "../../component/Linker";
 
 const ProjectList = () => {
     const [projects, setProjects] = useState([]);
@@ -38,14 +39,13 @@ const ProjectList = () => {
     }
 
     const loadId = (e) => {
-        debugger;
         setId(e)
         handleOnYes(e);
     }
     const toggleMount = () => setMounted(!mounted);
 
-    const fetchProject = async () => {
-        await ProjectService.getList()
+    const fetchProject =  () => {
+         ProjectService.getList()
             .then((r) => {
                 if (r.status === 200) {
                     loadProjects(r.data);
@@ -56,9 +56,9 @@ const ProjectList = () => {
         });
     }
 
-    const handleOnYes = async(id) => {
+    const handleOnYes = (id) => {
         onLoading();
-        await ProjectService.deleteProject(id)
+         ProjectService.deleteProject(id)
             .then((r) => {
                 if (r.status === 200) {
                     let index = projects.indexOf(id);
@@ -72,9 +72,8 @@ const ProjectList = () => {
         onLoading();
         fetchProject();
         offLoading();
+        document.title = "Project List";
         }, [mounted,setMounted]);
-
-    const {switchToEditPro} = useContext(ContextProvider);
 
     const columns = [
         {field: 'name', headerName: 'Project Name', width: 200},
@@ -104,20 +103,15 @@ const ProjectList = () => {
                             onYes={() => {
                                 loadId(p.row.id);
                             }}
+                            isYesNo={true}
                         />
-                        <div className={classes.button}>
-                            <EditOutlinedIcon
-                                className={classes.icon}
-                                onClick={() => {
-                                    switchToEditPro(p.row.id);
-                                    console.log(p.row.id);
-                                }}
-                            />
+                        <Linker to={"project/" + p.row.id} content={<EditOutlinedIcon/>}/>
+                        <Button>
                             <DeleteSweepOutlinedIcon
-                                className={classes.icon}
+                                color="secondary"
                                 onClick={toggleDelete}
                             />
-                        </div>
+                        </Button>
                     </div>
                 )
             }
@@ -125,7 +119,7 @@ const ProjectList = () => {
     ];
 
     return (
-        <div>
+        <>
             {loading ? <FullscreenLoading/> : null}
             <Paper className={classes.root}>
                 <ProjectCreateModal
@@ -135,18 +129,18 @@ const ProjectList = () => {
                     onReload={fetchProject}
                     toggleMount={toggleMount}
                 />
-                <Grid container justify="center" spacing={3}>
+                <Grid container justify="center" spacing={3} className={classes.content}>
                     <Grid item xs={1}>
                         <Typography variant="h6" align="center">PROJECTS</Typography>
                     </Grid>
                 </Grid>
                 <Grid container justify="center" >
-                    <Grid item xs={3} spacing={2}>
-                        <BackButton children="Back to home"/>
+                    <Grid item xs={3}>
+                        <BackButton children="Back to home" switchTo={"/"}/>
                     </Grid>
                     <Grid item xs={7}/>
                     <Grid item xs={2}>
-                        <Button onClick={toggleCreate} >
+                        <Button onClick={toggleCreate}>
                             <AddIcon/> Create
                         </Button>
                     </Grid>
@@ -162,7 +156,7 @@ const ProjectList = () => {
                     </Grid>
                 </Grid>
             </Paper>
-        </div>
+        </>
     )
 }
 export default ProjectList

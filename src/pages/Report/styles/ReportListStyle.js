@@ -1,11 +1,13 @@
 import {makeStyles} from "@material-ui/core";
 
-export default makeStyles ((themes) => ({
+export default makeStyles((themes) => ({
     root: {
-        padding: "10px 20px 20px 20px"
+        padding: "10px 20px 20px 20px",
+        width: "100%"
     },
     container: {
-        height:"inherit",
+        height: "inherit",
+        width: "99%",
     },
     formControl: {
         margin: themes.spacing(2),
@@ -13,6 +15,6 @@ export default makeStyles ((themes) => ({
         marginTop: 20,
     },
     reportList: {
-        minHeight:500,
+        minHeight: 500,
     },
 }))
