@@ -1,6 +1,5 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {ReportService} from "../../services/services";
-import {InputLabel, MenuItem, Paper, Select, Typography} from "@material-ui/core";
+import React, {useEffect, useRef, useState} from "react";
+import {Paper, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import GanttChart from "../../component/Gantt";
 import useStyles from "./styles/ReportEditStyle"
@@ -59,7 +58,7 @@ const ReportEdit = () => {
     let {reportId} = useParams();
 
     const [report, setReport] = useState({});
-    const {phases = [] , ...props} = report;
+    const {phases = [], name, groupId} = report;
     //const [phases, setPhases] = useState([]);
 
     const loadReport = (value) => {
@@ -76,7 +75,7 @@ const ReportEdit = () => {
     }
 
     useEffect(() => {
-        const fetchTaskInReport = () => {
+        onLoading();
             TaskServices.getList(reportId)
                 .then((r) => {
                     if (r.status === 200) {
@@ -87,10 +86,8 @@ const ReportEdit = () => {
                     console.log(r);
                 })
             offLoading();
-        }
-        fetchTaskInReport();
-        document.title = "Report Edit - " + report.name;
-    }, [mounted, setMounted]);
+        document.title = "Report Edit - " + name;
+    }, [mounted, setMounted, reportId, name]);
 
     return (
         <>
@@ -118,7 +115,7 @@ const ReportEdit = () => {
                     toggleMount={toggleMount}
                     modalRef={modalRef}
                     isShowed={showTask}
-                    groupId={report.groupId}
+                    groupId={groupId}
                     offLoading={offLoading}
                     onLoading={onLoading}
                 />
@@ -146,7 +143,7 @@ const ReportEdit = () => {
                                 Report Editor
                             </Typography>
                             <Typography variant="body2" display="block" gutterBottom align="right" color="secondary">
-                                {report.name}
+                                {name}
                             </Typography>
                         </Grid>
                     </Grid>

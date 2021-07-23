@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {GroupService, PhaseService, ReportService} from "../../services/services";
 import TaskServices from "../../services/task.service";
 import * as ReactDOM from "react-dom";
@@ -7,6 +7,7 @@ import {Button, InputLabel, MenuItem, Paper, Select, TextField, Typography} from
 import Grid from "@material-ui/core/Grid";
 import SliderCustom from "../../component/PrettoSlider";
 import moment from "moment";
+import {useSnackbar} from "notistack";
 
 const TaskCreateModal = ({
                              toggle,
@@ -52,42 +53,41 @@ const TaskCreateModal = ({
     const changeRemark = (e) => setRemark(e.target.value);
     const changeDueDate = (e) => setDueDate(e.target.value);
     const changeStartDate = (e) => setStartDate(e.target.value);
-    const changePercent = (e,value) => setPercent(value);
+    const changePercent = (e, value) => setPercent(value);
     const loadStartDate = (e) => setStartDate(e);
-
 
     isShowed && (document.body.style.overflow = "hidden");
     const classes = useStyles();
     const [error, setError] = useState({});
+    const {enqueueSnackbar} = useSnackbar();
 
 
-    const createHandler =  () => {
+    const createHandler = () => {
         TaskServices.postTask(name, remark, dueDate, startDate, percent, phaseId, memberId, parent_n)
             .then((r) => {
                 if (r.status === 200) {
-                    console.log("created task " + name);
+                    enqueueSnackbar("Success", {variant: "success"});
                     toggle();
                     toggleMount();
-                } else console.log(r.data.message);
+                } else setError(r.data.message);
             })
             .catch(() => {
-                console.log("Internal Server Error");
+                enqueueSnackbar("Internal Server Error", {variant: 'error'});
             });
     }
 
     useEffect(() => {
-        const fetchPhases =  () => {
-            PhaseService.getList(reportId)
-                .then((result) => {
-                    if (result.status === 200) {
-                        loadPhases(result.data);
-                    } else console.log(result.data.message);
-                })
-                .catch(() => {
-                    console.log("Internal Server Error");
-                });
-        }
-        const fetchReports =  () => {
+        PhaseService.getList(reportId)
+            .then((result) => {
+                if (result.status === 200) {
+                    loadPhases(result.data);
+                } else console.log(result.data.message);
+            })
+            .catch(() => {
+                enqueueSnackbar("Internal Server Error", {variant: 'error'});
+            });
+
+        if (!isOnReport)
             ReportService.getList("")
                 .then((r) => {
                     if (r.status === 200) {
@@ -95,24 +95,22 @@ const TaskCreateModal = ({
                     } else console.log(r.data.message);
                 })
                 .catch(() => {
-                    console.log("Internal Server Error");
+                    enqueueSnackbar("Internal Server Error", {variant: 'error'});
                 });
-        }
 
-        const fetchMember =  (groupId) => {
-            if (groupId !== "")
-                GroupService.memberList(groupId)
-                    .then((r) => {
-                        if (r.status === 200) {
-                            loadMember(r.data);
-                        } else console.log(r.data.message);
-                    })
-                    .catch(() => {
-                        console.log("Internal Server Error");
-                    })
-        }
-        const fetchTasks =  (phaseId) => {
-            if (phaseId !== "")
+
+        if (groupId !== "")
+            GroupService.memberList(groupId)
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadMember(r.data);
+                    } else console.log(r.data.message);
+                })
+                .catch(() => {
+                    enqueueSnackbar("Internal Server Error", {variant: 'error'});
+                })
+
+        if (phaseId !== "")
             TaskServices.getListByPhase(phaseId)
                 .then((r) => {
                     if (r.status === 200) {
@@ -120,14 +118,10 @@ const TaskCreateModal = ({
                     } else console.log(r.data.message);
                 })
                 .catch(() => {
-                    console.log("Internal Server Error");
+                    enqueueSnackbar("Internal Server Error", {variant: 'error'});
                 });
-        }
-        fetchPhases();
-        if (!isOnReport) fetchReports();
-        fetchTasks(phaseId);
-        fetchMember(groupId);
-    }, [groupId, phaseId]);
+
+    }, [groupId, phaseId, reportId, isOnReport]);
 
     const reportSelect = () => {
         return (
@@ -288,7 +282,7 @@ const TaskCreateModal = ({
                 {phases?.length ? phaseSelect() : null}
                 {phaseId !== "" ? taskSelect() : null}
                 {phaseId !== "" ? memberSelect() : null}
-                {tasks.length !== 0?(
+                {tasks.length !== 0 ? (
                     <Grid item xs={12}>
                         <TextField
                             type="date"
@@ -307,7 +301,7 @@ const TaskCreateModal = ({
                             helperText={error.startDate}
                         />
                     </Grid>
-                ):null}
+                ) : null}
                 <Grid item xs={12}>
                     <TextField
                         type="date"
@@ -369,7 +363,7 @@ const TaskCreateModal = ({
                                 Create new task
                             </Typography>
                         </Grid>
-                        {phases?.length? createForm() : emptyPhase()}
+                        {phases?.length ? createForm() : emptyPhase()}
                     </Grid>
                 </Paper>
             </div>, document.body

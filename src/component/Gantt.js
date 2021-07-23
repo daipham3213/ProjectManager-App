@@ -1,6 +1,6 @@
 import {Chart} from 'react-google-charts';
 import moment from "moment";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useRef, useState} from "react";
 import TaskEditModal from "../pages/Task/TaskEditModal";
 import {Card} from "@material-ui/core";
 
@@ -53,6 +53,7 @@ const GanttChart = ({data, id, toggleMount}) => {
     const [isShow, setIsShow] = useState(false);
     const [taskId, setTaskId] = useState("");
     let records = formatData(data);
+
 
     const modalRef = useRef(null);
 

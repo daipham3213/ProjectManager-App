@@ -8,6 +8,7 @@ import useStyles from "../../component/styles/modalStyles";
 import {Button, InputLabel, MenuItem, Paper, Select, TextField, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import SliderCustom from "../../component/PrettoSlider";
+import {useSnackbar} from "notistack";
 
 const ReportCreateModal = ({
                                isShowed,
@@ -22,7 +23,6 @@ const ReportCreateModal = ({
     const [remark, setRemark] = useState("");
     const [startDate, setStartDate] = useState("");
     const [dueDate, setDueDate] = useState("");
-    const [progress, setProgress] = useState(0);
     const [groups, setGroups] = useState([]);
     const [project, setProject] = useState([]);
     const [groupId, setGroupId] = useState("");
@@ -30,6 +30,7 @@ const ReportCreateModal = ({
     const [error, setError] = useState({});
 
     const {loading, onLoading, offLoading} = useLoading();
+    const {enqueueSnackbar} = useSnackbar();
 
     isShowed && (document.body.style.overflow = "hidden");
 
@@ -44,9 +45,6 @@ const ReportCreateModal = ({
     }
     const loadStartDate = (value) => {
         setStartDate(value.target.value);
-    }
-    const loadProgress = (e,value) => {
-        setProgress(value);
     }
     const loadGroups = (values) => {
         setGroups(values);
@@ -134,21 +132,8 @@ const ReportCreateModal = ({
                 dueDate: "",
             }));
         }
-        if (progress > 100) {
-            setError((prevError) => ({
-                ...prevError,
-                progress: "Can not be larger than 100&",
-            }));
-            isError = true;
 
-        } else {
-            setError((prevError) => ({
-                ...prevError,
-                progress: "",
-            }));
-        }
-
-        if (prjId === "" && projectId ==="") {
+        if (prjId === "" && projectId === "") {
             setError((prevError) => ({
                 ...prevError,
                 project: "Please select a project.",
@@ -179,18 +164,18 @@ const ReportCreateModal = ({
         onLoading();
         if (!validate()) {
             debugger;
-            ReportService.postReport(name, remark, startDate, dueDate, progress, projectId.value, groupId)
+            ReportService.postReport(name, remark, startDate, dueDate, 0, projectId, groupId)
                 .then((r) => {
                     if (r.status === 200 || r.status === 204) {
                         toggle();
                         toggleMount();
-                        console.log(r.data);
+                        enqueueSnackbar("Created", {variant: "success"})
                     } else {
                         alert(r.data.message);
                     }
                 })
                 .catch((r) => {
-                    console.log(r);
+                    enqueueSnackbar("Internal Server Error.", {variant: "error"})
                     toggle();
                 });
         }
@@ -200,19 +185,16 @@ const ReportCreateModal = ({
 
 
     useEffect(() => {
-
-        const fetchGroups =  () => {
-            onLoading();
-            GroupService.getList("")
-                .then((r) => {
-                    if (r.status === 200) {
-                        loadGroups(r.data);
-                    } else console.log(r.data.message);
-                }).catch((r) => {
-                console.log(r);
-            })
-        }
-        const fetchProjects =  () => {
+        onLoading();
+        GroupService.getList("")
+            .then((r) => {
+                if (r.status === 200) {
+                    loadGroups(r.data);
+                } else console.log(r.data.message);
+            }).catch((r) => {
+            enqueueSnackbar("Internal Server Error.", {variant: "error"})
+        })
+        if (showPrjList)
             ProjectService.getList()
                 .then((r) => {
                     if (r.status === 200) {
@@ -220,13 +202,10 @@ const ReportCreateModal = ({
                     } else console.log(r.data.message);
                 })
                 .catch(() => {
-                    console.log("Internal server error.")
+                    enqueueSnackbar("Internal Server Error.", {variant: "error"})
                 });
-            offLoading();
-        }
-        fetchGroups();
-        if (showPrjList) fetchProjects();
-    }, [modalRef, toggle]);
+        offLoading();
+    }, [modalRef, toggle, showPrjList]);
 
     const projectSelect = () => {
         return (
@@ -357,14 +336,6 @@ const ReportCreateModal = ({
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <SliderCustom
-                                title={"Progress"}
-                                onChange={loadProgress}
-                                width={"100%"}
-                                value={progress}
                             />
                         </Grid>
                         <Grid item={8}/>

@@ -2,7 +2,7 @@ import './styles/DepList.css';
 import React, {useRef, useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import {Link as ReactLink, useHistory} from "react-router-dom";
+import {Link as ReactLink} from "react-router-dom";
 import {GroupService} from "../../services/services";
 import {Button, Grid, Link, Paper, Typography} from "@material-ui/core";
 import DepCreateModal from "./DepCreateModal";
@@ -10,15 +10,16 @@ import useLoading from "../../component/hooks/useLoading";
 import FullscreenLoading from "../../component/FullScreenLoading";
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import AddIcon from "@material-ui/icons/Add";
+import {useSnackbar} from "notistack";
 
 
 const DepList = () => {
     const [data, setData] = useState([]);
-    const history = useHistory();
     const [isShowingCreate, setIsShowingCreate] = useState(false);
     const modalRef = useRef(null);
     const [mounted, setMounted] = useState(true);
     const {loading, onLoading, offLoading} = useLoading()
+    const {enqueueSnackbar} = useSnackbar();
 
     const toggleMount = () => setMounted(!mounted);
     const toggleCreate = () => {
@@ -28,24 +29,24 @@ const DepList = () => {
         GroupService.deleteGroup(id).then((r) => {
             if (r.status === 200) {
                 console.log(r.statusText);
-            } else alert("Failed");
+            } else enqueueSnackbar("Failed", "error");
         });
     }
 
     React.useEffect(() => {
-         function fetchData() {
-            onLoading();
-            GroupService.getList("department")
-                .then((r) => {
-                    console.log(r.status);
-                    if (r.status === 200)
-                        setData(r.data);
-                    else setData([]);
-                    offLoading();
-                }, []);
-        }
-
-        fetchData();
+        onLoading();
+        GroupService.getList("department")
+            .then((r) => {
+                console.log(r.status);
+                if (r.status === 200)
+                    setData(r.data);
+                else  enqueueSnackbar(r.data.message, "error");
+                offLoading();
+            }, [])
+            .catch((r) => {
+                console.log(r);
+                enqueueSnackbar(r, "error");
+            });
         document.title = "Department List";
     }, [mounted, setMounted]);
     const columns = [
@@ -101,7 +102,7 @@ const DepList = () => {
                 modalRef={modalRef}
                 toggleMount={toggleMount}
             />
-            <Paper style={{height: "100%", width:"100%"}}>
+            <Paper style={{height: "100%", width: "100%"}}>
                 <Grid container justify="center" spacing={3}>
                     <Grid item xs={1}>
                         <Typography variant="h6" align="center">DEPARTMENT</Typography>

@@ -10,6 +10,7 @@ import FullscreenLoading from "../../component/FullScreenLoading";
 import BackButton from "../../component/BackButton";
 import {TextField} from "@material-ui/core";
 import {useParams} from "react-router";
+import {useSnackbar} from "notistack";
 
 const DepEdit = () => {
     const [depName, setDepName] = useState({});
@@ -17,6 +18,8 @@ const DepEdit = () => {
     const [member, setMember] = useState([]);
     const [checked, setChecked] = useState([]);
     const [dep, setDep] = useState({});
+
+    const {enqueueSnackbar} = useSnackbar();
     const [isShowing, setIsShowing] = useState(false);
     const modalRef = useRef(null);
     const {loading, onLoading, offLoading} = useLoading();
@@ -27,12 +30,7 @@ const DepEdit = () => {
     const addMember = (m) => {
         setMember(oldArray => [...oldArray, m]);
     };
-    const addCheck = (m) => {
-        let index = checked.indexOf(m);
-        if (index === -1)
-            setChecked(oldArray => [...oldArray, m]);
-        else checked.splice(index, 1);
-    };
+
     const loadDepName = (e) => {
         setDepName(e)
     }
@@ -49,44 +47,41 @@ const DepEdit = () => {
         setChecked(e);
     }
 
+    function FetchUser(id) {
+
+    }
+
     React.useEffect(() => {
-         function fetchData() {
-            onLoading();
-             GroupService.getDetail(depId)
-                .then((result) => {
-                   if(result.status ===200) {
-                       loadDepName(result.data.name);
-                       result.data.users.forEach(user => {
-                           FetchUser(user.id)
-                       })
-                       loadDep(result.data);
-                   } else console.log(result.data.message);
-                    offLoading();
-                })
-                .catch(() => {
-                    console.log("Internal server error");
-                });
-        }
+        onLoading();
+        GroupService.getDetail(depId)
+            .then((result) => {
+                if (result.status === 200) {
+                    loadDepName(result.data.name);
+                    result.data.users.forEach(user => {
+                        UserService.getProfile(user.id)
+                            .then((result) => {
+                                if (result.status === 200) {
+                                    addMember(result.data);
+                                    if (result.data.id === dep.leaderId) {
+                                        loadLeader(result.data.name);
+                                    }
+                                }
+                            },{})
+                            .catch((result) => {
+                                enqueueSnackbar(result, "error");
+                            });
+                    })
+                    loadDep(result.data);
+                } else console.log(result.data.message);
+                offLoading();
+            })
+            .catch(() => {
+                enqueueSnackbar("Internal Server Error", "error");
+            });
 
-         function FetchUser(id) {
-            UserService.getProfile(id)
-                .then((result) => {
-                    if (result.status === 200){
-                        addMember(result.data);
-                        if (result.data.id === dep.leaderId){
-                            loadLeader(result.data.name);
-                        }
-                    }
-                })
-               .catch(() => {
-                   console.log("Internal server error");
-               });
-        }
-
-        fetchData();
         offLoading();
         document.title = "Department Edit - " + depName;
-    }, [mounted, setMounted, dep.leaderId]);
+    }, [mounted, setMounted, depId, depName, dep.leaderId]);
 
     const columns = [
         {
@@ -133,7 +128,7 @@ const DepEdit = () => {
         <div>
             <BackButton children="Back" switchTo="/department"/>
             <div className="DepContainer">
-                {loading? <FullscreenLoading/>: null}
+                {loading ? <FullscreenLoading/> : null}
                 <AddMemberModal
                     isShowing={isShowing}
                     toggleModal={toggle}
@@ -173,7 +168,6 @@ const DepEdit = () => {
                             <div className="memList">
                                 <DataGrid
                                     onSelectionModelChange={m => {
-                                        console.log(m.selectionModel);
                                         loadCheck(m.selectionModel);
                                     }}
                                     rows={member}

@@ -7,6 +7,7 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
+    Slide,
     Toolbar,
     Typography
 } from "@material-ui/core";
@@ -18,6 +19,7 @@ import AssessmentIcon from '@material-ui/icons/Assessment';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import BugReportIcon from '@material-ui/icons/BugReport';
 import HomeWorkIcon from '@material-ui/icons/HomeWork';
+import {ConfirmProvider} from 'material-ui-confirm';
 import clsx from "clsx";
 import MenuIcon from "@material-ui/icons/Menu";
 import NavigationBar from "./NavigationBar";
@@ -25,6 +27,7 @@ import {useTheme} from '@material-ui/core/styles';
 import useStyles from './styles/drawerStyles';
 import {useState} from "react";
 import Linker from "./Linker";
+import {SnackbarProvider} from "notistack";
 
 const MiniDrawer = ({contents}) => {
     const classes = useStyles();
@@ -108,7 +111,7 @@ const MiniDrawer = ({contents}) => {
                     )} isButton={false}/>
 
                     <Linker to={"/project"} content={(
-                        <ListItem button key="Project" >
+                        <ListItem button key="Project">
                             <ListItemIcon><AccountTreeIcon color={"primary"}/></ListItemIcon>
                             <ListItemText primary="Project"/>
                         </ListItem>
@@ -116,9 +119,9 @@ const MiniDrawer = ({contents}) => {
 
                     <Linker to={"/report"} content={(
                         <ListItem button key="Report">
-                        <ListItemIcon><AssessmentIcon color={"primary"}/></ListItemIcon>
-                        <ListItemText primary="Report"/>
-                    </ListItem>
+                            <ListItemIcon><AssessmentIcon color={"primary"}/></ListItemIcon>
+                            <ListItemText primary="Report"/>
+                        </ListItem>
                     )} isButton={false}/>
                 </List>
                 <Divider/>
@@ -127,19 +130,30 @@ const MiniDrawer = ({contents}) => {
                         <ListItemIcon><BugReportIcon/></ListItemIcon>
                         <ListItemText primary="Report Bug"/>
                     </ListItem>
-                    {open ? <>
+                    {open ?
                         <ListItem>
                             <Typography variant="overline">
                                 By Nhóm 12
                             </Typography>
                         </ListItem>
-                    </> : null
+                        : null
                     }
                 </List>
             </Drawer>
             <main className={classes.content}>
                 <div className={classes.toolbar}/>
-                {contents}
+                <ConfirmProvider defaultOptions={{
+                    confirmationButtonProps: {autoFocus: true}
+                }}>
+                    <SnackbarProvider maxSnack={3}
+                                      autoHideDuration={3000}
+                                      anchorOrigin={{vertical: 'bottom', horizontal: 'center',}}
+                                      TransitionComponent={Slide}
+                                      preventDuplicate={true}
+                    >
+                        {contents}
+                    </SnackbarProvider>
+                </ConfirmProvider>
             </main>
         </div>
     );

@@ -6,6 +6,7 @@ import useStyles from "../../component/styles/modalStyles";
 import FullscreenLoading from "../../component/FullScreenLoading";
 import {useLoading} from "../../component/hooks/hooks";
 import Grid from "@material-ui/core/Grid";
+import {useSnackbar} from "notistack";
 
 const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnReport = true, isShowing}) => {
     const [name, setName] = useState("");
@@ -18,6 +19,7 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
     const classes = useStyles();
     const [error, setError] = useState({});
     const {loading, onLoading, offLoading} = useLoading();
+    const {enqueueSnackbar} = useSnackbar();
 
     const changeName = (e) => setName(e.target.value);
     const changeRemark = (e) => setRemark(e.target.value);
@@ -28,21 +30,18 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
 
     isShowing && (document.body.style.overflow = "hidden");
 
-
-
     const createPhase = () => {
         onLoading();
-        debugger;
-         PhaseService.postPhase(name, remark, startDate, dueDate, reportId.value !== "" ? reportId.value : rpId)
+        PhaseService.postPhase(name, remark, startDate, dueDate, reportId.value !== "" ? reportId.value : rpId)
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
-                    console.log(r.data);
                     toggleMount();
                     toggle();
-                }else alert(r.data.message);
-            }).catch(() => {
-                console.log("Internal server error");
-            })
+                    enqueueSnackbar("Submit successfully", {variant:"success"})
+                } else enqueueSnackbar(r.data.message, {variant:"warning"})
+            }).catch((r) => {
+            enqueueSnackbar(r, {variant:"error"})
+        })
         document.body.style.overflow = "auto";
         offLoading();
     }
@@ -50,21 +49,18 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
     useEffect(() => {
         onLoading();
         if (!isOnReport) {
-            const fetchReports =  () => {
-                 ReportService.getList(isOnReport ? reportId : rpId)
-                    .then((r) => {
-                        if (r.status === 200) {
-                            loadReports(r.data);
-                        } else alert(r.data.message);
-                    })
-                    .catch(() => {
-                        console.log("Internal server error");
-                    });
-            };
-            fetchReports();
+            ReportService.getList(isOnReport ? reportId : rpId)
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadReports(r.data);
+                    } else alert(r.data.message);
+                })
+                .catch((r) => {
+                    enqueueSnackbar(r, {variant:"error"})
+                });
         }
         offLoading();
-    }, [modalRef, toggle])
+    }, [modalRef, toggle, reportId, rpId, isOnReport])
 
     const reportSelect = (
         <Grid item xs={12}>

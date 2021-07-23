@@ -4,6 +4,7 @@ import {createPortal} from "react-dom";
 import {Button, Grid, Paper, TextField, Typography} from "@material-ui/core";
 import useStyles from "../../component/styles/modalStyles";
 import moment from "moment";
+import {useSnackbar} from "notistack";
 
 const PhaseEditModal = ({toggle, toggleMount, isShow, phaseId, modalRef}) => {
     const [phase, setPhase] = useState({});
@@ -14,6 +15,7 @@ const PhaseEditModal = ({toggle, toggleMount, isShow, phaseId, modalRef}) => {
 
     const classes = useStyles();
     const loadPhase = (e) => setPhase(e);
+    const {enqueueSnackbar} = useSnackbar();
     // const loadName = (e) => setPhase(e);
     // const loadStartDate = (e) => setPhase(e);
     // const loadDueDate = (e) => setPhase(e);
@@ -22,10 +24,15 @@ const PhaseEditModal = ({toggle, toggleMount, isShow, phaseId, modalRef}) => {
     const deletePhase = () => {
         PhaseService.deletePhase(phaseId)
             .then((r) => {
-                console.log(r.data.message);
+                if (r.status === 200)
+                {
+                    toggle();
+                    toggleMount();
+                    enqueueSnackbar("Submit successfully", {variant:"success"})
+                } else enqueueSnackbar(r.data.message, {variant:"warning"})
             })
             .catch((r) => {
-                console.log(r);
+                enqueueSnackbar(r, {variant:"error"})
             })
     }
 
@@ -38,7 +45,7 @@ const PhaseEditModal = ({toggle, toggleMount, isShow, phaseId, modalRef}) => {
                     } else console.log(r.data.message)
                 })
                 .catch((r) => {
-                    console.log(r);
+                    enqueueSnackbar(r, {variant:"error"})
                 })
         }
         fetchPhase();

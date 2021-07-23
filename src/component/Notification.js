@@ -46,7 +46,6 @@ const Notification = ({setOpen, open, anchorRef, handleClose}) => {
                     style={{ transformOrigin: placement === 'bottom' ? 'left top' : 'left bottom' }}
                 >
                     <Paper >
-                        <>
                             <h3
                                 style={{
                                     backgroundColor: '#fff',
@@ -90,7 +89,6 @@ const Notification = ({setOpen, open, anchorRef, handleClose}) => {
                                     </div>
                                 )
                             })}
-                        </>
                     </Paper>
                 </Grow>
             )}

@@ -17,7 +17,6 @@ const DepCreateModal = ({
                             toggleMount,
                         }) => {
     const classes = useStyles();
-    const history = useHistory();
     const {loading, onLoading, offLoading} = useLoading();
 
     isShowing && (document.body.style.overflow = "hidden");

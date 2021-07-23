@@ -13,11 +13,14 @@ import BackButton from "../../component/BackButton";
 import DialogModal from "../../component/DialogModal";
 import Linker from "../../component/Linker";
 import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
+import {useConfirm} from "material-ui-confirm";
+import {useSnackbar} from "notistack";
 
 
 const ProjectEdit = () => {
     const [isShowing, setIsShowing] = useState(false);
-    const [showDialog, setShowDialog] = useState(false);
+    const history = useHistory();
+    const confirm = useConfirm();
     const modalRef = useRef(null);
     const {loading, onLoading, offLoading} = useLoading();
     const classes = useStyles();
@@ -31,7 +34,7 @@ const ProjectEdit = () => {
     const [endDate, setEndDate] = useState("");
     const [error, setError] = useState({});
     const [mounted, setMounted] = useState(true);
-
+    const {enqueueSnackbar} = useSnackbar();
 
     const toggleCreateRp = () => {
         setIsShowing(!isShowing);
@@ -123,8 +126,28 @@ const ProjectEdit = () => {
         return isError;
     }
 
-    const fetchProject =  () => {
-         ProjectService.getDetails(projectId)
+
+    const handleOnYes =  () => {
+        onLoading();
+        confirm({description:"Are you sure?"})
+            .then(() => {
+                ProjectService.deleteProject(projectId)
+                    .then((r) => {
+                        if(r.status === 200) {
+                            history.goBack();
+                            enqueueSnackbar("Deleted successfully",{ variant: 'success' });
+                        } else enqueueSnackbar("Forbidden", { variant: 'warning' });
+                    })
+            })
+            .catch((r) => enqueueSnackbar(r, { variant: 'error' }));
+        offLoading();
+    }
+
+
+
+    useEffect(() => {
+        onLoading();
+        ProjectService.getDetails(projectId)
             .then((r) => {
                 if (r.status === 200) {
                     loadProject(r.data);
@@ -136,46 +159,21 @@ const ProjectEdit = () => {
             })
             .catch(() => {
                 alert("Internal Server Error.");
+                enqueueSnackbar("Internal Server Error.", { variant: 'error' })
             })
 
-    }
-
-     function fetchReports() {
-         ReportService.getList(projectId.value)
+        ReportService.getList(projectId)
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     loadReport(r.data);
                     console.log(r.data);
                 } else console.log(r.data.message);
             }).catch(() => {
-                alert("Internal Server Error.");
-            },)
-    }
-
-    const toggleDelete = () => {
-        setShowDialog(!showDialog);
-    }
-    const handleOnYes =  (id) => {
-        onLoading();
-         ProjectService.deleteProject(id)
-            .then((r) => {
-                if (r.status === 200) {
-                    console.log("remove " + id);
-                } else console.log(r);
-            }, null)
-        offLoading();
-    }
-    const loadId = (e) => {
-        handleOnYes(e);
-    }
-
-    useEffect(() => {
-        onLoading();
-        fetchProject();
-        fetchReports();
+            enqueueSnackbar("Internal Server Error.", { variant: 'error' })
+        },)
         offLoading();
         document.title = "Project Edit - " + project.name;
-    }, [mounted, setMounted]);
+    }, [mounted, setMounted, projectId]);
 
     const columns = [
         {field: "name", headerName: "Report Name", width: 200},
@@ -209,16 +207,6 @@ const ProjectEdit = () => {
         <>
             {loading ? <FullscreenLoading/> : null}
             <Paper className={classes.root}>
-                <DialogModal
-                    isOpened={showDialog}
-                    toggle={toggleDelete}
-                    contents={"Are you sure that you want to delete this?"}
-                    heading={"Delete confirmation"}
-                    onYes={() => {
-                        loadId(projectId.value);
-                    }}
-                    isYesNo={true}
-                />
                 <ReportCreateModal
                     isShowed={isShowing}
                     toggle={toggleCreateRp}
@@ -228,7 +216,7 @@ const ProjectEdit = () => {
                 />
                 <Grid container className={classes.topPaper}>
                     <Grid item xs={3}>
-                        <BackButton children="Back" switchTo={"project"}/>
+                        <BackButton children="Back" switchTo={"/project"}/>
                     </Grid>
                     <Grid item xs={3}>
                         <div className={classes.button} onClick={toggleCreateRp}>
@@ -311,7 +299,7 @@ const ProjectEdit = () => {
                                 </Button>
                             </Grid>
                             <Grid item xs={4}>
-                                <Button variant="outlined" color="secondary" onClick={toggleDelete}>
+                                <Button variant="outlined" color="secondary" onClick={handleOnYes}>
                                     Remove
                                 </Button>
                             </Grid>

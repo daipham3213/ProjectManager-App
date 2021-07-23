@@ -12,6 +12,8 @@ import moment from "moment";
 import BackButton from "../../component/BackButton";
 import AddIcon from "@material-ui/icons/Add";
 import Linker from "../../component/Linker";
+import {useConfirm} from "material-ui-confirm";
+import {useSnackbar} from "notistack";
 
 
 const ReportList = () => {
@@ -27,6 +29,8 @@ const ReportList = () => {
     const [isShowCreate, setIsShowCreate] = useState(false);
     const modelRef = useRef();
     const classes = useStyles();
+    const confirm = useConfirm();
+    const {enqueueSnackbar} = useSnackbar();
 
     const loadReports = (value) => setReports(value);
     const loadGroups = (value) => setGroups(value);
@@ -34,84 +38,80 @@ const ReportList = () => {
     const loadFData = (value) => setFData(value);
     const loadGroup = (value) => {
         setGroupName(value.target.value);
-        filterData(value.target.value, prjName);
     }
     const loadPrjName = (value) => {
         setPrjName(value.target.value);
-        filterData(groupName, value.target.value);
     }
 
     const toggleMount = () => setMounted(!mounted);
     const toggleCreate = () => setIsShowCreate(!isShowCreate);
 
-    const filterData = (gName, pName) => {
-        let filtered;
-        if (gName === "All" && pName === "All") {
-            filtered = reports;
-        }
-        if (gName !== "All" && pName === "All") {
-            filtered = reports.filter(f => f.groupName === gName);
-        }
-        if (gName === "All" && pName !== "All") {
-            filtered = reports.filter(f => f.projectName === pName);
-        }
-        if (gName !== "All" && pName !== "All") {
-            filtered = reports.filter(f => f.projectName === pName && f.groupName === gName);
-        }
-        loadFData(filtered);
-    }
-
-    const fetchGroups = () => {
+    useEffect(() => {
         onLoading();
         GroupService.getList("")
             .then((r) => {
                 if (r.status === 200) {
                     loadGroups(r.data);
-                    offLoading();
-                } else console.log(r.data.message);
+                } else enqueueSnackbar(r.data.message, { variant: 'warning' });
             })
             .catch(() => {
-                console.log("Internal server error");
+                enqueueSnackbar("Internal Server Error", { variant: 'error' });
             })
-    }
-
-    const fetchReports = () => {
-        onLoading();
         ReportService.getList("")
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     loadReports(r.data);
                     loadFData(r.data);
-                    offLoading();
                 } else console.log(r.data.message);
             }).catch(() => {
-            console.log("Internal Server Error.");
+            enqueueSnackbar("Internal Server Error", { variant: 'error' });
         })
-    }
-
-    const fetchProjects = () => {
-        onLoading();
         ProjectService.getList()
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     loadProjects(r.data);
-                    offLoading();
                 } else console.log(r.data.message);
             }).catch(() => {
-            console.log("Internal Server Error.");
+            enqueueSnackbar("Internal Server Error", { variant: 'error' });
         })
-    }
-
-    useEffect(() => {
-        fetchReports();
-        fetchGroups();
-        fetchProjects();
         document.title = "Report List";
+        offLoading();
     }, [mounted, setMounted]);
 
     useEffect(() => {
-        filterData(groupName, prjName);
-    }, [groupName, prjName]);
+        let filtered;
+        if (groupName === "All" && prjName === "All") {
+            filtered = reports;
+        }
+        if (groupName !== "All" && prjName === "All") {
+            filtered = reports.filter(f => f.groupName === groupName);
+        }
+        if (groupName === "All" && prjName !== "All") {
+            filtered = reports.filter(f => f.projectName === prjName);
+        }
+        if (groupName !== "All" && prjName !== "All") {
+            filtered = reports.filter(f => f.projectName === prjName && f.groupName === groupName);
+        }
+        loadFData(filtered);
+    }, [groupName, prjName, reports]);
+
+    const handleDelete = (reportId) => {
+        confirm({description: "Are you sure?"})
+            .then(() => {
+                onLoading();
+                ReportService.deleteReport(reportId)
+                    .then((r) => {
+                        if (r.status === 200 ){
+                            toggleMount();
+                            enqueueSnackbar("Deleted successfully",{variant:"success"})
+                        } else  enqueueSnackbar(r.data.message,{variant:"warning"})
+                    })
+            })
+            .catch((r)=> {
+                enqueueSnackbar(r,{variant:"error"})
+        })
+        offLoading();
+    }
 
     const columns = [
         {field: "name", headerName: "Report name", width: 200},
@@ -137,7 +137,7 @@ const ReportList = () => {
                 return (
                     <>
                         <Linker to={"/report/" + params.row.id} content={<EditIcon/>}/>
-                        <Button>
+                        <Button onClick={() => handleDelete(params.row.id)}>
                             <DeleteOutlinedIcon color="secondary"/>
                         </Button>
                     </>
@@ -158,7 +158,7 @@ const ReportList = () => {
                     modalRef={modelRef}
                     isShowed={isShowCreate}
                 />
-                <Grid container justify="center" spacing={3}>
+                <Grid container justifyContent="center" spacing={3}>
                     <Grid item xs={2}>
                         <Typography variant="h6" align="center">REPORTS</Typography>
                     </Grid>
@@ -166,10 +166,10 @@ const ReportList = () => {
                 <Grid container spacing={3}
                       className={classes.container}
                       direction="column"
-                      justify="center">
+                      justifyContent="center">
                     <Grid container
                           direction="row"
-                          justify="space-evenly"
+                          justifyContent="space-evenly"
                           alignItems="center"
                           spacing={3}
                     >

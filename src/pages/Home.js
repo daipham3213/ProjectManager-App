@@ -17,6 +17,7 @@ import {useEffect, useState} from "react";
 import {UserService} from "../services/services";
 import TaskServices from "../services/task.service";
 import GanttChart from "../component/Gantt";
+import {useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -53,10 +54,13 @@ const defaultAvatar = "https://res.cloudinary.com/projectmngapi/image/upload/v16
 const Home = () => {
     const classes = useStyles();
 
+    const [mount, setMount] = useState(false);
+
     const [profile, setProfile] = useState({});
     const [tasks, setTask] = useState([]);
 
     const {avatarUrl, email, groupName, groupType, name, phoneNumber, username} = profile;
+    const toggleMount = () => setMount(!mount);
 
     useEffect(() => {
         document.title = "Project Manager"
@@ -74,7 +78,7 @@ const Home = () => {
                 else console.log(r.data.message);
             })
             .catch((r) => console.log(r));
-    }, []);
+    }, [mount,setMount]);
 
     return (
         <div className={classes.root}>
@@ -186,7 +190,7 @@ const Home = () => {
                                 <Typography variant={"h6"} align={"center"} style={{padding:20}}>Upcoming tasks</Typography>
                             </Grid>
                             <Grid item xs={12}>
-                                {tasks.length > 0 ? <GanttChart id={username} data={tasks}/> :
+                                {tasks.length > 0 ? <GanttChart id={username} data={tasks} toggleMount={toggleMount}/> :
                                     <Typography children={"No value"} align={"center"}/>}
                             </Grid>
                         </Paper>

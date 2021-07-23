@@ -38,10 +38,20 @@ const getAll = () => {
         });
 };
 
+const getByUser = () => {
+    return axios
+        .get(
+            API_URL,
+            {headers : authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
 const getList = (type) => {
     return axios
         .get(
-            API_URL + "?type=" + type,
+            API_URL + "/type?key=" + type,
             {headers : authHeader()}
         ).catch((error) => {
             return error.response;
@@ -133,6 +143,7 @@ const GroupService = {
     promotion,
     leaveGroup,
     memberList,
+    getByUser,
 };
 
 export default GroupService;

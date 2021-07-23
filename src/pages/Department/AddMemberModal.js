@@ -7,7 +7,6 @@ import FullscreenLoading from "../../component/FullScreenLoading";
 import * as ReactDOM from "react-dom";
 import Avatar from "@material-ui/core/Avatar";
 import {Paper} from "@material-ui/core";
-import {useHistory} from "react-router-dom";
 import {DataGrid} from "@material-ui/data-grid";
 import Linker from "../../component/Linker";
 
@@ -20,7 +19,6 @@ const AddMemberModal = ({
                         }) => {
 
     const classes = useStyles();
-    const history = useHistory();
     const {loading, onLoading, offLoading} = useLoading();
 
     isShowing && (document.body.style.overflow = "hidden");
@@ -51,16 +49,13 @@ const AddMemberModal = ({
     }
 
     useEffect(() => {
-        const loadUser = async () => {
-            await UserService.getAvailable()
-                .then(r => {
-                    if (r.status === 200) {
-                        loadUsers(r.data);
-                        console.log(r.data);
-                    } else alert(r.data.message)
-                })
-        }
-        loadUser();
+        UserService.getAvailable()
+            .then(r => {
+                if (r.status === 200) {
+                    loadUsers(r.data);
+                    console.log(r.data);
+                } else alert(r.data.message)
+            })
         const handleClickOutside = (event) => {
             if (modalRef.current && !modalRef.current.contains(event.target)) {
                 toggleModal();
@@ -94,7 +89,7 @@ const AddMemberModal = ({
             renderCell: (params) => {
                 let id = params.rows?.id;
                 return (
-                    <Linker to={"/profile/"+id} isButton={true} content={"See profile"}/>
+                    <Linker to={"/profile/" + id} isButton={true} content={"See profile"}/>
                 )
             }
         }

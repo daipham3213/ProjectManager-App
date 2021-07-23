@@ -5,6 +5,8 @@ import useStyles from "../../component/styles/modalStyles";
 import {Button, Grid, InputLabel, Paper, TextField, Typography} from "@material-ui/core";
 import SliderCustom from "../../component/PrettoSlider";
 import moment from "moment";
+import {useConfirm} from "material-ui-confirm";
+import {useSnackbar} from "notistack";
 
 const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
     const [name, setName] = useState("");
@@ -19,6 +21,8 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
     isShow && (document.body.style.overflow = "hidden");
 
     const classes = useStyles();
+    const confirm = useConfirm();
+    const {enqueueSnackbar} = useSnackbar();
 
     const changeName = (e) => setName(e.target.value);
     const changeRemark = (e) => setRemark(e.target.value);
@@ -43,27 +47,32 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
                     toggleMount();
                     toggle();
                     document.body.style.overflow = "auto";
+                    enqueueSnackbar("Update Task " + name +" success!", { variant: 'success' });
                 } else alert(r.data.message);
             })
             .catch((r) => {
-                console.log(r);
+                enqueueSnackbar(r, { variant: 'error' });
             })
     }
 
     const deleteTask = () => {
-        TaskServices.deleteTask(taskId)
-            .then((r) => {
-                console.log(r.data.message);
-                if (r.status === 200)
-                {
-                    toggleMount();
-                    toggle();
-                    document.body.style.overflow = "auto";
-                }
+        confirm({ description: 'This action is permanent!' })
+            .then(() =>{
+                TaskServices.deleteTask(taskId)
+                    .then((r) => {
+                        console.log(r.data.message);
+                        if (r.status === 200)
+                        {
+                            toggleMount();
+                            toggle();
+                            document.body.style.overflow = "auto";
+                            enqueueSnackbar("Delete success!", { variant: 'success' });
+                        }
+                    })
             })
             .catch((r) => {
-                console.log(r);
-            })
+                enqueueSnackbar(r, { variant: 'error' });
+        })
     }
 
     useEffect(() => {

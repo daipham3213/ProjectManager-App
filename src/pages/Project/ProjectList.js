@@ -8,69 +8,63 @@ import useStyles from "./styles/listStyle";
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import DeleteSweepOutlinedIcon from '@material-ui/icons/DeleteSweepOutlined'
 import AddIcon from '@material-ui/icons/Add';
-import DialogModal from "../../component/DialogModal";
 import ProjectCreateModal from "./ProjectCreateModal";
 import moment from "moment";
 
 import BackButton from "../../component/BackButton";
 import Button from "@material-ui/core/Button";
 import Linker from "../../component/Linker";
+import {useSnackbar} from "notistack";
+import {useConfirm} from "material-ui-confirm";
 
 const ProjectList = () => {
     const [projects, setProjects] = useState([]);
-    const [isShowing, setIsShowing] = useState(false);
+
     const [isCreate, setIsCreate] = useState(false);
     const {loading, onLoading, offLoading} = useLoading();
-    const [id, setId] = useState("");
     const modalRef = useRef(null);
     const classes = useStyles();
     const [mounted, setMounted] = useState(true);
+    const confirm = useConfirm()
+
+    const {enqueueSnackbar} = useSnackbar();
 
     const loadProjects = (e) => {
         setProjects(e);
-    }
-
-    const toggleDelete = () => {
-        setIsShowing(!isShowing);
     }
 
     const toggleCreate = () => {
         setIsCreate(!isCreate);
     }
 
-    const loadId = (e) => {
-        setId(e)
-        handleOnYes(e);
-    }
     const toggleMount = () => setMounted(!mounted);
-
-    const fetchProject =  () => {
-         ProjectService.getList()
-            .then((r) => {
-                if (r.status === 200) {
-                    loadProjects(r.data);
-                    console.log(r.data);
-                } else loadProjects([]);
-            }).catch((r) => {
-            console.log(r);
-        });
-    }
 
     const handleOnYes = (id) => {
         onLoading();
-         ProjectService.deleteProject(id)
-            .then((r) => {
-                if (r.status === 200) {
-                    let index = projects.indexOf(id);
-                    projects.splice(index, 1);
-                    console.log("remove " + id);
-                } else console.log(r);
-            }, null)
+        confirm({description:"Are you sure? This action is permanent."})
+            .then(() =>{
+                ProjectService.deleteProject(id)
+                    .then((r) => {
+                        if (r.status === 200) {
+                            let index = projects.indexOf(id);
+                            projects.splice(index, 1);
+                            enqueueSnackbar("Removed success", {variant:"success"})
+                        } else  enqueueSnackbar(r.data.message, {variant:"warning"})
+                    }, null)
+                    .catch((r) => enqueueSnackbar(r, {variant:"error"}))
+            })
         offLoading();
     }
     useEffect(() => {
         onLoading();
-        fetchProject();
+        ProjectService.getList()
+            .then((r) => {
+                if (r.status === 200) {
+                    loadProjects(r.data);
+                } else loadProjects([]);
+            }).catch((r) => {
+            enqueueSnackbar(r, {variant:"error"})
+        });
         offLoading();
         document.title = "Project List";
         }, [mounted,setMounted]);
@@ -81,35 +75,23 @@ const ProjectList = () => {
         {
             field: 'startDate', headerName: 'Start Date', width: 200,
             valueFormatter: (params) => {
-                const valueFormatted = moment(params.value).format("Do MMM YYYY");
-                return valueFormatted;
+                return moment(params.value).format("Do MMM YYYY");
             }
         },
         {field: 'dueDate', headerName: 'End Date', width: 200,
             valueFormatter: (params) => {
-                const valueFormatted = moment(params.value).format("Do MMM YYYY");
-                return valueFormatted;
+                return moment(params.value).format("Do MMM YYYY");
             }},
         {
             field: 'action', headerName: 'Actions', width: 200,
             renderCell: (p) => {
                 return (
                     <div>
-                        <DialogModal
-                            isOpened={isShowing}
-                            toggle={toggleDelete}
-                            contents={"Are you sure that you want to delete this?"}
-                            heading={"Delete confirmation"}
-                            onYes={() => {
-                                loadId(p.row.id);
-                            }}
-                            isYesNo={true}
-                        />
                         <Linker to={"project/" + p.row.id} content={<EditOutlinedIcon/>}/>
                         <Button>
                             <DeleteSweepOutlinedIcon
                                 color="secondary"
-                                onClick={toggleDelete}
+                                onClick={() =>handleOnYes(p.row.id)}
                             />
                         </Button>
                     </div>
@@ -126,7 +108,6 @@ const ProjectList = () => {
                     modalRef={modalRef}
                     toggleModal={toggleCreate}
                     isShowing={isCreate}
-                    onReload={fetchProject}
                     toggleMount={toggleMount}
                 />
                 <Grid container justify="center" spacing={3} className={classes.content}>
