@@ -46,8 +46,7 @@ const ProjectList = () => {
                 ProjectService.deleteProject(id)
                     .then((r) => {
                         if (r.status === 200) {
-                            let index = projects.indexOf(id);
-                            projects.splice(index, 1);
+                            toggleMount();
                             enqueueSnackbar("Removed success", {variant:"success"})
                         } else  enqueueSnackbar(r.data.message, {variant:"warning"})
                     }, null)

@@ -32,7 +32,7 @@ const PhaseCreateModal = ({toggle, toggleMount, modalRef, reportId = "", isOnRep
 
     const createPhase = () => {
         onLoading();
-        PhaseService.postPhase(name, remark, startDate, dueDate, reportId.value !== "" ? reportId.value : rpId)
+        PhaseService.postPhase(name, remark, startDate, dueDate, reportId !== "" ? reportId : rpId)
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     toggleMount();

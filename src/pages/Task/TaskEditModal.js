@@ -8,7 +8,7 @@ import moment from "moment";
 import {useConfirm} from "material-ui-confirm";
 import {useSnackbar} from "notistack";
 
-const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
+const TaskEditModal = ({toggle, modalRef, isShow, taskId, toggleMount}) => {
     const [name, setName] = useState("");
     const [remark, setRemark] = useState("");
     const [dueDate, setDueDate] = useState("");
@@ -40,44 +40,43 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
     const loadPhase = (e) => setPhaseId(e);
 
     const putTask = () => {
-        TaskServices.editTask(taskId, name, remark, dueDate, startDate, percent, phaseId, memberId, parent_n)
-            .then((r) => {
-                if (r.status === 200) {
-                    console.log(r.data.message);
-                    toggleMount();
-                    toggle();
-                    document.body.style.overflow = "auto";
-                    enqueueSnackbar("Update Task " + name +" success!", { variant: 'success' });
-                } else alert(r.data.message);
-            })
-            .catch((r) => {
-                enqueueSnackbar(r, { variant: 'error' });
-            })
+        if (taskId !== null && taskId !== "")
+            TaskServices.editTask(taskId, name, remark, dueDate, startDate, percent, phaseId, memberId, parent_n)
+                .then((r) => {
+                    if (r.status === 200) {
+                        console.log(r.data.message);
+                        toggleMount();
+                        toggle();
+                        document.body.style.overflow = "auto";
+                        enqueueSnackbar("Update Task " + name + " success!", {variant: 'success'});
+                    } else enqueueSnackbar(r.data.message , {variant: 'warning'});
+                })
+                .catch((r) => {
+                    enqueueSnackbar(r, {variant: 'error'});
+                })
     }
 
     const deleteTask = () => {
-        confirm({ description: 'This action is permanent!' })
-            .then(() =>{
+        confirm({description: 'This action is permanent!'})
+            .then(() => {
                 TaskServices.deleteTask(taskId)
                     .then((r) => {
-                        console.log(r.data.message);
-                        if (r.status === 200)
-                        {
+                        if (r.status === 200) {
                             toggleMount();
                             toggle();
                             document.body.style.overflow = "auto";
-                            enqueueSnackbar("Delete success!", { variant: 'success' });
+                            enqueueSnackbar("Delete success!", {variant: 'success'});
                         }
                     })
             })
             .catch((r) => {
-                enqueueSnackbar(r, { variant: 'error' });
-        })
+                enqueueSnackbar(r, {variant: 'error'});
+            })
     }
 
     useEffect(() => {
         const fetchTask = () => {
-            if (taskId !=="" && typeof taskId === 'string')
+            if (taskId !== "" && taskId !== null && typeof taskId === 'string' )
                 TaskServices.getDetail(taskId)
                     .then((r) => {
                         if (r.status === 200) {
@@ -89,26 +88,25 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
                             loadParent(r.data.parentNId);
                             loadMember(r.data.userId);
                             loadPhase(r.data.phaseId);
-                        }
-                        else {
-                            if (taskId !==null)
-                                alert(r.data.message);
+                        } else {
+                            if (taskId !== null && taskId !== "")
+                                enqueueSnackbar(r.data.message , {variant: 'warning'});
                         }
                     })
                     .catch((r) => {
-                        console.log(r);
+                        enqueueSnackbar(r , {variant: 'error'});
                     })
         }
         fetchTask();
         return () => {
-             loadName("");
-             loadRemark ("");
-             loadDueDate ("");
-             loadStartDate ("");
-             loadPercent(0);
-             loadParent("");
-             loadMember ("");
-             loadPhase("");
+            loadName("");
+            loadRemark("");
+            loadDueDate("");
+            loadStartDate("");
+            loadPercent(0);
+            loadParent("");
+            loadMember("");
+            loadPhase("");
         }
     }, [taskId, toggle, modalRef]);
 
@@ -174,7 +172,7 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
                         />
                     </Grid>
                     <Grid item xs={12} container justify={"flex-start"}>
-                        <InputLabel style={{padding:"8px 20px 0 0"}}>Progress</InputLabel>
+                        <InputLabel style={{padding: "8px 20px 0 0"}}>Progress</InputLabel>
                         <SliderCustom
                             title={""}
                             onChange={changePercent}
@@ -189,7 +187,7 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId ,toggleMount}) => {
                         <Button variant={"text"} color={"secondary"} onClick={deleteTask}>
                             Delete
                         </Button>
-                        <Button variant={"text"} color={"primary"} onClick={()=> {
+                        <Button variant={"text"} color={"primary"} onClick={() => {
                             toggle();
                             document.body.style.overflow = "auto";
                         }}>

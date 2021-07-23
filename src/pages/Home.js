@@ -10,14 +10,13 @@ import {
     Typography
 } from "@material-ui/core";
 import Linker from "../component/Linker";
-import {AccountTree, Assessment, Domain, PeopleOutline} from "@material-ui/icons";
+import {AccountTree, Assessment, Domain, Face, MailOutline, PeopleOutline, PhoneAndroid} from "@material-ui/icons";
 import Tooltips from "../component/ToolTips";
 import Avatar from "@material-ui/core/Avatar";
 import {useEffect, useState} from "react";
 import {UserService} from "../services/services";
 import TaskServices from "../services/task.service";
 import GanttChart from "../component/Gantt";
-import {useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -45,8 +44,23 @@ const useStyles = makeStyles((theme) => ({
     avatar: {
         width: theme.spacing(8),
         height: theme.spacing(8),
-        margin: "0 5px 5px 200px",
-    }
+    },
+    pallet_one: {
+        color: theme.palette.getContrastText("#2F1B41"),
+        backgroundColor: "#2F1B41",
+    },
+    pallet_two: {
+        color: theme.palette.getContrastText("#872341"),
+        backgroundColor: "#872341",
+    },
+    pallet_three: {
+        color: theme.palette.getContrastText("#BE3144"),
+        backgroundColor: "#BE3144",
+    },
+    pallet_four: {
+        color: theme.palette.getContrastText("#F05941"),
+        backgroundColor: "#F05941",
+    },
 }))
 
 const defaultAvatar = "https://res.cloudinary.com/projectmngapi/image/upload/v1626178367/6542357_preview_jysfir.png";
@@ -78,13 +92,13 @@ const Home = () => {
                 else console.log(r.data.message);
             })
             .catch((r) => console.log(r));
-    }, [mount,setMount]);
+    }, [mount, setMount]);
 
     return (
         <div className={classes.root}>
             <Grid container spacing={4} justify={"flex-start"}>
                 {/*Icons container*/}
-                <Grid container item justify={"center"} spacing={3} xs={12} style={{marginBottom:20}}>
+                <Grid container item justify={"center"} spacing={3} xs={12} style={{marginBottom: 20}}>
                     <Tooltips contents={(
                         <Paper elevation={3} className={classes.topBtn}>
                             <Linker content={(
@@ -127,25 +141,31 @@ const Home = () => {
                                       subheader={
                                           <ListSubheader component="div" id="nested-list-subheader"
                                                          style={{alignItems: "flex-end"}}>
-                                              <Avatar alt={username}
-                                                      src={avatarUrl === null ? defaultAvatar : avatarUrl}
-                                                      className={classes.avatar}/>
+                                                <Grid container justifyContent={"flex-end"} alignItems={"center"}>
+                                                    <Grid item xs={9}>
+                                                        <Typography variant={"overline"}>
+                                                            Role: {localStorage.getItem("roles")}
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid item xs={3}>
+                                                        <Avatar alt={username}
+                                                                src={avatarUrl === null ? defaultAvatar : avatarUrl}
+                                                                className={classes.avatar}/>
+                                                    </Grid>
+                                                </Grid>
                                           </ListSubheader>
                                       }
                                 >
                                     <ListItem>
-                                        <ListItemAvatar>
-                                            <Avatar>
-                                                R
-                                            </Avatar>
-                                        </ListItemAvatar>
+                                        <ListItemAvatar><Avatar
+                                            className={classes.pallet_four}><Face/></Avatar></ListItemAvatar>
                                         <ListItemText primary="Name"
                                                       secondary={name === null ? "No information" : name}/>
                                     </ListItem>
                                     <ListItem>
                                         <ListItemAvatar>
-                                            <Avatar>
-                                                R
+                                            <Avatar className={classes.pallet_three}>
+                                                <MailOutline/>
                                             </Avatar>
                                         </ListItemAvatar>
                                         <ListItemText primary="Email"
@@ -153,8 +173,8 @@ const Home = () => {
                                     </ListItem>
                                     <ListItem>
                                         <ListItemAvatar>
-                                            <Avatar>
-                                                R
+                                            <Avatar className={classes.pallet_two}>
+                                                <PhoneAndroid/>
                                             </Avatar>
                                         </ListItemAvatar>
                                         <ListItemText primary="Phone"
@@ -162,21 +182,13 @@ const Home = () => {
                                     </ListItem>
                                     <ListItem>
                                         <ListItemAvatar>
-                                            <Avatar>
-                                                R
+                                            <Avatar className={classes.pallet_one}>
+                                                <PeopleOutline/>
                                             </Avatar>
                                         </ListItemAvatar>
                                         <ListItemText primary="Group"
-                                                      secondary={groupName === null ? "No information" : groupName}/>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemAvatar>
-                                            <Avatar>
-                                                R
-                                            </Avatar>
-                                        </ListItemAvatar>
-                                        <ListItemText primary="Type"
-                                                      secondary={groupType === null ? "No information" : groupType}/>
+                                                      secondary={(groupName === null ? "No information" : groupName) + " - " +
+                                                      (groupType === null ? "No information" : groupType)}/>
                                     </ListItem>
                                 </List>
                             </Paper>
@@ -187,7 +199,8 @@ const Home = () => {
                     <Grid container item xs={9} justify={"center"}>
                         <Paper style={{width: "100%"}}>
                             <Grid item xs={12}>
-                                <Typography variant={"h6"} align={"center"} style={{padding:20}}>Upcoming tasks</Typography>
+                                <Typography variant={"h6"} align={"center"} style={{padding: 20}}>Upcoming
+                                    tasks</Typography>
                             </Grid>
                             <Grid item xs={12}>
                                 {tasks.length > 0 ? <GanttChart id={username} data={tasks} toggleMount={toggleMount}/> :
