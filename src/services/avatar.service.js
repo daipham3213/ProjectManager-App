@@ -1,11 +1,11 @@
 import axios from "axios";
 import authHeader from "./auth-header";
 
-const API_URL = process.env.REACT_APP_API_URL + "/avatars/";
+const API_URL = process.env.REACT_APP_API_URL + "/avatar";
 
 const getUserAvatar = (username) => {
     return axios
-        .get(API_URL + username + "/main", { headers: authHeader() })
+        .get(API_URL + "/main?userName="+ username, { headers: authHeader() })
         .catch((error) => {
             return error.response;
         });
@@ -13,7 +13,7 @@ const getUserAvatar = (username) => {
 
 const uploadAvatar = (username, file) => {
     return axios
-        .post(API_URL + username, file, { headers: authHeader() })
+        .post(API_URL +"?userName="+ username, file, { headers: authHeader() })
         .catch((error) => {
             return error.response;
         });
@@ -21,7 +21,7 @@ const uploadAvatar = (username, file) => {
 
 const deleteAvatar = (username, photoId) => {
     return axios
-        .delete(API_URL + username + "/" + photoId, { headers: authHeader() })
+        .delete(API_URL + "/" + photoId +"?userName="+username, { headers: authHeader() })
         .catch((error) => {
             return error.response;
         });

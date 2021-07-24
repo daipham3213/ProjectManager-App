@@ -56,7 +56,7 @@ const UserProfile = () => {
         }
         fetchProfile();
         document.title ="Profile - " + profile.name;
-    },[profile,userId]);
+    },[userId, JSON.stringify(profile)]);
 
     return (
         <div className="myprofile">
