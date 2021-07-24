@@ -8,6 +8,7 @@ import {Card} from "@material-ui/core";
 const columns = [
     {type: "string", label: "Task ID"},
     {type: "string", label: "Task Name"},
+    {type: "string", label: "Resource"},
     {type: "date", label: "Start"},
     {type: "date", label: "End"},
     {type: "number", label: "Duration"},
@@ -26,6 +27,7 @@ const formatData = (data) => {
         //Adding new Records
         let temp = [row.id,
             row.name,
+            p_n,
             start, end,
             daysToMilliseconds(row.duration),
             row.percent, p_n];
@@ -39,9 +41,10 @@ function daysToMilliseconds(days) {
 }
 
 function convertToDateSTD(string) {
-    let year = moment(string).year();
-    let month = moment(string).month();
-    let day = moment(string).day();
+    let date = moment(string.split("T").join(" "), "YYYY-MM-DD HH:mm:ss");
+    let year = date.year();
+    let month = date.month();
+    let day = date.date();
     // let hour = moment(string).hour();
     // let min = moment(string).minute();
     // let sec = moment(string).second();

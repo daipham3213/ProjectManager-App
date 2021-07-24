@@ -137,7 +137,7 @@ const ProjectCreateModal = ({
                             <Grid container={12} spacing={2}>
                                 <Grid item xs={12}>
                                     <Typography component="h6" variant="overline" className="newDepTitle">
-                                        Create New Department
+                                        Create New Project
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12}>

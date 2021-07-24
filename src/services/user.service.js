@@ -56,11 +56,37 @@ const changePassword = (UserName, CurrentPassword, NewPassword, NewPasswordConfi
             return error.response;
         });
 };
+
+const changeEmail = (username, password, newEmail) => {
+    return axios
+        .post(
+            API_URL +"/sendChangeEmail?username="+username+"&newEmail="+newEmail,
+            {password},
+            {headers:authHeader()},
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
+
+const updateProfile = (username, name, bio, email, phoneNumber)=> {
+    return axios
+        .put(
+            API_URL+"/updateProfile",
+            {username, name, bio, email, phoneNumber},
+            {headers:authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
 const UserService = {
     searchUser,
     getProfile,
     changePassword,
     getAvailable,
+    changeEmail,
+    updateProfile,
 };
 
 export default UserService;

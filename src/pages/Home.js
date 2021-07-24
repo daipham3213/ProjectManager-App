@@ -1,4 +1,5 @@
 import {
+    Button,
     Grid,
     List,
     ListItem,
@@ -10,13 +11,25 @@ import {
     Typography
 } from "@material-ui/core";
 import Linker from "../component/Linker";
-import {AccountTree, Assessment, Domain, Face, MailOutline, PeopleOutline, PhoneAndroid} from "@material-ui/icons";
+import {
+    AccountTree,
+    AdbRounded,
+    Assessment,
+    Domain,
+    Face,
+    MailOutline,
+    PeopleOutline,
+    PhoneAndroid
+} from "@material-ui/icons";
 import Tooltips from "../component/ToolTips";
 import Avatar from "@material-ui/core/Avatar";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {UserService} from "../services/services";
 import TaskServices from "../services/task.service";
 import GanttChart from "../component/Gantt";
+import moment from "moment";
+import AddIcon from "@material-ui/icons/Add";
+import TaskCreateModal from "./Task/TaskCreateModal";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -46,20 +59,20 @@ const useStyles = makeStyles((theme) => ({
         height: theme.spacing(8),
     },
     pallet_one: {
-        color: theme.palette.getContrastText("#2F1B41"),
-        backgroundColor: "#2F1B41",
+        color: theme.palette.getContrastText("#7579E7"),
+        backgroundColor: "#7579E7",
     },
     pallet_two: {
-        color: theme.palette.getContrastText("#872341"),
-        backgroundColor: "#872341",
+        color: theme.palette.getContrastText("#9AB3F5"),
+        backgroundColor: "#9AB3F5",
     },
     pallet_three: {
-        color: theme.palette.getContrastText("#BE3144"),
-        backgroundColor: "#BE3144",
+        color: theme.palette.getContrastText("#A3D8F4"),
+        backgroundColor: "#A3D8F4",
     },
     pallet_four: {
-        color: theme.palette.getContrastText("#F05941"),
-        backgroundColor: "#F05941",
+        color: theme.palette.getContrastText("#B9FFFC"),
+        backgroundColor: "#B9FFFC",
     },
 }))
 
@@ -68,13 +81,16 @@ const defaultAvatar = "https://res.cloudinary.com/projectmngapi/image/upload/v16
 const Home = () => {
     const classes = useStyles();
 
-    const [mount, setMount] = useState(false);
+    const [isShowing, setShowing] = useState(false);
+    const [mount, setMount] = useState(true);
+    const modalRef = useRef();
 
     const [profile, setProfile] = useState({});
     const [tasks, setTask] = useState([]);
 
-    const {avatarUrl, email, groupName, groupType, name, phoneNumber, username} = profile;
+    const {avatarUrl, email, groupName, groupType, name, phoneNumber, username, id, groupId} = profile;
     const toggleMount = () => setMount(!mount);
+    const toggle = () => setShowing(!isShowing);
 
     useEffect(() => {
         document.title = "Project Manager"
@@ -96,9 +112,32 @@ const Home = () => {
 
     return (
         <div className={classes.root}>
+            <TaskCreateModal
+                toggleMount={toggleMount}
+                toggle={toggle}
+                isShowed={isShowing}
+                modalRef={modalRef}
+                isOnReport={false}
+                groupId={groupId}
+            />
             <Grid container spacing={4} justify={"flex-start"}>
                 {/*Icons container*/}
-                <Grid container item justify={"center"} spacing={3} xs={12} style={{marginBottom: 20}}>
+                <Grid container xs={3} item justifyContent={"flex-start"}>
+                    <Paper>
+                        <List>
+                            <ListItem style={{margin:15}}>
+                                <ListItemAvatar >
+                                    <AdbRounded fontSize={"large"} color={"primary"}/>
+                                </ListItemAvatar>
+                                <ListItemText primary={"Hello, "+ name}
+                                              secondary={"Today is - " + moment().format("Do MM YYYY")}
+                                              id={id}
+                                />
+                            </ListItem>
+                        </List>
+                    </Paper>
+                </Grid>
+                <Grid container item justify={"flex-start"} spacing={3} xs={9} style={{marginBottom: 20}}>
                     <Tooltips contents={(
                         <Paper elevation={3} className={classes.topBtn}>
                             <Linker content={(
@@ -199,8 +238,17 @@ const Home = () => {
                     <Grid container item xs={9} justify={"center"}>
                         <Paper style={{width: "100%"}}>
                             <Grid item xs={12}>
-                                <Typography variant={"h6"} align={"center"} style={{padding: 20}}>Upcoming
-                                    tasks</Typography>
+                                <Typography variant={"h6"} align={"center"} style={{paddingTop: 20}}>
+                                    Upcoming tasks
+                                </Typography>
+                            </Grid>
+                            <Grid container justifyContent={"flex-end"} item xs={12}>
+                                <Button>
+                                    <Typography variant={"overline"} align={"center"} display={"block"} onClick={toggle}>
+                                        Create task
+                                    </Typography>
+                                    <AddIcon/>
+                                </Button>
                             </Grid>
                             <Grid item xs={12}>
                                 {tasks.length > 0 ? <GanttChart id={username} data={tasks} toggleMount={toggleMount}/> :

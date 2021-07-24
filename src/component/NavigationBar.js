@@ -71,7 +71,14 @@ export default function NavigationBar(props: AppBarProps) {
 
 
     const renderMenu = (
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+        <Popper
+            id={"popper-account"}
+            open={open}
+            anchorEl={anchorRef.current}
+            role={undefined}
+            transition disablePortal
+
+            style={{marginTop: 20, zIndex:1}}>
             {({TransitionProps, placement}) => (
                 <Grow
                     {...TransitionProps}
@@ -88,7 +95,7 @@ export default function NavigationBar(props: AppBarProps) {
 
                                 <MenuItem onClick={handleClose}>
                                     <Link
-                                        component={RouterLink} to={"/profile/" + localStorage.getItem("username")}
+                                        component={RouterLink} to={"/settings"}
                                         variant="body1"
                                         color="secondary"
                                         underline="none"

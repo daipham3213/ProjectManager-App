@@ -1,12 +1,9 @@
 import React, {Component} from 'react';
-import UserProfile from './pages/Usepage/UserProfile';
+import UserProfile from './pages/Account/UserProfile';
 import './App.css';
-import {EditGroup} from './pages/NewGroup/EditGroup';
-import {NewGroup} from './pages/NewGroup/NewGroup';
 import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
 import PrivateRoute from "./component/PrivateRoute";
 import AuthPage from "./pages/Authentication/AuthPage";
-import {Group} from "./pages/Group";
 import {AuthService} from "./services/services";
 import {Employee} from "./pages/Employee";
 import Home from "./pages/Home";
@@ -17,6 +14,8 @@ import ProjectEdit from "./pages/Project/ProjectEdit";
 import ReportList from "./pages/Report/ReportList";
 import ReportEdit from "./pages/Report/ReportEdit";
 import MiniDrawer from "./component/Drawer";
+import Group from "./pages/Group/Group";
+import AccSettings from "./pages/Account/AccSettings";
 
 
 export default class App extends Component {
@@ -43,10 +42,8 @@ export default class App extends Component {
                                 <PrivateRoute exact path="/report" component={Link}><ReportList/></PrivateRoute>
                                 <PrivateRoute exact path="/report/:reportId" component={Link}><ReportEdit/></PrivateRoute>
                                 <PrivateRoute exact path="/group" component={Link}><Group/></PrivateRoute>
-                                <PrivateRoute exact path="/group/:groupID" component={Link}><EditGroup/></PrivateRoute>
-                                <PrivateRoute exact path="/group/create" component={Link}><NewGroup/></PrivateRoute>
-                                <PrivateRoute exact path="/employee" component={Link}><Employee/></PrivateRoute>
                                 <Route exact path="/profile/:userId" component={Link}><UserProfile/></Route>
+                                <Route exact path="/settings" component={Link}><AccSettings/></Route>
                             </Switch>
                         </div>
                     )}/>

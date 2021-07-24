@@ -18,8 +18,8 @@ import EditIcon from "@material-ui/icons/Edit";
 
 const Chart = ({phase, loadPhaseId, togglePhaseEdit, toggleMount}) => {
     let start = moment(phase.startDate).format("MMM Do YYYY");
-    let end = moment(phase.endDate).format("MMM Do YYYY");
-    const NoValue = (
+    let end = moment(phase.dueDate).format("MMM Do YYYY");
+    const  NoValue = (
         <Grid item xs={12}>
             <Typography variant="body2" align="center">No value</Typography>
         </Grid>

@@ -145,6 +145,7 @@ const MiniDrawer = ({contents}) => {
                 <ConfirmProvider defaultOptions={{
                     confirmationButtonProps: {autoFocus: true}
                 }}>
+
                     <SnackbarProvider maxSnack={3}
                                       autoHideDuration={3000}
                                       anchorOrigin={{vertical: 'bottom', horizontal: 'center',}}

@@ -77,22 +77,22 @@ const TaskCreateModal = ({
     }
 
     useEffect(() => {
-        PhaseService.getList(reportId)
-            .then((result) => {
-                if (result.status === 200) {
-                    loadPhases(result.data);
-                } else console.log(result.data.message);
-            })
-            .catch(() => {
-                enqueueSnackbar("Internal Server Error", {variant: 'error'});
-            });
-
         if (!isOnReport)
             ReportService.getList("")
                 .then((r) => {
                     if (r.status === 200) {
                         loadReports(r.data);
                     } else console.log(r.data.message);
+                })
+                .catch(() => {
+                    enqueueSnackbar("Internal Server Error", {variant: 'error'});
+                });
+        if (reportId !== "" || rpId !== "")
+            PhaseService.getList(reportId ?? rpId)
+                .then((result) => {
+                    if (result.status === 200) {
+                        loadPhases(result.data);
+                    } else console.log(result.data.message);
                 })
                 .catch(() => {
                     enqueueSnackbar("Internal Server Error", {variant: 'error'});
@@ -121,7 +121,7 @@ const TaskCreateModal = ({
                     enqueueSnackbar("Internal Server Error", {variant: 'error'});
                 });
 
-    }, [groupId, phaseId, reportId, isOnReport]);
+    }, [groupId, phaseId, reportId, isOnReport, rpId]);
 
     const reportSelect = () => {
         return (
@@ -211,8 +211,8 @@ const TaskCreateModal = ({
                     variant="outlined"
                     onChange={changeMemberId}
                     label="Member"
-                    fullWidth
                     required
+                    fullWidth
                     size={"small"}
                 >
                     <MenuItem value={""}>Select</MenuItem>
@@ -252,118 +252,117 @@ const TaskCreateModal = ({
     const createForm = () => {
         return (
             <>
-                <Grid item xs={12}>
-                    <TextField
-                        type="text"
-                        onChange={changeName}
-                        label="Task Name"
-                        variant="outlined"
-                        required
-                        fullWidth
-                        id="name"
-                        name="name"
-                        helperText={error.name}
-                        size={"small"}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        type="text"
-                        onChange={changeRemark}
-                        label="Description"
-                        variant="outlined"
-                        fullWidth
-                        id="description"
-                        name="description"
-                        size={"small"}
-                    />
-                </Grid>
-                {!isOnReport ? reportSelect() : null}
-                {phases?.length ? phaseSelect() : null}
-                {phaseId !== "" ? taskSelect() : null}
-                {phaseId !== "" ? memberSelect() : null}
-                {tasks.length !== 0 ? (
+                <Grid container item xs={6} justifyContent={"center"} spacing={2}>
                     <Grid item xs={12}>
                         <TextField
-                            type="date"
-                            onChange={changeStartDate}
-                            value={startDate}
-                            label="Start Date"
+                            type="text"
+                            onChange={changeName}
+                            label="Task Name"
                             variant="outlined"
                             required
                             fullWidth
-                            id="startDate"
-                            name="startDate"
-                            size={"small"}
+                            id="name"
+                            name="name"
+                            helperText={error.name}
+
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            type="text"
+                            onChange={changeRemark}
+                            label="Description"
+                            variant="outlined"
+                            fullWidth
+                            id="description"
+                            name="description"
+                        />
+                    </Grid>
+                    {tasks.length !== 0 ? (
+                        <Grid item xs={12}>
+                            <TextField
+                                type="date"
+                                onChange={changeStartDate}
+                                value={startDate}
+                                label="Start Date"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="startDate"
+                                name="startDate"
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                helperText={error.startDate}
+                            />
+                        </Grid>
+                    ) : null}
+                    <Grid item xs={12}>
+                        <TextField
+                            type="date"
+                            onChange={changeDueDate}
+                            value={dueDate}
+                            label="End Date"
+                            variant="outlined"
+                            required
+                            fullWidth
+                            id="endDate"
+                            name="endDate"
+                            helperText={error.dueDate}
                             InputLabelProps={{
                                 shrink: true,
                             }}
-                            helperText={error.startDate}
                         />
                     </Grid>
-                ) : null}
-                <Grid item xs={12}>
-                    <TextField
-                        type="date"
-                        onChange={changeDueDate}
-                        value={dueDate}
-                        label="End Date"
-                        variant="outlined"
-                        required
-                        fullWidth
-                        id="endDate"
-                        name="endDate"
-                        size={"small"}
-                        helperText={error.dueDate}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
+                    <Grid item xs={12}>
+                        <SliderCustom
+                            title={"Progress"}
+                            value={percent}
+                            onChange={changePercent}
+                        />
+                    </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                    <SliderCustom
-                        title={"Progress"}
-                        value={percent}
-                        onChange={changePercent}
-                    />
+                <Grid container item xs={6} justifyContent={"center"} spacing={2}>
+                    {!isOnReport ? reportSelect() : null}
+                    {phases?.length ? phaseSelect() : null}
+                    {phaseId !== "" ? taskSelect() : null}
+                    {phaseId !== "" ? memberSelect() : null}
                 </Grid>
-                <Grid item={8}/>
-                <Grid item xs={4}>
-                    <Button
-                        color="primary"
-                        onClick={() => {
-                            createHandler();
-                        }}
-                    >
-                        Create
-                    </Button>
-                    <Button
-                        color="secondary"
-                        onClick={() => {
-                            toggle();
-                            document.body.style.overflow = "auto";
-                        }}
-                    >
-                        Cancel
-                    </Button>
+                <Grid container item xs={4} justifyContent={"center"} spacing={2}>
+                        <Button
+                            color="primary"
+                            onClick={() => {
+                                createHandler();
+                            }}
+                        >
+                            Create
+                        </Button>
+                        <Button
+                            color="secondary"
+                            onClick={() => {
+                                toggle();
+                                document.body.style.overflow = "auto";
+                            }}
+                        >
+                            Cancel
+                        </Button>
                 </Grid>
             </>
         )
     }
-    return isShowed
-        ? ReactDOM.createPortal(
+    return isShowed ? ReactDOM.createPortal(
             <div>
                 <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
                     <Grid container xs={12} spacing={2} style={{padding: 10}} justify="center" direction="row">
                         <Grid item xs={12}>
                             <Typography
-                                variant="h6"
-                                style={{fontSize: 32, fontWeight: "bold"}}>
+                                variant="overline"
+                                style={{fontSize: 32, fontWeight: "revert"}}>
                                 Create new task
                             </Typography>
                         </Grid>
-                        {phases?.length ? createForm() : emptyPhase()}
+                        {(phases?.length || !isOnReport) ? createForm() : emptyPhase()}
                     </Grid>
                 </Paper>
             </div>, document.body

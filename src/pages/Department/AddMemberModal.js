@@ -9,6 +9,8 @@ import Avatar from "@material-ui/core/Avatar";
 import {Paper} from "@material-ui/core";
 import {DataGrid} from "@material-ui/data-grid";
 import Linker from "../../component/Linker";
+import {useConfirm} from "material-ui-confirm";
+import {useSnackbar} from "notistack";
 
 const AddMemberModal = ({
                             isShowing,
@@ -20,6 +22,8 @@ const AddMemberModal = ({
 
     const classes = useStyles();
     const {loading, onLoading, offLoading} = useLoading();
+    const confirm = useConfirm();
+    const {enqueueSnackbar} = useSnackbar()
 
     isShowing && (document.body.style.overflow = "hidden");
     const [users, setUsers] = useState([]);
@@ -32,17 +36,17 @@ const AddMemberModal = ({
         setUsers(item)
     }
 
-    const addMembers = async (groupName, ids) => {
+    const addMembers =  (groupName, ids) => {
         toggleModal();
         toggleMount();
         onLoading();
         if (ids.length === 0) {
-            alert("Please select a user.");
-        } else await GroupService.addMembers(groupName, ids)
+            enqueueSnackbar("Please select at least one member.", {variant:"warning"});
+        } else  GroupService.addMembers(groupName, ids)
             .then(r => {
                 if (r.status === 200)
                     loadUsernames(r.data);
-                else alert(r.data.message);
+                else enqueueSnackbar(r.data.message, {variant:"warning"});
             });
         offLoading();
         document.body.style.overflow = "auto";
@@ -54,7 +58,10 @@ const AddMemberModal = ({
                 if (r.status === 200) {
                     loadUsers(r.data);
                     console.log(r.data);
-                } else alert(r.data.message)
+                } else enqueueSnackbar(r.data.message, {variant:"warning"});
+            })
+            .catch((r) => {
+                enqueueSnackbar(r, {variant:"error"});
             })
         const handleClickOutside = (event) => {
             if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -109,7 +116,6 @@ const AddMemberModal = ({
                             checkboxSelection
                             onSelectionModelChange={(p) => {
                                 setUserNames(p.selectionModel);
-                                //console.log(p.selectionModel + " selected");
                             }}
                             pageSize={5}
                         />

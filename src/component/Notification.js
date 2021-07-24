@@ -39,7 +39,7 @@ const Notification = ({setOpen, open, anchorRef, handleClose}) => {
     }
 
     return (
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal style={{zIndex:1}}>
             {({ TransitionProps, placement }) => (
                 <Grow
                     {...TransitionProps}

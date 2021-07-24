@@ -114,11 +114,10 @@ const ProjectList = () => {
                         <Typography variant="h6" align="center">PROJECTS</Typography>
                     </Grid>
                 </Grid>
-                <Grid container justify="center" >
+                <Grid container justifyContent={"space-between"} >
                     <Grid item xs={3}>
                         <BackButton children="Back to home" switchTo={"/"}/>
                     </Grid>
-                    <Grid item xs={7}/>
                     <Grid item xs={2}>
                         <Button onClick={toggleCreate}>
                             <AddIcon/> Create

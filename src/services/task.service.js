@@ -91,6 +91,16 @@ const editTask = (taskId, name, remark, dueDate, startDate, percent, phaseId, us
             return error.response;
         });
 }
+const getContrib = (userId) =>{
+    return axios
+        .get(
+            API_URL + "/contrib?userId=" +userId,
+            {headers: authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
 
 const TaskServices = {
     postTask,
@@ -101,5 +111,6 @@ const TaskServices = {
     deleteTask,
     editTask,
     getListByUser,
+    getContrib,
 }
 export default TaskServices;
