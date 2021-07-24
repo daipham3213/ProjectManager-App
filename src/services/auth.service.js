@@ -1,7 +1,13 @@
 import axios from "axios";
 import moment from "moment";
 import authHeader from "./auth-header";
+import tough from 'tough-cookie';
+import Cookies from 'js-cookie';
+
 const API_URL = process.env.REACT_APP_API_URL + "/User";
+const axiosCookieJarSupport = require('axios-cookiejar-support');
+axiosCookieJarSupport(axios);
+const cookies = new tough.CookieJar();
 
 const register = (username, password, email, name, phoneNumber) => {
     return axios
@@ -23,7 +29,7 @@ const login = (username, password, rememberme) => {
             username,
             password,
             rememberme,
-        }, {headers: authHeader()})
+        })
         .catch((error) => {
             return error.response;
         });
@@ -32,22 +38,20 @@ const login = (username, password, rememberme) => {
 const isLoggedIn = () => {
     let token;
     const exp = localStorage.getItem("expTime");
-    const nowTime = moment();
-    const clientTime = moment(exp);
-
-    if (exp !== null && nowTime>clientTime)
+    const clientTime = moment().diff(moment(exp));
+    if (clientTime>0 && exp!==null)
         refreshToken().then((r) => {
             if (r.status !== 200) {
                revokeToken().then((r) => {
                    if(r.status !== 200){
                        logout();
-                       token = localStorage.getItem("token");
-                       alert("Please re-login. For security reason.");
+                       return !!token;
                    }
                })
             } else {
                 saveLogin(r.data);
                 console.log("token refreshed");
+                return !!token;
             }
             ;
         }).catch((r) => {
@@ -72,7 +76,7 @@ const saveLogin = (response) => {
     localStorage.setItem("roles", response.data.roleName);
     localStorage.setItem("id", response.data.id);
     localStorage.setItem("expTime", response.data.expTime);
-    localStorage.setItem("refreshToken",response.data.refreshToken);
+    cookies.setCookie('refreshToken='+response.data.refreshToken+'; path=/; domain=localhost', process.env.REACT_APP_API_URL);
 }
 
 const getCurrentUser = () => {
@@ -80,12 +84,11 @@ const getCurrentUser = () => {
 };
 
 const refreshToken = () => {
-    let token = localStorage.getItem("refreshToken");
     return axios
         .post(
             API_URL +
-            "/refresh-token?token=" + token,
-            {header: authHeader()}
+            "/refresh-token",
+            {header: authHeader(),withCredentials: true, jar: cookies}
         )
         .catch((error) => {
             return error.response;
@@ -93,12 +96,12 @@ const refreshToken = () => {
 };
 
 const revokeToken = () => {
-    let token = localStorage.getItem("refreshToken");
+    let token = Cookies.get('refreshToken');
     return axios
         .post(
             API_URL +
             "/revoke-token",
-            {token}
+            {token},
         )
         .catch((error) => {
             return error.response;

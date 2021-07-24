@@ -6,9 +6,11 @@ import FullscreenLoading from "../../component/FullScreenLoading";
 
 import * as ReactDOM from "react-dom";
 import Avatar from "@material-ui/core/Avatar";
-import {Button, Paper} from "@material-ui/core";
-import {useHistory} from "react-router-dom";
+import {Paper} from "@material-ui/core";
 import {DataGrid} from "@material-ui/data-grid";
+import Linker from "../../component/Linker";
+import {useConfirm} from "material-ui-confirm";
+import {useSnackbar} from "notistack";
 
 const AddMemberModal = ({
                             isShowing,
@@ -19,8 +21,9 @@ const AddMemberModal = ({
                         }) => {
 
     const classes = useStyles();
-    const history = useHistory();
     const {loading, onLoading, offLoading} = useLoading();
+    const confirm = useConfirm();
+    const {enqueueSnackbar} = useSnackbar()
 
     isShowing && (document.body.style.overflow = "hidden");
     const [users, setUsers] = useState([]);
@@ -33,33 +36,33 @@ const AddMemberModal = ({
         setUsers(item)
     }
 
-    const addMembers = async (groupName, ids) => {
+    const addMembers =  (groupName, ids) => {
         toggleModal();
         toggleMount();
         onLoading();
         if (ids.length === 0) {
-            alert("Please select a user.");
-        } else await GroupService.addMembers(groupName, ids)
+            enqueueSnackbar("Please select at least one member.", {variant:"warning"});
+        } else  GroupService.addMembers(groupName, ids)
             .then(r => {
                 if (r.status === 200)
                     loadUsernames(r.data);
-                else alert(r.data.message);
+                else enqueueSnackbar(r.data.message, {variant:"warning"});
             });
         offLoading();
         document.body.style.overflow = "auto";
     }
 
     useEffect(() => {
-        const loadUser = async () => {
-            await UserService.getAvailable()
-                .then(r => {
-                    if (r.status === 200) {
-                        loadUsers(r.data);
-                        console.log(r.data);
-                    } else alert(r.data.message)
-                })
-        }
-        loadUser();
+        UserService.getAvailable()
+            .then(r => {
+                if (r.status === 200) {
+                    loadUsers(r.data);
+                    console.log(r.data);
+                } else enqueueSnackbar(r.data.message, {variant:"warning"});
+            })
+            .catch((r) => {
+                enqueueSnackbar(r, {variant:"error"});
+            })
         const handleClickOutside = (event) => {
             if (modalRef.current && !modalRef.current.contains(event.target)) {
                 toggleModal();
@@ -93,15 +96,12 @@ const AddMemberModal = ({
             renderCell: (params) => {
                 let id = params.rows?.id;
                 return (
-                    <Button onClick={() => handleProfile(id)}>See profile</Button>
+                    <Linker to={"/profile/" + id} isButton={true} content={"See profile"}/>
                 )
             }
         }
     ];
 
-    const handleProfile = (e) => {
-        history.push("/profile?id=" + e)
-    }
 
     return isShowing
         ? ReactDOM.createPortal(
@@ -116,7 +116,6 @@ const AddMemberModal = ({
                             checkboxSelection
                             onSelectionModelChange={(p) => {
                                 setUserNames(p.selectionModel);
-                                //console.log(p.selectionModel + " selected");
                             }}
                             pageSize={5}
                         />

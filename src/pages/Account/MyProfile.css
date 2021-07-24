@@ -1,7 +1,8 @@
 .Myprofile {
     flex:4;
     padding: 20px;
-    
+    width: 100%;
+    height: 100%;
 }
 
 .profileTitleContainer{
@@ -25,7 +26,7 @@
 .profileContainer{
     display: flex;
     margin-top: 20px;
-    padding: 0 250px 0 250px;
+    padding: 0 10px 0 10px;
 } 
 .profileShow{
     flex: 1;

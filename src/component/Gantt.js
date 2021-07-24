@@ -1,13 +1,16 @@
 import {Chart} from 'react-google-charts';
 import moment from "moment";
-import FullscreenLoading from "./FullScreenLoading";
+import {useRef, useState} from "react";
+import TaskEditModal from "../pages/Task/TaskEditModal";
+import {Card} from "@material-ui/core";
+
 
 const columns = [
     {type: "string", label: "Task ID"},
     {type: "string", label: "Task Name"},
-    {type: "string", label: "Description"},
-    {type: "date", label: "Start Date"},
-    {type: "date", label: "End Date"},
+    {type: "string", label: "Resource"},
+    {type: "date", label: "Start"},
+    {type: "date", label: "End"},
     {type: "number", label: "Duration"},
     {type: "number", label: "Percent Complete"},
     {type: "string", label: "Dependencies"}
@@ -21,11 +24,15 @@ const formatData = (data) => {
             p_n = row.parentNId;
         let start = convertToDateSTD(row.startDate);
         let end = convertToDateSTD(row.dueDate);
-
         //Adding new Records
-        let temp = [row.id, row.name, row.remark === "" ? null : row.remark, start, end, daysToMilliseconds(row.duration), row.percent, p_n];
+        let temp = [row.id,
+            row.name,
+            p_n,
+            start, end,
+            daysToMilliseconds(row.duration),
+            row.percent, p_n];
         r.push(temp);
-    })
+    });
     return r;
 }
 
@@ -34,71 +41,79 @@ function daysToMilliseconds(days) {
 }
 
 function convertToDateSTD(string) {
-    let year = moment(string).year();
-    let month = moment(string).month();
-    let day = moment(string).day();
-    let hour = moment(string).hour();
-    let min = moment(string).minute();
-    let sec = moment(string).second();
-
-    return new Date(year, month, day, hour, min, sec)
+    let date = moment(string.split("T").join(" "), "YYYY-MM-DD HH:mm:ss");
+    let year = date.year();
+    let month = date.month();
+    let day = date.date();
+    // let hour = moment(string).hour();
+    // let min = moment(string).minute();
+    // let sec = moment(string).second();
+    return new Date(year, month, day);
 }
 
 
-const GanttChart = ({data = []}) => {
+const GanttChart = ({data, id, toggleMount}) => {
+    const [isShow, setIsShow] = useState(false);
+    const [taskId, setTaskId] = useState("");
     let records = formatData(data);
-    let rowHeight = 45;
 
+
+    const modalRef = useRef(null);
+
+    const toggleModal = (val) => {
+        loadTaskId(val);
+        setIsShow(!isShow);
+    }
+    const loadTaskId = (value) => setTaskId(value);
+
+
+    let counter = records.length > 5 ? records.length : 5
     let options = {
-        height: ((data.length * rowHeight) + rowHeight),
+        height: (counter * 45 + 45),
+        width: "100%",
         gantt: {
             animation: {
-                duration: 300,
-                easing: 'linear',
+                easing: 'out',
                 startup: true,
             },
-            chartArea: {
-                width: '100%',
-                height: '150%',
-            },
-            palette: [
-                {
-                    "color": "#3e77ca",
-                    "dark": "#4cc9ac",
-                    "light": "#3e77ca"
-                }
-            ],
-            title: "Gantt Chart"
-        }
+        },
+        legend: { position: "bottom" }
     };
 
     let chartEvents = [
         {
-            eventName: 'select',
-            callback: ({chartWrapper}) => {
-                const chart = chartWrapper.getChart()
-                const selection = chart.getSelection()
-                if (selection.length === 1) {
-                    const [selectedItem] = selection
-                    const dataTable = chartWrapper.getDataTable()
-                    const {row} = selectedItem
-                    console.log(
-                       dataTable.getValue(row,0)
-                    )
-                }
-            },
+            eventName: 'ready',
+            callback: ({chartWrapper, google}) => {
+                const chart = chartWrapper.getChart();
+                google.visualization.events.addListener(chart, "select", e => {
+                    const select = chart.getSelection();
+                    const dataTable = chartWrapper.getDataTable();
+                    if (select.length > 0)
+                        toggleModal(dataTable.getValue(select[0].row, 0));
+                });
+            }
+
         },
     ];
     return (
-        <Chart
-            loader={<div><FullscreenLoading/></div>}
-            width={'100%'}
-            height={'100%'}
-            chartType="Gantt"
-            data={[columns, ...records]}
-            options={options}
-            chartEvents={chartEvents}
-        />
+        <div key={id}>
+            <TaskEditModal
+                taskId={taskId}
+                isShow={isShow}
+                toggle={toggleModal}
+                modalRef={modalRef}
+                toggleMount={toggleMount}
+            />
+            <Card variant={"outlined"} placeholder={"No value"}>
+                <Chart
+                    chartType="Gantt"
+                    data={[columns, ...records]}
+                    chartEvents={chartEvents}
+                    options={options}
+                    legendToggle={true}
+                />
+            </Card>
+        </div>
     )
 }
 export default GanttChart;

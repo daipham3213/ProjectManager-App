@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import {RequestService} from "../services/services";
-import {ClickAwayListener, Grow, MenuList, Paper, Popper} from "@material-ui/core";
-import MenuItem from "@material-ui/core/MenuItem";
+import {Grow, Paper, Popper} from "@material-ui/core";
 
 
 const Notification = ({setOpen, open, anchorRef, handleClose}) => {
@@ -40,14 +39,13 @@ const Notification = ({setOpen, open, anchorRef, handleClose}) => {
     }
 
     return (
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal style={{zIndex:1}}>
             {({ TransitionProps, placement }) => (
                 <Grow
                     {...TransitionProps}
                     style={{ transformOrigin: placement === 'bottom' ? 'left top' : 'left bottom' }}
                 >
                     <Paper >
-                        <>
                             <h3
                                 style={{
                                     backgroundColor: '#fff',
@@ -91,7 +89,6 @@ const Notification = ({setOpen, open, anchorRef, handleClose}) => {
                                     </div>
                                 )
                             })}
-                        </>
                     </Paper>
                 </Grow>
             )}

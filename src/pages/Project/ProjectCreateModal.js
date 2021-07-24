@@ -8,17 +8,16 @@ import * as ReactDOM from "react-dom";
 import {Grid, Paper, TextField, Typography} from "@material-ui/core";
 import FullscreenLoading from "../../component/FullScreenLoading";
 import moment from "moment";
+import {useSnackbar} from "notistack";
 
 
 const ProjectCreateModal = ({
                                 isShowing,
                                 modalRef,
                                 toggleModal,
-                                onReload,
                                 toggleMount,
                             }) => {
     const classes = useStyles();
-    const history = useHistory();
     const {loading, onLoading, offLoading} = useLoading();
 
     isShowing && (document.body.style.overflow = "hidden");
@@ -28,6 +27,8 @@ const ProjectCreateModal = ({
     const [startDate, setStartDate] = useState(moment().format("DD-MM-YYYY"));
     const [dueDate, setDueDate] = useState(moment().format("DD-MM-YYYY"));
     const [error, setError] = useState({});
+
+    const {enqueueSnackbar} = useSnackbar();
 
     const loadName = (value) => {
         setName(value.target.value);
@@ -106,20 +107,19 @@ const ProjectCreateModal = ({
         return isError;
     }
 
-    const handleSubmit = async () => {
+    const handleSubmit =  () => {
         if (!validate()) {
             onLoading();
-            await ProjectService.postProject(name, remark, dueDate, startDate)
+             ProjectService.postProject(name, remark, dueDate, startDate)
                 .then((r) => {
                     if (r.status === 204 || r.status === 200) {
                         toggleModal();
-                        onReload();
                         toggleMount();
+                        enqueueSnackbar("Submit successfully", {variant:"success"})
                     }
-                    else
-                        alert(r.message);
+                    else enqueueSnackbar(r.data.message, {variant:"warning"})
                 }, null).catch((r) => {
-                    console.log(r);
+                    enqueueSnackbar(r, {variant:"error"})
                 });
         }
         document.body.style.overflow = "auto";
@@ -137,7 +137,7 @@ const ProjectCreateModal = ({
                             <Grid container={12} spacing={2}>
                                 <Grid item xs={12}>
                                     <Typography component="h6" variant="overline" className="newDepTitle">
-                                        Create New Department
+                                        Create New Project
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12}>

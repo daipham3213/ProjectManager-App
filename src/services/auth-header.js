@@ -1,12 +1,11 @@
-
-import axios from "axios";
+const axios = require('axios');
 
 export default function authHeader() {
     const token = localStorage.getItem("token");
     axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
+    axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
     if (token) {
-        return {Authorization: "Bearer " + token, withCredentials: true, 'Access-Control-Allow-Origin' : '*',
-            'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS', 'content-type': 'application/json'};
+        return {Authorization: "Bearer " + token};
     } else {
         return {};
     }

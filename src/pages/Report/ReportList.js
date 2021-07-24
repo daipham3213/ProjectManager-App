@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useLoading} from "../../component/hooks/hooks";
 import {GroupService, ProjectService, ReportService} from "../../services/services";
 import {Button, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Typography} from "@material-ui/core";
@@ -10,8 +10,10 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import moment from "moment";
 import BackButton from "../../component/BackButton";
-import ContextProvider from "../../component/ContextProvider";
 import AddIcon from "@material-ui/icons/Add";
+import Linker from "../../component/Linker";
+import {useConfirm} from "material-ui-confirm";
+import {useSnackbar} from "notistack";
 
 
 const ReportList = () => {
@@ -27,6 +29,8 @@ const ReportList = () => {
     const [isShowCreate, setIsShowCreate] = useState(false);
     const modelRef = useRef();
     const classes = useStyles();
+    const confirm = useConfirm();
+    const {enqueueSnackbar} = useSnackbar();
 
     const loadReports = (value) => setReports(value);
     const loadGroups = (value) => setGroups(value);
@@ -34,81 +38,80 @@ const ReportList = () => {
     const loadFData = (value) => setFData(value);
     const loadGroup = (value) => {
         setGroupName(value.target.value);
-        filterData(value.target.value, prjName);
     }
     const loadPrjName = (value) => {
         setPrjName(value.target.value);
-        filterData(groupName, value.target.value);
     }
 
     const toggleMount = () => setMounted(!mounted);
     const toggleCreate = () => setIsShowCreate(!isShowCreate);
 
-    const filterData = (gName, pName) => {
-        let filtered;
-        if (gName === "All" && pName === "All") {
-            filtered = reports;
-        }
-        if (gName !== "All" && pName === "All") {
-            filtered = reports.filter(f => f.groupName === gName);
-        }
-        if (gName === "All" && pName !== "All") {
-            filtered = reports.filter(f => f.projectName === pName);
-        }
-        if (gName !== "All" && pName !== "All") {
-            filtered = reports.filter(f => f.projectName === pName && f.groupName === gName);
-        }
-        loadFData(filtered);
-    }
-
-    const fetchGroups = async () => {
-        await GroupService.getList("")
+    useEffect(() => {
+        onLoading();
+        GroupService.getList("")
             .then((r) => {
                 if (r.status === 200) {
                     loadGroups(r.data);
-                } else console.log(r.data.message);
+                } else enqueueSnackbar(r.data.message, { variant: 'warning' });
             })
             .catch(() => {
-                console.log("Internal server error");
+                enqueueSnackbar("Internal Server Error", { variant: 'error' });
             })
-    }
-
-    const fetchReports = async () => {
-        await ReportService.getList("")
+        ReportService.getList("")
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     loadReports(r.data);
                     loadFData(r.data);
                 } else console.log(r.data.message);
             }).catch(() => {
-                console.log("Internal Server Error.");
-            })
-    }
-
-    const fetchProjects = async () => {
-        await ProjectService.getList()
+            enqueueSnackbar("Internal Server Error", { variant: 'error' });
+        })
+        ProjectService.getList()
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     loadProjects(r.data);
                 } else console.log(r.data.message);
             }).catch(() => {
-                console.log("Internal Server Error.");
-            })
-    }
-
-    useEffect(() => {
-        onLoading();
-        fetchReports();
-        fetchGroups();
-        fetchProjects();
+            enqueueSnackbar("Internal Server Error", { variant: 'error' });
+        })
+        document.title = "Report List";
         offLoading();
     }, [mounted, setMounted]);
 
     useEffect(() => {
-        filterData(groupName, prjName);
-    }, [groupName, prjName]);
+        let filtered;
+        if (groupName === "All" && prjName === "All") {
+            filtered = reports;
+        }
+        if (groupName !== "All" && prjName === "All") {
+            filtered = reports.filter(f => f.groupName === groupName);
+        }
+        if (groupName === "All" && prjName !== "All") {
+            filtered = reports.filter(f => f.projectName === prjName);
+        }
+        if (groupName !== "All" && prjName !== "All") {
+            filtered = reports.filter(f => f.projectName === prjName && f.groupName === groupName);
+        }
+        loadFData(filtered);
+    }, [groupName, prjName, reports]);
 
-    const {switchToEditRp} = useContext(ContextProvider);
+    const handleDelete = (reportId) => {
+        confirm({description: "Are you sure?"})
+            .then(() => {
+                onLoading();
+                ReportService.deleteReport(reportId)
+                    .then((r) => {
+                        if (r.status === 200 ){
+                            toggleMount();
+                            enqueueSnackbar("Deleted successfully",{variant:"success"})
+                        } else  enqueueSnackbar(r.data.message,{variant:"warning"})
+                    })
+            })
+            .catch((r)=> {
+                enqueueSnackbar(r,{variant:"error"})
+        })
+        offLoading();
+    }
 
     const columns = [
         {field: "name", headerName: "Report name", width: 200},
@@ -133,11 +136,9 @@ const ReportList = () => {
             renderCell: (params) => {
                 return (
                     <>
-                        <Button onClick={() => switchToEditRp(params.row.id)}>
-                            <EditIcon color="primary"/>
-                        </Button>
-                        <Button onClick={() => switchToEditRp(params.row.id)}>
-                            <DeleteOutlinedIcon color="primary"/>
+                        <Linker to={"/report/" + params.row.id} content={<EditIcon/>}/>
+                        <Button onClick={() => handleDelete(params.row.id)}>
+                            <DeleteOutlinedIcon color="secondary"/>
                         </Button>
                     </>
                 );
@@ -146,101 +147,103 @@ const ReportList = () => {
     ];
 
     return (
-        <Paper className={classes.root}>
+        <>
             {loading ? <FullscreenLoading/> : null}
-            <ReportCreateModal
-                toggleMount={toggleMount}
-                toggle={toggleCreate}
-                showPrjList={true}
-                projectId={""}
-                modalRef={modelRef}
-                isShowed={isShowCreate}
-            />
-            <Grid container justify="center" spacing={3}>
-                <Grid item xs={1}>
-                    <Typography variant="h6" align="center">REPORTS</Typography>
-                </Grid>
-            </Grid>
-            <Grid container spacing={3}
-                  classes={classes.container}
-                  direction="column"
-                  justify="center">
-                <Grid container
-                      direction="row"
-                      justify="flex-end"
-                      alignItems="center"
-                      spacing={3}
-                >
+            <Paper className={classes.root}>
+                <ReportCreateModal
+                    toggleMount={toggleMount}
+                    toggle={toggleCreate}
+                    showPrjList={true}
+                    projectId={""}
+                    modalRef={modelRef}
+                    isShowed={isShowCreate}
+                />
+                <Grid container justifyContent="center" spacing={3}>
                     <Grid item xs={2}>
-                        <BackButton children="Back to Home"/>
-                    </Grid>
-                    <Grid item xs={2} onClick={toggleCreate}>
-                        <Button>
-                            <AddIcon/> Create new report
-                        </Button>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Typography variant="overline" display="block" gutterBottom align="right">
-                            Filters
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <FormControl className={classes.formControl} fullWidth variant="outlined">
-                            <InputLabel>Groups</InputLabel>
-                            <Select
-                                labelId="group-label"
-                                id="group-select"
-                                value={groupName}
-                                variant="outlined"
-                                onChange={loadGroup}
-                                label="Group"
-                                fullWidth
-                            >
-                                <MenuItem value={"All"}>All</MenuItem>
-                                {groups.map(({id, name}) =>
-                                    <MenuItem key={id} value={name}>
-                                        {name}
-                                    </MenuItem>
-                                )}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <FormControl className={classes.formControl} fullWidth variant="outlined">
-                            <InputLabel>Projects</InputLabel>
-                            <Select
-                                labelId="group-label"
-                                id="group-select"
-                                value={prjName}
-                                variant="outlined"
-                                onChange={loadPrjName}
-                                label="Group"
-                                fullWidth
-                                autoWidth={true}
-                            >
-                                <MenuItem value={"All"}>All</MenuItem>
-                                {projects.map(({id, name}) =>
-                                    <MenuItem key={id} value={name}>
-                                        {name}
-                                    </MenuItem>
-                                )}
-                            </Select>
-                        </FormControl>
+                        <Typography variant="h6" align="center">REPORTS</Typography>
                     </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                    <DataGrid
-                        columns={columns}
-                        rows={fData}
-                        pageSize={10}
-                        className={classes.reportList}
-                        disableSelectionOnClick
-                        disableColumnFilter
-                        autoHeight={true}
-                    />
+                <Grid container spacing={3}
+                      className={classes.container}
+                      direction="column"
+                      justifyContent="center">
+                    <Grid container
+                          direction="row"
+                          justifyContent="space-evenly"
+                          alignItems="center"
+                          spacing={3}
+                    >
+                        <Grid item xs={2}>
+                            <BackButton children="Back to Home" switchTo={""}/>
+                        </Grid>
+                        <Grid item xs={2} onClick={toggleCreate}>
+                            <Button>
+                                <AddIcon/> Create new report
+                            </Button>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <Typography variant="overline" display="block" gutterBottom align="right">
+                                Filters
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={2}>
+                            <FormControl className={classes.formControl} fullWidth variant="outlined">
+                                <InputLabel>Groups</InputLabel>
+                                <Select
+                                    labelId="group-label"
+                                    id="group-select"
+                                    value={groupName}
+                                    variant="outlined"
+                                    onChange={loadGroup}
+                                    label="Group"
+                                    fullWidth
+                                >
+                                    <MenuItem value={"All"}>All</MenuItem>
+                                    {groups.map(({id, name}) =>
+                                        <MenuItem key={id} value={name}>
+                                            {name}
+                                        </MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={2}>
+                            <FormControl className={classes.formControl} fullWidth variant="outlined">
+                                <InputLabel>Projects</InputLabel>
+                                <Select
+                                    labelId="group-label"
+                                    id="group-select"
+                                    value={prjName}
+                                    variant="outlined"
+                                    onChange={loadPrjName}
+                                    label="Group"
+                                    fullWidth
+                                    autoWidth={true}
+                                >
+                                    <MenuItem value={"All"}>All</MenuItem>
+                                    {projects.map(({id, name}) =>
+                                        <MenuItem key={id} value={name}>
+                                            {name}
+                                        </MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12}>
+                        <DataGrid
+                            columns={columns}
+                            rows={fData}
+                            pageSize={10}
+                            className={classes.reportList}
+                            disableSelectionOnClick
+                            disableColumnFilter
+                            autoHeight={true}
+                        />
+                    </Grid>
                 </Grid>
-            </Grid>
-        </Paper>
+            </Paper>
+        </>
     );
 }
 export default ReportList;

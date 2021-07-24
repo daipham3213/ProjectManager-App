@@ -37,10 +37,10 @@ const putReport = (id, name, remark, startDate, dueDate, progress, groupName, pr
         });
 };
 
-const deleteReport = (projectId) => {
+const deleteReport = (reportId) => {
     return axios
         .delete(
-            API_URL + "?projectId=" + projectId,
+            API_URL + "?id=" + reportId,
             {headers: authHeader()}
         )
         .catch((error) => {

@@ -1,24 +1,25 @@
 import './styles/DepList.css';
-import React, {useContext, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import {useHistory} from "react-router-dom";
+import {Link as ReactLink} from "react-router-dom";
 import {GroupService} from "../../services/services";
-import {Button, Grid, Paper, Typography} from "@material-ui/core";
+import {Button, Grid, Link, Paper, Typography} from "@material-ui/core";
 import DepCreateModal from "./DepCreateModal";
 import useLoading from "../../component/hooks/useLoading";
 import FullscreenLoading from "../../component/FullScreenLoading";
-import ContextProvider from "../../component/ContextProvider";
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import AddIcon from "@material-ui/icons/Add";
+import {useSnackbar} from "notistack";
 
 
 const DepList = () => {
     const [data, setData] = useState([]);
-    const history = useHistory();
     const [isShowingCreate, setIsShowingCreate] = useState(false);
     const modalRef = useRef(null);
     const [mounted, setMounted] = useState(true);
     const {loading, onLoading, offLoading} = useLoading()
+    const {enqueueSnackbar} = useSnackbar();
 
     const toggleMount = () => setMounted(!mounted);
     const toggleCreate = () => {
@@ -28,26 +29,26 @@ const DepList = () => {
         GroupService.deleteGroup(id).then((r) => {
             if (r.status === 200) {
                 console.log(r.statusText);
-            } else alert("Failed");
+            } else enqueueSnackbar("Failed", "error");
         });
     }
 
-    const {switchToEditDep} = useContext(ContextProvider);
     React.useEffect(() => {
-        async function fetchData() {
-            onLoading();
-            await GroupService.getList("department")
-                .then((r) => {
-                    console.log(r.status);
-                    if (r.status === 200)
-                        setData(r.data);
-                    else setData([]);
-                    offLoading();
-                }, []);
-        }
-
-        fetchData();
-    }, [mounted,setMounted]);
+        onLoading();
+        GroupService.getList("department")
+            .then((r) => {
+                console.log(r.status);
+                if (r.status === 200)
+                    setData(r.data);
+                else  enqueueSnackbar(r.data.message, "error");
+                offLoading();
+            }, [])
+            .catch((r) => {
+                console.log(r);
+                enqueueSnackbar(r, "error");
+            });
+        document.title = "Department List";
+    }, [mounted, setMounted]);
     const columns = [
         {field: 'name', headerName: 'Department Name', width: 200},
         {
@@ -67,24 +68,27 @@ const DepList = () => {
             width: 150,
             renderCell: (params) => {
                 const link = {
-                    pathname: "/DepList/" + params.row.id,
+                    pathname: "/department/" + params.row.id,
                     state: {
                         depId: params.row.id
                     }
                 };
                 return (<>
-                        <button
-                            className="depListEdit"
-                            onClick={() => {
-                                switchToEditDep(params.row.id);
-                            }}
-                        >
-                            Edit
-                        </button>
-                        <DeleteForeverIcon
-                            className="depListDelete"
-                            onClick={() => handleDelete(params.row.id)}
-                        />
+                        <Link component={ReactLink}
+                              variant="body1"
+
+                              underline="none"
+                              to={link}>
+                            <Button variant="text">
+                                <EditOutlinedIcon color="primary"/>
+                            </Button>
+                        </Link>
+                        <Button variant="text">
+                            <DeleteForeverIcon
+                                className="depListDelete"
+                                onClick={() => handleDelete(params.row.id)}
+                            />
+                        </Button>
                     </>
                 )
             }
@@ -96,33 +100,33 @@ const DepList = () => {
                 isShowing={isShowingCreate}
                 toggleModal={toggleCreate}
                 modalRef={modalRef}
-                toggleMount = {toggleMount}
+                toggleMount={toggleMount}
             />
-           <Paper style={{height:"100%"}}>
-               <Grid container justify="center" spacing={3}>
-                   <Grid item xs={1}>
-                       <Typography variant="h6" align="center">DEPARTMENT</Typography>
-                   </Grid>
-               </Grid>
-               <Grid container justify="center" spacing={3} xs={1}>
-                   <Grid item xs={1}>
-                       <Button autoCapitalize={false} onClick={toggleCreate}>
-                           <AddIcon/> Create
-                       </Button>
-                   </Grid>
-               </Grid>
-               <Grid container className="Department" spacing={3}>
-                   <Grid item xs={12} style={{minHeight:500}}>
-                       <DataGrid
-                           rows={data}
-                           disableSelectionOnClick
-                           columns={columns}
-                           pageSize={10}
-                           checkboxSelection
-                       />
-                   </Grid>
-               </Grid>
-           </Paper>
+            <Paper style={{height: "100%", width: "100%"}}>
+                <Grid container justify="center" spacing={3}>
+                    <Grid item xs={1}>
+                        <Typography variant="h6" align="center">DEPARTMENT</Typography>
+                    </Grid>
+                </Grid>
+                <Grid container justify="center" spacing={3} xs={1}>
+                    <Grid item xs={1}>
+                        <Button onClick={toggleCreate}>
+                            <AddIcon/> Create
+                        </Button>
+                    </Grid>
+                </Grid>
+                <Grid container className="Department" spacing={3}>
+                    <Grid item xs={12} style={{minHeight: 500}}>
+                        <DataGrid
+                            rows={data}
+                            disableSelectionOnClick
+                            columns={columns}
+                            pageSize={10}
+                            checkboxSelection
+                        />
+                    </Grid>
+                </Grid>
+            </Paper>
         </>
     );
 }

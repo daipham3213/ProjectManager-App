@@ -17,7 +17,6 @@ const DepCreateModal = ({
                             toggleMount,
                         }) => {
     const classes = useStyles();
-    const history = useHistory();
     const {loading, onLoading, offLoading} = useLoading();
 
     isShowing && (document.body.style.overflow = "hidden");
@@ -66,7 +65,7 @@ const DepCreateModal = ({
         ? ReactDOM.createPortal(
             <div>
                 {loading? <FullscreenLoading/> : null}
-                <div className={classes.modalOverlay}></div>
+                <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
                     <div className={classes.createDep}>
                         <div className="newDep">

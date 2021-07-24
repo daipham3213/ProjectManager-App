@@ -1,10 +1,10 @@
 import './Employee.css';
-import React, { Component } from 'react';
-import { DataGrid } from '@material-ui/data-grid';
+import React, {Component, useState} from 'react';
+import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import { useRows } from "../../src/Data";
-import { Link } from "react-router-dom";
-import { useState } from 'react';
+import {useRows} from "../../src/Data";
+import {Link} from "react-router-dom";
+
 export default function DataTable() {
     const [data, setData] = useState(useRows);
     const handleDelete = (id) => {

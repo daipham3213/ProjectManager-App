@@ -36,7 +36,8 @@ export default makeStyles((theme) => ({
         marginBottom: 6
     },
     projectList: {
-        minHeight: "100vh",
+        flexGrow: 1,
+        minHeight: 500,
     },
     topPaper: {
         marginBottom: 10,

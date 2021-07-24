@@ -7,6 +7,8 @@ import FullscreenLoading from "../../component/FullScreenLoading";
 import useStyles from "../../component/styles/modalStyles";
 import {Button, InputLabel, MenuItem, Paper, Select, TextField, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
+import SliderCustom from "../../component/PrettoSlider";
+import {useSnackbar} from "notistack";
 
 const ReportCreateModal = ({
                                isShowed,
@@ -21,7 +23,6 @@ const ReportCreateModal = ({
     const [remark, setRemark] = useState("");
     const [startDate, setStartDate] = useState("");
     const [dueDate, setDueDate] = useState("");
-    const [progress, setProgress] = useState(0);
     const [groups, setGroups] = useState([]);
     const [project, setProject] = useState([]);
     const [groupId, setGroupId] = useState("");
@@ -29,6 +30,7 @@ const ReportCreateModal = ({
     const [error, setError] = useState({});
 
     const {loading, onLoading, offLoading} = useLoading();
+    const {enqueueSnackbar} = useSnackbar();
 
     isShowed && (document.body.style.overflow = "hidden");
 
@@ -43,9 +45,6 @@ const ReportCreateModal = ({
     }
     const loadStartDate = (value) => {
         setStartDate(value.target.value);
-    }
-    const loadProgress = (value) => {
-        setProgress(value.target.value);
     }
     const loadGroups = (values) => {
         setGroups(values);
@@ -133,21 +132,8 @@ const ReportCreateModal = ({
                 dueDate: "",
             }));
         }
-        if (progress > 100) {
-            setError((prevError) => ({
-                ...prevError,
-                progress: "Can not be larger than 100&",
-            }));
-            isError = true;
 
-        } else {
-            setError((prevError) => ({
-                ...prevError,
-                progress: "",
-            }));
-        }
-
-        if (prjId === "" && projectId ==="") {
+        if (prjId === "" && projectId === "") {
             setError((prevError) => ({
                 ...prevError,
                 project: "Please select a project.",
@@ -178,18 +164,18 @@ const ReportCreateModal = ({
         onLoading();
         if (!validate()) {
             debugger;
-            ReportService.postReport(name, remark, startDate, dueDate, progress, projectId.value, groupId)
+            ReportService.postReport(name, remark, startDate, dueDate, 0, projectId, groupId)
                 .then((r) => {
                     if (r.status === 200 || r.status === 204) {
                         toggle();
                         toggleMount();
-                        console.log(r.data);
+                        enqueueSnackbar("Created", {variant: "success"})
                     } else {
                         alert(r.data.message);
                     }
                 })
                 .catch((r) => {
-                    console.log(r);
+                    enqueueSnackbar("Internal Server Error.", {variant: "error"})
                     toggle();
                 });
         }
@@ -197,34 +183,29 @@ const ReportCreateModal = ({
         offLoading();
     }
 
-    const fetchGroups = async () => {
-        await GroupService.getList("")
+
+    useEffect(() => {
+        onLoading();
+        GroupService.getList("")
             .then((r) => {
                 if (r.status === 200) {
                     loadGroups(r.data);
-                    console.log(r.data);
                 } else console.log(r.data.message);
             }).catch((r) => {
-                console.log(r);
-            })
-    }
-    const fetchProjects = async () => {
-        await ProjectService.getList()
-            .then((r) => {
-                if (r.status === 200) {
-                    loadProject(r.data);
-                } else console.log(r.data.message);
-            })
-            .catch(() => {
-                console.log("Internal server error.")
-            })
-    }
-    useEffect(() => {
-        onLoading()
-        fetchGroups();
-        if (showPrjList) fetchProjects();
-        offLoading()
-    }, [modalRef, toggle]);
+            enqueueSnackbar("Internal Server Error.", {variant: "error"})
+        })
+        if (showPrjList)
+            ProjectService.getList()
+                .then((r) => {
+                    if (r.status === 200) {
+                        loadProject(r.data);
+                    } else console.log(r.data.message);
+                })
+                .catch(() => {
+                    enqueueSnackbar("Internal Server Error.", {variant: "error"})
+                });
+        offLoading();
+    }, [modalRef, toggle, showPrjList]);
 
     const projectSelect = () => {
         return (
@@ -270,7 +251,7 @@ const ReportCreateModal = ({
                 {loading ? <FullscreenLoading/> : null}
                 <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
-                    <Grid container xs={12} spacing={2} style={{padding: 10}} justifyContent="center" direction="row">
+                    <Grid container xs={12} spacing={2} style={{padding: 10}} justify="center" direction="row">
                         <Grid item xs={12}>
                             <Typography
                                 variant="h6"
@@ -355,21 +336,6 @@ const ReportCreateModal = ({
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                type="number"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                autoFocus={true}
-                                variant="outlined"
-                                value={progress}
-                                label="Progress"
-                                onChange={loadProgress}
-                                helperText={error.progress}
-                                className={classes.textField}
                             />
                         </Grid>
                         <Grid item={8}/>

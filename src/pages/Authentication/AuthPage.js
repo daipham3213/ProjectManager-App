@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Grid } from "@material-ui/core";
+import React, {useState} from "react";
+import {Grid} from "@material-ui/core";
 import AuthContext from "./AuthContext";
 import SignIn from "./component/SignIn";
 import SignUp from "./component/SignUp";
