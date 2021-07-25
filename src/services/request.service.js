@@ -16,10 +16,9 @@ const getRequests = () => {
 
 const activeGroup = (requestId, isAccept) => {
     return axios
-        .put (
+        .get (
             API_URL +
-            "/activegroup",
-            {requestId,isAccept},
+            "/activegroup?requestId="+requestId+"&isAccept="+isAccept,
             {headers : authHeader()}
         )
         .catch((error) => {

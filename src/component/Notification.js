@@ -1,15 +1,16 @@
 import React, {useState} from "react";
-import {RequestService} from "../services/services";
-import {Grow, Paper, Popper} from "@material-ui/core";
+import {GroupService, RequestService} from "../services/services";
+import {Grid, Grow, List, ListItem, ListItemIcon, ListItemText, Paper, Popper} from "@material-ui/core";
+import {CheckOutlined, HighlightOffOutlined} from "@material-ui/icons";
+import moment from "moment";
+import {useSnackbar} from "notistack";
 
 
-const Notification = ({setOpen, open, anchorRef, handleClose}) => {
+
+const Notification = ({setOpen, open, anchorRef, setCount}) => {
     const [request, setRequest] = useState([]);
+    const {enqueueSnackbar} = useSnackbar();
 
-    const removePerson = (id) => {
-        let newPerson = request.filter((person) => person.id !== id)
-        setRequest(newPerson)
-    }
     const loadRequest = (r) => setRequest(r);
 
     function handleListKeyDown(event) {
@@ -18,77 +19,96 @@ const Notification = ({setOpen, open, anchorRef, handleClose}) => {
             setOpen(false);
         }
     }
-    const prevOpen = React.useRef(open);
-    React.useEffect(() => {
-        if (prevOpen.current === true && open === false) {
-            anchorRef.current.focus();
-        }
-        prevOpen.current = open;
-    }, [open]);
 
-    const fetchRequest = () => {
+    const handleClickOutside = (event) => {
+        if (anchorRef.current && !anchorRef.current.contains(event.target)) {
+            setOpen(false);
+            document.body.style.overflow = "auto";
+        }
+    };
+    const prevOpen = React.useRef(open);
+
+    // const fetchGroup = (id) => {
+    //     GroupService.getDetail(id)
+    //         .then((r) => {
+    //             if (r.status === 200)
+    //                 setGroup(r.data);
+    //             else enqueueSnackbar(r.data.message, {variant:"warning"});
+    //         })
+    //         .catch(r => enqueueSnackbar(r, {variant:"error"}))
+    //     return group;
+    // }
+    React.useEffect(() => {
         RequestService.getRequests()
             .then((r) => {
                 if (r.status === 200) {
                     loadRequest(r.data);
-                } else alert(r.data.message)
-            } )
+                    setCount(r.data.length);
+                }
+            })
             .catch((r) => {
                 console.log(r)
             });
+
+
+
+        document.addEventListener("keydown", handleListKeyDown);
+        document.addEventListener("mousedown", handleClickOutside);
+        if (prevOpen.current === true && open === false) {
+            anchorRef.current.focus();
+        }
+        prevOpen.current = open;
+        return () => {
+            document.removeEventListener("keydown", handleListKeyDown);
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+    }, [open]);
+
+
+    function handleRequest(id, choice) {
+        RequestService.activeGroup(id, choice)
+            .then((r) => {
+                if (r.status === 200)
+                    enqueueSnackbar(r.data.message, {variant:"success"})
+                else enqueueSnackbar(r.data.message, {variant:"warning"})
+            })
+            .catch((r) =>enqueueSnackbar(r, {variant:"error"}))
     }
 
     return (
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal style={{zIndex:1}}>
-            {({ TransitionProps, placement }) => (
+        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal style={{zIndex: 1}}>
+            {({TransitionProps, placement}) => (
                 <Grow
                     {...TransitionProps}
-                    style={{ transformOrigin: placement === 'bottom' ? 'left top' : 'left bottom' }}
+                    style={{transformOrigin: placement === 'bottom' ? 'left top' : 'left bottom'}}
                 >
-                    <Paper >
-                            <h3
-                                style={{
-                                    backgroundColor: '#fff',
-                                    color: '#313174',
-                                    textAlign: 'center',
-                                    fontSize: '25px',
-                                    marginTop: '10px'
+                    <Paper style={{width: 400, height: "fit-content", margin: "20px 60px 0 0", zIndex: 1}}>
+                        <Grid item container xs={12} justifyContent={"flex-start"}>
+                            <List style={{width: "100%"}}>
+                                {request.length === 0 ? <ListItem><ListItemText primary={"No request"}/></ListItem> : null}
+                                {request.map((rq) => {
+                                    const {id, name , remark, isAccepted, isDenied, dateCreated} = rq;
+                                    return (
+                                        <ListItem key={id}>
+                                            <ListItemText primary={name} secondary={remark +" - "+ moment(dateCreated).format("DD/MM/YYYY")}/>
+                                            {isAccepted && isDenied? null :
+                                                <>
+                                                    <ListItemIcon
+                                                        children={<CheckOutlined color={"primary"}/>}
+                                                        onClick= {() => handleRequest(id,true)}
+                                                    />
+                                                    <ListItemIcon
+                                                        children={<HighlightOffOutlined color={"secondary"}/>}
+                                                        onClick= {() => handleRequest(id,false)}
+                                                    />
+                                                </>
+                                            }
 
-                                }}
-                            >
-                                {request.length} Request Today
-                            </h3>
-                            {request.map((person) => {
-                                const { id, name, image, status, department, groupname, leader } = person
-
-
-                                return (
-                                    <div>
-                                        <div className='container' key={id}>
-                                            <div className='avatar'>
-                                                <img src={image} alt={name} />
-
-                                            </div>
-                                            <div className='Content'>
-                                                <h4>{name}</h4>
-                                                <h4>{status}</h4>
-                                                <h4>{department}</h4>
-                                                <h4>{groupname}</h4>
-                                                <h4>{leader}</h4>
-                                            </div>
-                                            <div className='button'>
-                                                <button className='btn-1' onClick={() => removePerson(id)}>
-                                                    Accept
-                                                </button>
-                                                <button className='btn-2' onClick={() => removePerson(id)}>
-                                                    Dismiss
-                                                </button>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })}
+                                        </ListItem>
+                                    )
+                                })}
+                            </List>
+                        </Grid>
                     </Paper>
                 </Grow>
             )}

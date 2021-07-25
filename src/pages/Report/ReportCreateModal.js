@@ -162,9 +162,10 @@ const ReportCreateModal = ({
 
     const createReport = () => {
         onLoading();
+        let project = projectId;
+        if (project === "") project = prjId ;
         if (!validate()) {
-            debugger;
-            ReportService.postReport(name, remark, startDate, dueDate, 0, projectId, groupId)
+            ReportService.postReport(name, remark, startDate, dueDate, 0,project , groupId)
                 .then((r) => {
                     if (r.status === 200 || r.status === 204) {
                         toggle();

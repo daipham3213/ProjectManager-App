@@ -39,11 +39,23 @@ const getProfile = (Username) => {
         });
 };
 
+const sendMailChangeEmail = (username, newEmail) => {
+    return axios
+        .get(API_URL
+            +"/sendChangeEmail?username="+username
+            +"&newEmail="+newEmail,
+            {headers: authHeader()}
+        )
+        .catch((error) => {
+            return error.response;
+        });
+}
+
 const changePassword = (UserName, CurrentPassword, NewPassword, NewPasswordConfirm) => {
     return axios
         .put(
             API_URL +
-            "changePassword",
+            "/changePassword",
             {
                 UserName,
                 CurrentPassword,
@@ -60,7 +72,8 @@ const changePassword = (UserName, CurrentPassword, NewPassword, NewPasswordConfi
 const changeEmail = (username, password, newEmail) => {
     return axios
         .post(
-            API_URL +"/sendChangeEmail?username="+username+"&newEmail="+newEmail,
+            API_URL +"/sendChangeEmail?username="+username
+            +"&newEmail="+newEmail,
             {password},
             {headers:authHeader()},
         )
@@ -87,6 +100,7 @@ const UserService = {
     getAvailable,
     changeEmail,
     updateProfile,
+    sendMailChangeEmail,
 };
 
 export default UserService;

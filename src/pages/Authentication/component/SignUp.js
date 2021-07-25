@@ -156,6 +156,7 @@ export default function SignUp() {
         await AuthService.register(username, password, email, name, phoneNumber).then((response) => {
             if (response.status === 200) {
                 alert("Signup Success.");
+                switchToSignin();
             } else {
                 setError((prevError) => ({
                     ...prevError,

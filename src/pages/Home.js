@@ -17,7 +17,7 @@ import {
     Assessment,
     Domain,
     Face,
-    MailOutline,
+    MailOutline, MenuBookOutlined,
     PeopleOutline,
     PhoneAndroid
 } from "@material-ui/icons";
@@ -63,11 +63,11 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: "#7579E7",
     },
     pallet_two: {
-        color: theme.palette.getContrastText("#9AB3F5"),
+        color: theme.palette.getContrastText("#000000"),
         backgroundColor: "#9AB3F5",
     },
     pallet_three: {
-        color: theme.palette.getContrastText("#A3D8F4"),
+        color: theme.palette.getContrastText("#000000"),
         backgroundColor: "#A3D8F4",
     },
     pallet_four: {
@@ -88,7 +88,7 @@ const Home = () => {
     const [profile, setProfile] = useState({});
     const [tasks, setTask] = useState([]);
 
-    const {avatarUrl, email, groupName, groupType, name, phoneNumber, username, id, groupId} = profile;
+    const {avatarUrl, email, groupName, groupType, name, phoneNumber, username, id, groupId, bio} = profile;
     const toggleMount = () => setMount(!mount);
     const toggle = () => setShowing(!isShowing);
 
@@ -197,9 +197,9 @@ const Home = () => {
                                 >
                                     <ListItem>
                                         <ListItemAvatar><Avatar
-                                            className={classes.pallet_four}><Face/></Avatar></ListItemAvatar>
-                                        <ListItemText primary="Name"
-                                                      secondary={name === null ? "No information" : name}/>
+                                            className={classes.pallet_four}><MenuBookOutlined/></Avatar></ListItemAvatar>
+                                        <ListItemText primary="Bio"
+                                                      secondary={bio === null ? "No information" : bio}/>
                                     </ListItem>
                                     <ListItem>
                                         <ListItemAvatar>

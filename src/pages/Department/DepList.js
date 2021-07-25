@@ -29,7 +29,7 @@ const DepList = () => {
         GroupService.deleteGroup(id).then((r) => {
             if (r.status === 200) {
                 console.log(r.statusText);
-            } else enqueueSnackbar("Failed", "error");
+            } else enqueueSnackbar("Failed", {variant:"error"});
         });
     }
 
@@ -40,12 +40,12 @@ const DepList = () => {
                 console.log(r.status);
                 if (r.status === 200)
                     setData(r.data);
-                else  enqueueSnackbar(r.data.message, "error");
+                else  enqueueSnackbar(r.data.message, {variant:"error"});
                 offLoading();
             }, [])
             .catch((r) => {
                 console.log(r);
-                enqueueSnackbar(r, "error");
+                enqueueSnackbar(r, {variant:"error"});
             });
         document.title = "Department List";
     }, [mounted, setMounted]);

@@ -7,6 +7,7 @@ import useStyles from "./styles/avatarModalStyles";
 import { AvatarService } from "../../../services/services";
 
 import ReactDOM from "react-dom";
+import {useSnackbar} from "notistack";
 
 const AvatarModal = ({
                          isShowing,
@@ -17,6 +18,7 @@ const AvatarModal = ({
                          setUser,
                      }) => {
     const classes = useStyles();
+    const {enqueueSnackbar} = useSnackbar();
 
     const fileInputRef = useRef(null);
 
@@ -38,7 +40,8 @@ const AvatarModal = ({
                     return { ...prevUser, avatarUrl: response.data.path };
                 });
                 offLoading();
-            }
+                enqueueSnackbar("Change avatar success", {variant: "success"})
+            } else  enqueueSnackbar(response.data.message, {variant: "warning"})
         });
     };
 
@@ -50,8 +53,10 @@ const AvatarModal = ({
                 const photoId = response.data.id;
                 AvatarService.deleteAvatar(username, photoId).then((response) => {
                     offLoading();
+                    if (response.status === 200)enqueueSnackbar("Delete success", {variant: "success"})
+                    else enqueueSnackbar(response.data.message, {variant: "warning"})
                 });
-            }
+            } else  enqueueSnackbar(response.data.message, {variant: "warning"})
         });
     };
 

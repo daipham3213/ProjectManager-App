@@ -16,6 +16,9 @@ import ReportEdit from "./pages/Report/ReportEdit";
 import MiniDrawer from "./component/Drawer";
 import Group from "./pages/Group/Group";
 import AccSettings from "./pages/Account/AccSettings";
+import {SnackbarProvider} from "notistack";
+import {Slide} from "@material-ui/core";
+import {ConfirmProvider} from "material-ui-confirm";
 
 
 export default class App extends Component {
@@ -31,22 +34,34 @@ export default class App extends Component {
         else
             return (
                 <BrowserRouter>
-                    <MiniDrawer contents={(
-                        <div>
-                            <Switch>
-                                <PrivateRoute exact path="/" component={Link}> <Home/> </PrivateRoute>
-                                <PrivateRoute exact path="/department" component={Link}> <DepList/> </PrivateRoute>
-                                <PrivateRoute exact path="/department/:depId" component={Link}> <DepEdit/> </PrivateRoute>
-                                <PrivateRoute exact path="/project" component={Link}><ProjectList/></PrivateRoute>
-                                <PrivateRoute exact path="/project/:projectId" component={Link}><ProjectEdit/></PrivateRoute>
-                                <PrivateRoute exact path="/report" component={Link}><ReportList/></PrivateRoute>
-                                <PrivateRoute exact path="/report/:reportId" component={Link}><ReportEdit/></PrivateRoute>
-                                <PrivateRoute exact path="/group" component={Link}><Group/></PrivateRoute>
-                                <Route exact path="/profile/:userId" component={Link}><UserProfile/></Route>
-                                <Route exact path="/settings" component={Link}><AccSettings/></Route>
-                            </Switch>
-                        </div>
-                    )}/>
+                    <SnackbarProvider maxSnack={3}
+                                      autoHideDuration={3000}
+                                      anchorOrigin={{vertical: 'bottom', horizontal: 'center',}}
+                                      TransitionComponent={Slide}
+                                      preventDuplicate={true}
+                    >
+                        <ConfirmProvider defaultOptions={{
+                            confirmationButtonProps: {autoFocus: true}
+                        }}>
+                            <MiniDrawer contents={(
+                                <div>
+                                    <Switch>
+                                        <PrivateRoute exact path="/" component={Link}> <Home/> </PrivateRoute>
+                                        <PrivateRoute exact path="/department" component={Link}> <DepList/> </PrivateRoute>
+                                        <PrivateRoute exact path="/department/:depId" component={Link}> <DepEdit/> </PrivateRoute>
+                                        <PrivateRoute exact path="/project" component={Link}><ProjectList/></PrivateRoute>
+                                        <PrivateRoute exact path="/project/:projectId" component={Link}><ProjectEdit/></PrivateRoute>
+                                        <PrivateRoute exact path="/report" component={Link}><ReportList/></PrivateRoute>
+                                        <PrivateRoute exact path="/report/:reportId" component={Link}><ReportEdit/></PrivateRoute>
+                                        <PrivateRoute exact path="/group" component={Link}><Group/></PrivateRoute>
+                                        <Route exact path="/profile/:userId" component={Link}><UserProfile/></Route>
+                                        <Route exact path="/settings" component={Link}><AccSettings/></Route>
+                                    </Switch>
+                                </div>
+                            )}/>
+                        </ConfirmProvider>
+                    </SnackbarProvider>
+
                 </BrowserRouter>
         );
     }

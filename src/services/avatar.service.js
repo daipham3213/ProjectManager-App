@@ -11,6 +11,14 @@ const getUserAvatar = (username) => {
         });
 };
 
+const getListAvatars = (username) => {
+    return axios
+        .get(API_URL + "/list?username="+ username, { headers: authHeader() })
+        .catch((error) => {
+            return error.response;
+        });
+};
+
 const uploadAvatar = (username, file) => {
     return axios
         .post(API_URL +"?userName="+ username, file, { headers: authHeader() })
@@ -27,10 +35,20 @@ const deleteAvatar = (username, photoId) => {
         });
 };
 
+const switchMain = (username, photoId) => {
+    return axios
+        .post(API_URL +"?userName="+ username +"&id="+photoId, { headers: authHeader() })
+        .catch((error) => {
+            return error.response;
+        });
+}
+
 const AvatarService = {
     getUserAvatar,
     uploadAvatar,
     deleteAvatar,
+    getListAvatars,
+    switchMain,
 };
 
 export default AvatarService;

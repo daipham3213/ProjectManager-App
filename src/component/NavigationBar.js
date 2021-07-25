@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {useStyles} from './styles/navibarStyles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -22,6 +22,8 @@ export default function NavigationBar(props: AppBarProps) {
     const [openNotify, setOpenNotify] = React.useState(false);
     const anchorRef = useRef(null);
     const anchorRefN = useRef(null);
+    const [reqCount, setReqCount] = useState(0);
+
     const AppName = () => {
         return process.env.app_name;
     }
@@ -137,7 +139,7 @@ export default function NavigationBar(props: AppBarProps) {
                                     onClick={handleToggleN}
                                     style={{marginRight: 30}}
                         >
-                            <Badge badgeContent={17} color="secondary">
+                            <Badge badgeContent={reqCount} color="secondary">
                                 <NotificationsIcon/>
                             </Badge>
                         </IconButton>
@@ -156,7 +158,7 @@ export default function NavigationBar(props: AppBarProps) {
                 </Toolbar>
             </AppBar>
             {renderMenu}
-            <Notification handleClose={handleCloseN} anchorRef={anchorRefN} open={openNotify} setOpen={setOpenNotify}/>
+            <Notification handleClose={handleCloseN} anchorRef={anchorRefN} open={openNotify} setOpen={setOpenNotify} setCount={setReqCount}/>
         </div>
     );
 }

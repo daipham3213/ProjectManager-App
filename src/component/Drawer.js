@@ -142,19 +142,7 @@ const MiniDrawer = ({contents}) => {
             </Drawer>
             <main className={classes.content}>
                 <div className={classes.toolbar}/>
-                <ConfirmProvider defaultOptions={{
-                    confirmationButtonProps: {autoFocus: true}
-                }}>
-
-                    <SnackbarProvider maxSnack={3}
-                                      autoHideDuration={3000}
-                                      anchorOrigin={{vertical: 'bottom', horizontal: 'center',}}
-                                      TransitionComponent={Slide}
-                                      preventDuplicate={true}
-                    >
-                        {contents}
-                    </SnackbarProvider>
-                </ConfirmProvider>
+                {contents}
             </main>
         </div>
     );
