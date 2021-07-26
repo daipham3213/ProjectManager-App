@@ -8,12 +8,14 @@ import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import "./MyProfile.css"
 import {GroupService, UserService} from "../../services/services";
+import {useSnackbar} from "notistack";
 
 const defaultAvatar = "https://res.cloudinary.com/projectmngapi/image/upload/v1626178367/6542357_preview_jysfir.png";
 const UserProfile = () => {
     const [profile, setProfile] = useState({}) ;
     const [group, setGroup] = useState({}) ;
     const [avatar, setAvatar] = useState("");
+    const {...bar}= useSnackbar();
 
     let {userId}= useParams();
 
@@ -34,10 +36,9 @@ const UserProfile = () => {
                             } else loadAvatar(r.data.avatarUrl);
                             fetchGroup(r.data.groupId);
                         }
-                        else alert(r.data.message);
                     })
-                    .catch(()=> {
-                        console.log("Internal server error");
+                    .catch((r)=> {
+                        bar.enqueueSnackbar(r, {variant:"error"})
                     })
         }
         const fetchGroup = (groupId) => {
@@ -47,10 +48,9 @@ const UserProfile = () => {
                         if (r.status===200) {
                             loadGroup(r.data);
                         }
-                        else alert(r.data.message);
                     })
-                    .catch(()=> {
-                        console.log("Internal server error");
+                    .catch((r)=> {
+                        bar.enqueueSnackbar(r, {variant:"error"})
                     })
             }
         }

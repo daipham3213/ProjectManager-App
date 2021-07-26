@@ -1,9 +1,9 @@
 import './styles/DepList.css';
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {DataGrid} from '@material-ui/data-grid';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import {Link as ReactLink} from "react-router-dom";
-import {GroupService} from "../../services/services";
+import {Link as ReactLink, useHistory} from "react-router-dom";
+import {GroupService, GroupTypeService, UserService} from "../../services/services";
 import {Button, Grid, Link, Paper, Typography} from "@material-ui/core";
 import DepCreateModal from "./DepCreateModal";
 import useLoading from "../../component/hooks/useLoading";
@@ -11,57 +11,62 @@ import FullscreenLoading from "../../component/FullScreenLoading";
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import AddIcon from "@material-ui/icons/Add";
 import {useSnackbar} from "notistack";
+import {useConfirm} from "material-ui-confirm";
 
 
 const DepList = () => {
     const [data, setData] = useState([]);
     const [isShowingCreate, setIsShowingCreate] = useState(false);
+
     const modalRef = useRef(null);
     const [mounted, setMounted] = useState(true);
     const {loading, onLoading, offLoading} = useLoading()
     const {enqueueSnackbar} = useSnackbar();
+    const history = useHistory();
+    const confirm = useConfirm()
 
     const toggleMount = () => setMounted(!mounted);
     const toggleCreate = () => {
         setIsShowingCreate(!isShowingCreate);
     };
     const handleDelete = (id) => {
-        GroupService.deleteGroup(id).then((r) => {
-            if (r.status === 200) {
-                console.log(r.statusText);
-            } else enqueueSnackbar("Failed", {variant:"error"});
-        });
+        confirm({description: "This action is permanent. Make sure you wanna do this."})
+            .then(() => {
+                GroupService.deleteGroup(id).then((r) => {
+                    if (r.status === 200) {
+                        enqueueSnackbar("Deleted", {variant: "success"});
+                        toggleMount();
+                    } else enqueueSnackbar(r.data.message, {variant: "warning"});
+                });
+            })
+            .catch((r) => enqueueSnackbar(r, {variant: "error"}))
     }
 
     React.useEffect(() => {
         onLoading();
-        GroupService.getList("department")
+        GroupService.getList("")
             .then((r) => {
-                console.log(r.status);
                 if (r.status === 200)
                     setData(r.data);
-                else  enqueueSnackbar(r.data.message, {variant:"error"});
+                else {
+                    if (r.data.message === "Value cannot be null. (Parameter 'source')") {
+                        history.push("/");
+                        enqueueSnackbar("Not allowed. Create or join a group first.", {variant: 'warning'});
+                    }
+                }
                 offLoading();
             }, [])
             .catch((r) => {
                 console.log(r);
-                enqueueSnackbar(r, {variant:"error"});
+                enqueueSnackbar(r, {variant: "error"});
             });
         document.title = "Department List";
     }, [mounted, setMounted]);
     const columns = [
         {field: 'name', headerName: 'Department Name', width: 200},
-        {
-            field: 'groupType',
-            headerName: 'Type',
-            width: 200,
-            valueFormatter: (params) => params.row?.groupType?.name
-        },
+        {field: 'groupType', headerName: 'Type', width: 200},
         {field: 'users', headerName: 'Members', width: 150},
-        {
-            field: 'leader', headerName: 'Leader', width: 150,
-            valueFormatter: (params) => params.row?.leader?.name
-        },
+        {field: 'leader', headerName: 'Leader', width: 150},
         {
             field: "action",
             headerName: "Action",

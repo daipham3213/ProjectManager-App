@@ -87,7 +87,7 @@ const AccSettings = () => {
             .catch((r) => enqueueSnackbar(r, {variant: "error"}));
 
         document.title = "Account Settings - " + profile.name;
-    }, [username, modalRef, showAvatar, showChangeInfo])
+    }, [username, modalRef, showAvatar, showChangeInfo, JSON.stringify(profile)])
 
     return (
         <div className={classes.root}>

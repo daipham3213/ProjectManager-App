@@ -2,34 +2,37 @@ import {Grid, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Paper}
 import Avatar from "@material-ui/core/Avatar";
 import {DateRange, Description, Domain, PeopleSharp, PermIdentity} from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
-import React, {useEffect, useState} from "react";
-import {GroupService} from "../../services/services";
+import React, {useEffect, useRef, useState} from "react";
+import {GroupService, UserService} from "../../services/services";
 import {useConfirm} from "material-ui-confirm";
 import {useSnackbar} from "notistack";
 import {useHistory} from "react-router-dom";
 import moment from "moment";
 import {DataGrid} from "@material-ui/data-grid";
-import TaskServices from "../../services/task.service";
 import BorderProgressBar from "../../component/BorderProgressBar";
 import BackButton from "../../component/BackButton";
+import AddMemberModal from "../Department/AddMemberModal";
 
 const Group = () => {
     const [isShow, setShow] = useState(false);
     const [mounted, setMounted] = useState(true);
     const [checked, setChecked] = useState([]);
-    const [progress, setProgress] = useState(0);
     const confirm = useConfirm();
     const history = useHistory();
+    const modalRef= useRef();
     const {enqueueSnackbar} = useSnackbar();
 
     const toggle = () => setShow(!isShow);
     const toggleMount = () => setMounted(!mounted);
+    const addMember = (m) => {
+        setMember(oldArray => [...oldArray, m]);
+    };
 
     const [group, setGroup] = useState({});
     const [member, setMember] = useState([]);
     const [leader, setLeader] = useState({});
     const {...leaderProps} = leader;
-    const {groupType = {}, users = [], id, name, leaderId, remark, dateCreated} = group;
+    const {groupType="", users = [], id, name, leaderId, remark, dateCreated} = group;
 
     const cols = [
         {field: "avatarUrl", headerName: "Avatar", width: 200,
@@ -50,10 +53,8 @@ const Group = () => {
             }},
         {field: "contrib", headerName: "Contribution", width: 200,
             renderCell: p => {
-                let value = 0;
-                value = getContrib(p.row.id);
                 return (
-                    <BorderProgressBar value={value}/>
+                    <BorderProgressBar value={p.row.contrib}/>
                 )
             }},
         {
@@ -133,36 +134,46 @@ const Group = () => {
                 enqueueSnackbar(r, {variant: "error"});
             })
     }
-    function getContrib (id):number {
-        TaskServices.getContrib(id)
-            .then((r) => {
-                if (r.status === 200){
-                    setProgress(r.data.progress);
-                } else enqueueSnackbar(r.data.message, {variant: "warning"});
-            })
-            .catch((r)=>enqueueSnackbar(r, {variant: "error"}));
-        return progress;
-    }
 
     useEffect(() => {
         GroupService.getByUser()
             .then((r) => {
                 if (r.status === 200)
                     setGroup(r.data);
+                else
+                {
+                    enqueueSnackbar("You don't have a group. Create one or ask some one to add you to a group", {variant: "warning"});
+                    history.push("/");
+                }
             }, {})
             .catch((r) => {
                 enqueueSnackbar(r, {variant: "error"});
             })
-        setMember(users);
         users.forEach((u) => {
-            if (u.id === leaderId)
-                setLeader(u);
+            UserService.getProfile(u.id)
+                .then((result) => {
+                    if (result.status === 200) {
+                        addMember(result.data);
+                        if (result.data.id === leaderId) setLeader(result.data);
+                    }
+                }, {})
+                .catch((result) => {
+                    enqueueSnackbar(result, "error");
+                });
+
         })
         document.title="Team information - " + name;
     }, [mounted, setMounted, JSON.stringify(group)])
 
     return (
         <Grid container spacing={3}>
+            <AddMemberModal
+                modalRef={modalRef}
+                toggleMount={toggleMount}
+                toggleModal={toggle}
+                isShowing={isShow}
+                groupName={name}
+            />
             <Grid item xs={3}>
                 <Paper>
                     <List>
@@ -174,7 +185,7 @@ const Group = () => {
                                 <ListItemAvatar>
                                     <Avatar children={<Domain/>}/>
                                 </ListItemAvatar>
-                                <ListItemText primary={groupType.name} secondary={name}/>
+                                <ListItemText primary={groupType} secondary={name}/>
                             </ListItem>
                             <ListItem>
                                 <ListItemAvatar>

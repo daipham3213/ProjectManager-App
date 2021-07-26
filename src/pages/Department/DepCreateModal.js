@@ -1,13 +1,13 @@
 import "./styles/DepCreate.css"
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
-import {GroupService} from "../../services/services";
+import {GroupService, UserService} from "../../services/services";
 import useStyles from "../../component/styles/modalStyles";
-import {useHistory} from "react-router-dom";
 import {useLoading} from "../../component/hooks/hooks";
 import * as ReactDOM from "react-dom";
-import {Paper, TextField, Typography} from "@material-ui/core";
+import {InputLabel, MenuItem, Paper, Select, TextField, Typography} from "@material-ui/core";
 import FullscreenLoading from "../../component/FullScreenLoading";
+import {useSnackbar} from "notistack";
 
 
 const DepCreateModal = ({
@@ -18,12 +18,15 @@ const DepCreateModal = ({
                         }) => {
     const classes = useStyles();
     const {loading, onLoading, offLoading} = useLoading();
-
+    const {...bar} = useSnackbar();
     isShowing && (document.body.style.overflow = "hidden");
 
     const [depName, setDepName] = useState("");
     const [description, setDescription] = useState("");
+    const [leader, setLeader] = useState("");
+    const [available, setAvailable] = useState([]);
     const [error, setError] = useState({});
+    let role = localStorage.getItem("roles");
 
     const loadDepName = (value) => {
         setDepName(value.target.value);
@@ -47,24 +50,36 @@ const DepCreateModal = ({
 
     const handleSubmit = async () => {
         onLoading();
-        if (!validate()){
+        if (!validate()) {
             debugger;
-            await GroupService.postDepartment(depName, description, "")
+            await GroupService.postDepartment(depName, description, leader)
                 .then((r) => {
-                    if (r.status === 200)
+                    if (r.status === 200) {
                         toggleModal();
-                    else
-                        alert(r.message);
+                        bar.enqueueSnackbar("Success", {variant: "success"})
+                    } else
+                        bar.enqueueSnackbar(r.data.message, {variant: "warning"})
                 }, null);
         }
         document.body.style.overflow = "auto";
         toggleMount();
         offLoading();
     }
+
+    useEffect(() => {
+        UserService.getAvailable()
+            .then((r) => {
+                if (r.status === 200)
+                    setAvailable(r.data);
+            })
+            .catch((r) => {
+                bar.enqueueSnackbar(r, {variant: "error"})
+            })
+    },[])
     return isShowing
         ? ReactDOM.createPortal(
             <div>
-                {loading? <FullscreenLoading/> : null}
+                {loading ? <FullscreenLoading/> : null}
                 <div className={classes.modalOverlay}/>
                 <Paper className={classes.root} ref={modalRef}>
                     <div className={classes.createDep}>
@@ -83,10 +98,9 @@ const DepCreateModal = ({
                                         fullWidth
                                         id="name"
                                         name="name"
-                                        helperText={error!= null? error.depName:""}
+                                        helperText={error != null ? error.depName : ""}
                                     />
                                 </div>
-
                                 <div className="newDepItem">
                                     <TextField
                                         type="text"
@@ -99,6 +113,28 @@ const DepCreateModal = ({
                                         name="description"
                                     />
                                 </div>
+                                {role === "Admin" ?
+                                    <div className="newDepItem">
+                                        <InputLabel id="leader-label">Leader</InputLabel>
+                                        <Select
+                                            labelId="leader-label"
+                                            id="leader-select"
+                                            value={leader}
+                                            variant="outlined"
+                                            required
+                                            onChange={(e) => setLeader(e.target.value)}
+                                            label="Group"
+                                            fullWidth
+                                        >
+                                            <MenuItem value={null}>Select</MenuItem>
+                                            {available.map(({id, name}, index) =>
+                                                <MenuItem key={index} value={id}>
+                                                    {name}
+                                                </MenuItem>
+                                            )}
+                                        </Select>
+                                    </div> : null
+                                }
                             </from>
                         </div>
                     </div>

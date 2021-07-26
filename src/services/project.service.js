@@ -14,6 +14,17 @@ const postProject = (name, remark, dueDate, startDate) => {
         });
 };
 
+const putProject = (id,name, remark, dueDate, startDate) => {
+    return axios
+        .put(
+            API_URL+"/"+id,
+            {name, remark, dueDate, startDate},
+            {headers : authHeader()}
+        ).catch((error) => {
+            return error.response;
+        });
+}
+
 const getAll = () => {
     return axios
         .get(
@@ -60,6 +71,7 @@ const ProjectService = {
     getAll,
     deleteProject,
     getDetails,
+    putProject,
 };
 
 export default ProjectService;

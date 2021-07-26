@@ -16,8 +16,9 @@ import {
     AdbRounded,
     Assessment,
     Domain,
-    Face,
-    MailOutline, MenuBookOutlined,
+    GroupAdd,
+    MailOutline,
+    MenuBookOutlined,
     PeopleOutline,
     PhoneAndroid
 } from "@material-ui/icons";
@@ -30,6 +31,7 @@ import GanttChart from "../component/Gantt";
 import moment from "moment";
 import AddIcon from "@material-ui/icons/Add";
 import TaskCreateModal from "./Task/TaskCreateModal";
+import GroupCreateModal from "./Group/GroupCreateModal";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -82,6 +84,7 @@ const Home = () => {
     const classes = useStyles();
 
     const [isShowing, setShowing] = useState(false);
+    const [showCreateGroup, setShowCreateGroup] = useState(false);
     const [mount, setMount] = useState(true);
     const modalRef = useRef();
 
@@ -90,7 +93,8 @@ const Home = () => {
 
     const {avatarUrl, email, groupName, groupType, name, phoneNumber, username, id, groupId, bio} = profile;
     const toggleMount = () => setMount(!mount);
-    const toggle = () => setShowing(!isShowing);
+    const toggleTask = () => setShowing(!isShowing);
+    const toggleGroup= () => setShowCreateGroup(!showCreateGroup);
 
     useEffect(() => {
         document.title = "Project Manager"
@@ -114,22 +118,28 @@ const Home = () => {
         <div className={classes.root}>
             <TaskCreateModal
                 toggleMount={toggleMount}
-                toggle={toggle}
+                toggle={toggleTask}
                 isShowed={isShowing}
                 modalRef={modalRef}
                 isOnReport={false}
                 groupId={groupId}
+            />
+            <GroupCreateModal
+                toggle={toggleGroup}
+                toggleMount={toggleMount}
+                modalRef={modalRef}
+                isShow={showCreateGroup}
             />
             <Grid container spacing={4} justify={"flex-start"}>
                 {/*Icons container*/}
                 <Grid container xs={3} item justifyContent={"flex-start"}>
                     <Paper>
                         <List>
-                            <ListItem style={{margin:15}}>
-                                <ListItemAvatar >
+                            <ListItem style={{margin: 15}}>
+                                <ListItemAvatar>
                                     <AdbRounded fontSize={"large"} color={"primary"}/>
                                 </ListItemAvatar>
-                                <ListItemText primary={"Hello, "+ name}
+                                <ListItemText primary={"Hello, " + name}
                                               secondary={"Today is - " + moment().format("Do MM YYYY")}
                                               id={id}
                                 />
@@ -168,6 +178,14 @@ const Home = () => {
                             )} to={"/report"} isButton={true}/>
                         </Paper>
                     )} tips={"Move to reports list"}/>
+
+                    {groupId === null || groupId === "" || true ?
+                        <Tooltips contents={(
+                            <Paper elevation={3} className={classes.topBtn} onClick={toggleGroup}>
+                               <Button color={"primary"}> <GroupAdd fontSize={"large"}/> </Button>
+                            </Paper>
+                        )} tips={"Create new Group"}/>
+                        : null}
                 </Grid>
                 {/*  End icon container  */}
 
@@ -180,18 +198,18 @@ const Home = () => {
                                       subheader={
                                           <ListSubheader component="div" id="nested-list-subheader"
                                                          style={{alignItems: "flex-end"}}>
-                                                <Grid container justifyContent={"flex-end"} alignItems={"center"}>
-                                                    <Grid item xs={9}>
-                                                        <Typography variant={"overline"}>
-                                                            Role: {localStorage.getItem("roles")}
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item xs={3}>
-                                                        <Avatar alt={username}
-                                                                src={avatarUrl === null ? defaultAvatar : avatarUrl}
-                                                                className={classes.avatar}/>
-                                                    </Grid>
-                                                </Grid>
+                                              <Grid container justifyContent={"flex-end"} alignItems={"center"}>
+                                                  <Grid item xs={9}>
+                                                      <Typography variant={"overline"}>
+                                                          Role: {localStorage.getItem("roles")}
+                                                      </Typography>
+                                                  </Grid>
+                                                  <Grid item xs={3}>
+                                                      <Avatar alt={username}
+                                                              src={avatarUrl === null ? defaultAvatar : avatarUrl}
+                                                              className={classes.avatar}/>
+                                                  </Grid>
+                                              </Grid>
                                           </ListSubheader>
                                       }
                                 >
@@ -244,7 +262,8 @@ const Home = () => {
                             </Grid>
                             <Grid container justifyContent={"flex-end"} item xs={12}>
                                 <Button>
-                                    <Typography variant={"overline"} align={"center"} display={"block"} onClick={toggle}>
+                                    <Typography variant={"overline"} align={"center"} display={"block"}
+                                                onClick={toggleTask}>
                                         Create task
                                     </Typography>
                                     <AddIcon/>

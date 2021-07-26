@@ -143,6 +143,7 @@ export default function NavigationBar(props: AppBarProps) {
                                 <NotificationsIcon/>
                             </Badge>
                         </IconButton>
+                        <Typography variant={"overline"} style={{marginTop:8}}>{localStorage.getItem("username")}</Typography>
                         <IconButton
                             edge="end"
                             aria-label="account of current user"

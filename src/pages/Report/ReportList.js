@@ -14,6 +14,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Linker from "../../component/Linker";
 import {useConfirm} from "material-ui-confirm";
 import {useSnackbar} from "notistack";
+import {useHistory} from "react-router-dom";
 
 
 const ReportList = () => {
@@ -30,6 +31,7 @@ const ReportList = () => {
     const modelRef = useRef();
     const classes = useStyles();
     const confirm = useConfirm();
+    const history = useHistory();
     const {enqueueSnackbar} = useSnackbar();
 
     const loadReports = (value) => setReports(value);
@@ -52,7 +54,12 @@ const ReportList = () => {
             .then((r) => {
                 if (r.status === 200) {
                     loadGroups(r.data);
-                } else enqueueSnackbar(r.data.message, { variant: 'warning' });
+                } else {
+                    if (r.data.message === "Value cannot be null. (Parameter 'source')") {
+                        history.push("/");
+                        enqueueSnackbar("Not allowed. Create or join a group first.", {variant: 'warning'});
+                    }
+                }
             })
             .catch(() => {
                 enqueueSnackbar("Internal Server Error", { variant: 'error' });
@@ -62,7 +69,12 @@ const ReportList = () => {
                 if (r.status === 200 || r.status === 204) {
                     loadReports(r.data);
                     loadFData(r.data);
-                } else console.log(r.data.message);
+                } else {
+                    if (r.data.message === "Value cannot be null. (Parameter 'source')") {
+                        history.push("/");
+                        enqueueSnackbar("Not allowed. Create or join a group first.", {variant: 'warning'});
+                    }
+                }
             }).catch(() => {
             enqueueSnackbar("Internal Server Error", { variant: 'error' });
         })
@@ -70,7 +82,12 @@ const ReportList = () => {
             .then((r) => {
                 if (r.status === 200 || r.status === 204) {
                     loadProjects(r.data);
-                } else console.log(r.data.message);
+                } else {
+                    if (r.data.message === "Value cannot be null. (Parameter 'source')") {
+                        history.push("/");
+                        enqueueSnackbar("Not allowed. Create or join a group first.", {variant: 'warning'});
+                    }
+                }
             }).catch(() => {
             enqueueSnackbar("Internal Server Error", { variant: 'error' });
         })

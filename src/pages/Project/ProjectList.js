@@ -16,6 +16,7 @@ import Button from "@material-ui/core/Button";
 import Linker from "../../component/Linker";
 import {useSnackbar} from "notistack";
 import {useConfirm} from "material-ui-confirm";
+import {useHistory} from "react-router-dom";
 
 const ProjectList = () => {
     const [projects, setProjects] = useState([]);
@@ -26,6 +27,7 @@ const ProjectList = () => {
     const classes = useStyles();
     const [mounted, setMounted] = useState(true);
     const confirm = useConfirm()
+    const history = useHistory();
 
     const {enqueueSnackbar} = useSnackbar();
 
@@ -60,7 +62,10 @@ const ProjectList = () => {
             .then((r) => {
                 if (r.status === 200) {
                     loadProjects(r.data);
-                } else loadProjects([]);
+                } else if (r.data.message === "Value cannot be null. (Parameter 'source')") {
+                    history.push("/");
+                    enqueueSnackbar("Not allowed. Create or join a group first.", {variant: 'warning'});
+                }
             }).catch((r) => {
             enqueueSnackbar(r, {variant:"error"})
         });

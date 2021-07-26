@@ -48,10 +48,19 @@ const getByUser = () => {
             return error.response;
         });
 }
-const getList = (type) => {
+const getListValidate = (type) => {
     return axios
         .get(
             API_URL + "/type?key=" + type,
+            {headers : authHeader()}
+        ).catch((error) => {
+            return error.response;
+        });
+}
+const getListDepartment = () => {
+    return axios
+        .get(
+            API_URL + "/list?key=department",
             {headers : authHeader()}
         ).catch((error) => {
             return error.response;
@@ -135,7 +144,7 @@ const GroupService = {
     postDepartment,
     postTeam,
     getAll,
-    getList,
+    getList: getListValidate,
     getDetail,
     deleteGroup,
     addMembers,
@@ -144,6 +153,7 @@ const GroupService = {
     leaveGroup,
     memberList,
     getByUser,
+    getListDepartment,
 };
 
 export default GroupService;

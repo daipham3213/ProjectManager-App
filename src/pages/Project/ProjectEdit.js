@@ -143,7 +143,16 @@ const ProjectEdit = () => {
         offLoading();
     }
 
-
+    const handleUpdate = () => {
+        ProjectService.putProject(projectId,name,remark,endDate,startDate)
+            .then((r) => {
+                if (r.status === 200){
+                    enqueueSnackbar("Update successfully",{ variant: 'success' });
+                    toggleMount();
+                } else enqueueSnackbar("Forbidden", { variant: 'warning' });
+            })
+            .catch((r) => enqueueSnackbar(r, { variant: 'error' }));
+    }
 
     useEffect(() => {
         onLoading();
@@ -154,7 +163,7 @@ const ProjectEdit = () => {
                     loadName(r.data.name);
                     loadRemark(r.data.remark);
                     loadStartDate(moment(r.data.startDate).format("yyyy-MM-DD"));
-                    loadEndDate(moment(r.data.endDate).format("yyyy-MM-DD"));
+                    loadEndDate(moment(r.data.dueDate).format("yyyy-MM-DD"));
                 } else console.log(r.data.message);
             })
             .catch(() => {
@@ -173,7 +182,7 @@ const ProjectEdit = () => {
         },)
         offLoading();
         document.title = "Project Edit - " + project.name;
-    }, [mounted, setMounted, projectId]);
+    }, [mounted, setMounted, projectId, project.name]);
 
     const columns = [
         {field: "name", headerName: "Report Name", width: 200},
@@ -294,7 +303,7 @@ const ProjectEdit = () => {
 
                         <Grid container justify="flex-start" style={{padding: "10px 0 0 12px"}}>
                             <Grid item xs={4}>
-                                <Button variant="outlined" color="primary">
+                                <Button variant="outlined" color="primary" onClick={handleUpdate}>
                                     Update
                                 </Button>
                             </Grid>
@@ -316,6 +325,9 @@ const ProjectEdit = () => {
                                 columns={columns}
                                 rows={reports}
                                 pageSize={10}
+                                onCellClick={(p) => {
+                                    history.push("/report/"+p.id);
+                                }}
                             />
                         </Grid>
                     </Grid>
