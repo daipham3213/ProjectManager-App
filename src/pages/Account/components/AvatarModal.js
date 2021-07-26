@@ -32,16 +32,18 @@ const AvatarModal = ({
         const formData = new FormData();
         const username = localStorage.getItem("username");
         formData.append("file", e.target.files[0]);
-        toggleModal();
         onLoading();
         AvatarService.uploadAvatar(username, formData).then((response) => {
+
             if (response.status === 200) {
                 setUser((prevUser) => {
+                    toggleModal();
                     return { ...prevUser, avatarUrl: response.data.path };
                 });
-                offLoading();
+
                 enqueueSnackbar("Change avatar success", {variant: "success"})
             } else  enqueueSnackbar(response.data.message, {variant: "warning"})
+            offLoading();
         });
     };
 

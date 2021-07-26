@@ -121,7 +121,7 @@ const TaskCreateModal = ({
                     enqueueSnackbar("Internal Server Error", {variant: 'error'});
                 });
 
-    }, [groupId, phaseId, reportId, isOnReport, rpId]);
+    }, [groupId, phaseId, reportId, isOnReport, rpId, toggle, modalRef]);
 
     const reportSelect = () => {
         return (

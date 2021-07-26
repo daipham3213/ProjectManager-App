@@ -209,9 +209,6 @@ const AccSettings = () => {
                                     loading={loading ? 1 : 0}
                                     className={classes.avatar}
                                 />
-                                {loading ? (
-                                    <CircularProgress size={14} className={classes.progressAvatar}/>
-                                ) : null}
                                 <Grid item xs={12}>
                                     <Typography align={"center"} variant={"body2"}>MAIN AVATAR</Typography>
                                 </Grid>

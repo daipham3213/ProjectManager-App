@@ -37,7 +37,7 @@ const deleteAvatar = (username, photoId) => {
 
 const switchMain = (username, photoId) => {
     return axios
-        .post(API_URL +"?userName="+ username +"&id="+photoId, { headers: authHeader() })
+        .post(API_URL +"/main?userName="+ username +"&id="+photoId, {},{ headers: authHeader() })
         .catch((error) => {
             return error.response;
         });

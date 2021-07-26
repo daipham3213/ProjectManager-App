@@ -37,18 +37,20 @@ const AddMemberModal = ({
     }
 
     const addMembers =  (groupName, ids) => {
-        toggleModal();
-        toggleMount();
-        onLoading();
         if (ids.length === 0) {
             enqueueSnackbar("Please select at least one member.", {variant:"warning"});
-        } else  GroupService.addMembers(groupName, ids)
-            .then(r => {
-                if (r.status === 200)
-                    loadUsernames(r.data);
-                else enqueueSnackbar(r.data.message, {variant:"warning"});
-            });
-        offLoading();
+        } else {
+            onLoading();
+            GroupService.addMembers(groupName, ids)
+                .then(r => {
+                    if (r.status === 200) {
+                        loadUsernames(r.data);
+                        toggleModal();
+                        toggleMount();
+                    } else enqueueSnackbar(r.data.message, {variant: "warning"});
+                    offLoading();
+                });
+        }
         document.body.style.overflow = "auto";
     }
 
@@ -115,7 +117,7 @@ const AddMemberModal = ({
                             columns={columns}
                             checkboxSelection
                             onSelectionModelChange={(p) => {
-                                setUserNames(p.selectionModel);
+                                setUserNames(p);
                             }}
                             pageSize={5}
                         />
