@@ -16,6 +16,8 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import useStyles from "./style/cardStyle";
 import {AuthService} from "../../../services/services";
 import AuthContext from "../AuthContext";
+import FullscreenLoading from "../../../component/FullScreenLoading";
+import {useLoading} from "../../../component/hooks/hooks";
 
 
 export default function SignUp() {
@@ -26,6 +28,7 @@ export default function SignUp() {
     const [phoneNumber, setphoneNumber] = useState("");
     const [error, setError] = useState({});
     const [animate, setAnimate] = useState(0);
+    const {loading, onLoading, offLoading} = useLoading();
 
 
     //------hàm sự kiệm lấy dữ liệu------------------
@@ -145,6 +148,7 @@ export default function SignUp() {
         e.preventDefault();
         if (!validate()) {
             SignUp();
+
         }
     }
     //----------------------------------
@@ -152,11 +156,11 @@ export default function SignUp() {
 
     //------hàm gọi SignUP------------------
 
-    async function SignUp() {
-        await AuthService.register(username, password, email, name, phoneNumber).then((response) => {
+     function SignUp() {
+        onLoading();
+         AuthService.register(username, password, email, name, phoneNumber).then((response) => {
             if (response.status === 200) {
-                alert("Signup Success.");
-                switchToSignin();
+                switchToActive(username);
             } else {
                 setError((prevError) => ({
                     ...prevError,
@@ -167,7 +171,8 @@ export default function SignUp() {
                     alert(response.data.emailError);
                 else  alert(response.data.usernameError);
             }
-        });;
+            offLoading();
+        });
     }
 
 
@@ -185,13 +190,14 @@ export default function SignUp() {
             </Typography>
         );
     }
-    const { switchToSignin } = useContext(AuthContext);
+    const { switchToSignin, switchToActive} = useContext(AuthContext);
     useEffect(() => {
         document.title = "Sign Up";
     }, []);
     return (<>
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>
+                {loading? <FullscreenLoading/> : null}
                 <Card className={classes.cardSignup} animate={animate}>
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon/>

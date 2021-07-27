@@ -88,11 +88,12 @@ const ReportList = () => {
                         enqueueSnackbar("Not allowed. Create or join a group first.", {variant: 'warning'});
                     }
                 }
+                offLoading();
             }).catch(() => {
             enqueueSnackbar("Internal Server Error", { variant: 'error' });
         })
         document.title = "Report List";
-        offLoading();
+
     }, [mounted, setMounted]);
 
     useEffect(() => {

@@ -4,11 +4,14 @@ import AuthContext from "./AuthContext";
 import SignIn from "./component/SignIn";
 import SignUp from "./component/SignUp";
 import useStyles from "./style/authPageStyle";
+import AccountActivation from "./component/AccountActivation";
 
 
 const Login = () => {
     const classes = useStyles();
     const [active, setActive] = useState("signin");
+
+    const [username, setUsername] = useState("");
 
     const switchToSignup = () => {
         setTimeout(() => {
@@ -21,8 +24,14 @@ const Login = () => {
             setActive("signin");
         }, 600);
     };
+    const switchToActive = (username) => {
+        setTimeout(() => {
+            setUsername(username);
+            setActive("active");
+        }, 600);
+    };
 
-    const contextValue = { switchToSignup, switchToSignin };
+    const contextValue = { switchToSignup, switchToSignin, switchToActive };
 
     return (
         <AuthContext.Provider value={contextValue}>
@@ -39,6 +48,7 @@ const Login = () => {
                         <Grid item xs={12} sm={6} style={{ width: "400px" }}>
                             {active === "signin" && <SignIn/>}
                             {active === "signup" && <SignUp/>}
+                            {active === "active" && <AccountActivation username={username}/>}
                         </Grid>
                     </Grid>
                 </div>

@@ -12,6 +12,8 @@ import {DataGrid} from "@material-ui/data-grid";
 import BorderProgressBar from "../../component/BorderProgressBar";
 import BackButton from "../../component/BackButton";
 import AddMemberModal from "../Department/AddMemberModal";
+import {useLoading} from "../../component/hooks/hooks";
+import FullscreenLoading from "../../component/FullScreenLoading";
 
 const Group = () => {
     const [isShow, setShow] = useState(false);
@@ -19,8 +21,10 @@ const Group = () => {
     const [checked, setChecked] = useState([]);
     const confirm = useConfirm();
     const history = useHistory();
-    const modalRef= useRef();
+    const modalRef = useRef();
     const {enqueueSnackbar} = useSnackbar();
+    const {loading, onLoading, offLoading} = useLoading();
+
 
     const toggle = () => setShow(!isShow);
     const toggleMount = () => setMounted(!mounted);
@@ -32,31 +36,37 @@ const Group = () => {
     const [member, setMember] = useState([]);
     const [leader, setLeader] = useState({});
     const {...leaderProps} = leader;
-    const {groupType="", users = [], id, name, leaderId, remark, dateCreated} = group;
+    const {groupType = "", users = [], id, name, leaderId, remark, dateCreated} = group;
 
     const cols = [
-        {field: "avatarUrl", headerName: "Avatar", width: 200,
+        {
+            field: "avatarUrl", headerName: "Avatar", width: 200,
             renderCell: (p) => {
                 return (
                     <Avatar alt={p.row.username} src={p.row.avatarUrl}/>
                 )
-            }},
+            }
+        },
         {field: "name", headerName: "Name", width: 200},
-        {field: "Privilege", headerName: "Privilege", width: 200,
+        {
+            field: "Privilege", headerName: "Privilege", width: 200,
             renderCell: (p) => {
-                return  (
+                return (
                     <Button variant={"outlined"}
-                            children={p.row.id === leaderId? "Leader" : "Member"}
-                            color={p.row.id === leaderId? "secondary" : "primary"}
+                            children={p.row.id === leaderId ? "Leader" : "Member"}
+                            color={p.row.id === leaderId ? "secondary" : "primary"}
                     />
                 )
-            }},
-        {field: "contrib", headerName: "Contribution", width: 200,
+            }
+        },
+        {
+            field: "contrib", headerName: "Contribution", width: 200,
             renderCell: p => {
                 return (
                     <BorderProgressBar value={p.row.contrib}/>
                 )
-            }},
+            }
+        },
         {
             field: "action", headerName: "Actions", width: 200,
             renderCell: (p) => {
@@ -136,12 +146,12 @@ const Group = () => {
     }
 
     useEffect(() => {
+        onLoading();
         GroupService.getByUser()
             .then((r) => {
                 if (r.status === 200)
                     setGroup(r.data);
-                else
-                {
+                else {
                     enqueueSnackbar("You don't have a group. Create one or ask some one to add you to a group", {variant: "warning"});
                     history.push("/");
                 }
@@ -160,13 +170,14 @@ const Group = () => {
                 .catch((result) => {
                     enqueueSnackbar(result, "error");
                 });
-
+            offLoading();
         })
-        document.title="Team information - " + name;
+        document.title = "Team information - " + name;
     }, [mounted, setMounted, JSON.stringify(group)])
 
     return (
         <Grid container spacing={3}>
+            {loading ? <FullscreenLoading/> : null}
             <AddMemberModal
                 modalRef={modalRef}
                 toggleMount={toggleMount}
@@ -224,12 +235,12 @@ const Group = () => {
             </Grid>
 
             <Grid item xs={9}>
-                <Paper >
+                <Paper>
                     <DataGrid columns={cols} rows={member}
                               onSelectionModelChange={(rows) => setChecked(rows)}
                               checkboxSelection
                               pageSize={5}
-                              style={{minHeight:500}}
+                              style={{minHeight: 500}}
                     />
                 </Paper>
             </Grid>

@@ -32,6 +32,8 @@ import moment from "moment";
 import AddIcon from "@material-ui/icons/Add";
 import TaskCreateModal from "./Task/TaskCreateModal";
 import GroupCreateModal from "./Group/GroupCreateModal";
+import {useLoading} from "../component/hooks/hooks";
+import FullscreenLoading from "../component/FullScreenLoading";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -86,6 +88,7 @@ const Home = () => {
     const [isShowing, setShowing] = useState(false);
     const [showCreateGroup, setShowCreateGroup] = useState(false);
     const [mount, setMount] = useState(true);
+    const {loading, onLoading, offLoading} = useLoading();
     const modalRef = useRef();
 
     const [profile, setProfile] = useState({});
@@ -94,9 +97,12 @@ const Home = () => {
     const {avatarUrl, email, groupName, groupType, name, phoneNumber, username, id, groupId, bio} = profile;
     const toggleMount = () => setMount(!mount);
     const toggleTask = () => setShowing(!isShowing);
-    const toggleGroup= () => setShowCreateGroup(!showCreateGroup);
+    const toggleGroup = () => setShowCreateGroup(!showCreateGroup);
+
+    let isAdmin = localStorage.getItem("roles") === "Admin";
 
     useEffect(() => {
+        onLoading();
         document.title = "Project Manager"
         UserService.getProfile(localStorage.getItem("username"))
             .then((r) => {
@@ -110,12 +116,14 @@ const Home = () => {
                 if (r.status === 200)
                     setTask(r.data);
                 else console.log(r.data.message);
+                offLoading();
             })
             .catch((r) => console.log(r));
     }, [mount, setMount]);
 
     return (
         <div className={classes.root}>
+            {loading ? <FullscreenLoading/> : null}
             <TaskCreateModal
                 toggleMount={toggleMount}
                 toggle={toggleTask}
@@ -179,10 +187,10 @@ const Home = () => {
                         </Paper>
                     )} tips={"Move to reports list"}/>
 
-                    {groupId === null || groupId === "" || true ?
+                    {groupId === null || groupId === "" || isAdmin?
                         <Tooltips contents={(
                             <Paper elevation={3} className={classes.topBtn} onClick={toggleGroup}>
-                               <Button color={"primary"}> <GroupAdd fontSize={"large"}/> </Button>
+                                <Button color={"primary"}> <GroupAdd fontSize={"large"}/> </Button>
                             </Paper>
                         )} tips={"Create new Group"}/>
                         : null}

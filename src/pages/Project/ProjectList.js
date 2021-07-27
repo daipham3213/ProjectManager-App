@@ -66,10 +66,11 @@ const ProjectList = () => {
                     history.push("/");
                     enqueueSnackbar("Not allowed. Create or join a group first.", {variant: 'warning'});
                 }
+                offLoading();
             }).catch((r) => {
             enqueueSnackbar(r, {variant:"error"})
         });
-        offLoading();
+
         document.title = "Project List";
         }, [mounted,setMounted]);
 

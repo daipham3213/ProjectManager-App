@@ -99,7 +99,8 @@ const DepList = () => {
             }
         },
     ];
-    return (<>
+    return (
+        <>
             {loading ? <FullscreenLoading/> : null}
             <DepCreateModal
                 isShowing={isShowingCreate}
