@@ -131,6 +131,8 @@ const Home = () => {
                 modalRef={modalRef}
                 isOnReport={false}
                 groupId={groupId}
+                offLoading={offLoading}
+                onLoading={onLoading}
             />
             <GroupCreateModal
                 toggle={toggleGroup}

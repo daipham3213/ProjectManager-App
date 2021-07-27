@@ -122,13 +122,13 @@ const ReportList = () => {
                         if (r.status === 200 ){
                             toggleMount();
                             enqueueSnackbar("Deleted successfully",{variant:"success"})
-                        } else  enqueueSnackbar(r.data.message,{variant:"warning"})
+                        } else  enqueueSnackbar(r.data.message,{variant:"warning"});
+                        offLoading();
                     })
             })
             .catch((r)=> {
                 enqueueSnackbar(r,{variant:"error"})
         })
-        offLoading();
     }
 
     const columns = [

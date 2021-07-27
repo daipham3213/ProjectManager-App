@@ -63,13 +63,15 @@ const TaskCreateModal = ({
 
 
     const createHandler = () => {
+        onLoading()
         TaskServices.postTask(name, remark, dueDate, startDate, percent, phaseId, memberId, parent_n)
             .then((r) => {
                 if (r.status === 200) {
                     enqueueSnackbar("Success", {variant: "success"});
                     toggle();
                     toggleMount();
-                } else setError(r.data.message);
+                } else enqueueSnackbar(r.data.message, {variant: "warning"});
+                offLoading();
             })
             .catch(() => {
                 enqueueSnackbar("Internal Server Error", {variant: 'error'});
@@ -77,6 +79,7 @@ const TaskCreateModal = ({
     }
 
     useEffect(() => {
+        onLoading();
         if (!isOnReport)
             ReportService.getList("")
                 .then((r) => {
@@ -120,6 +123,7 @@ const TaskCreateModal = ({
                 .catch(() => {
                     enqueueSnackbar("Internal Server Error", {variant: 'error'});
                 });
+        offLoading()
 
     }, [groupId, phaseId, reportId, isOnReport, rpId, toggle, modalRef]);
 

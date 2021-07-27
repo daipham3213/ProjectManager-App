@@ -44,7 +44,6 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId, toggleMount}) => {
             TaskServices.editTask(taskId, name, remark, dueDate, startDate, percent, phaseId, memberId, parent_n)
                 .then((r) => {
                     if (r.status === 200) {
-                        console.log(r.data.message);
                         toggleMount();
                         toggle();
                         document.body.style.overflow = "auto";
@@ -66,7 +65,7 @@ const TaskEditModal = ({toggle, modalRef, isShow, taskId, toggleMount}) => {
                             toggle();
                             document.body.style.overflow = "auto";
                             enqueueSnackbar("Delete success!", {variant: 'success'});
-                        }
+                        }else enqueueSnackbar(r.data.message , {variant: 'warning'});
                     })
             })
             .catch((r) => {
