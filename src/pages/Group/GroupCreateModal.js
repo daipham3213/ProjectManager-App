@@ -5,6 +5,7 @@ import {createPortal} from "react-dom";
 import {Grid, InputLabel, MenuItem, Paper, Select, TextField, Typography} from "@material-ui/core";
 import {GroupService, GroupTypeService, UserService} from "../../services/services";
 import Button from "@material-ui/core/Button";
+import {useLoading} from "../../component/hooks/hooks";
 
 const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
     const classes = useStyles();
@@ -14,6 +15,7 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
     const [type, setType] = useState({});
     const [available, setAvailable] = useState([]);
     const [error, setError] = useState({});
+    const {loading, onLoading, offLoading} = useLoading();
 
     const {name="", remark="", leaderId="", parentNId=""} = group;
     const {errName="", errLeaderId="", errParentNId=""} = error;
@@ -28,6 +30,7 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
     let role = localStorage.getItem("roles") === "Admin"
 
     useEffect(() => {
+        onLoading();
         GroupService.getListDepartment()
             .then((r) => {
                 if (r.status === 200)
@@ -49,6 +52,7 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
             .catch((r) => {
                 bar.enqueueSnackbar(r, {variant: "error"})
             })
+        offLoading();
     },[modalRef,toggle]);
 
     const validate = () => {
@@ -70,7 +74,8 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
 
     const handleCreate = () => {
         if (validate()) {
-            if (type === "Group")
+            onLoading();
+            if (type === "Group") {
                 GroupService.postTeam(name, remark, leaderId, parentNId)
                     .then((r) => {
                         if (r.status === 200) {
@@ -82,7 +87,9 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
                     .catch((r) => {
                         bar.enqueueSnackbar(r, {variant: "error"});
                     })
-            else
+                offLoading();
+            }
+            else {
                 GroupService.postDepartment(name, remark, leaderId)
                     .then((r) => {
                         if (r.status === 200) {
@@ -94,6 +101,8 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
                     .catch((r) => {
                         bar.enqueueSnackbar(r, {variant: "error"});
                     })
+                offLoading();
+            }
         }
     }
 
@@ -101,6 +110,7 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
 
     return isShow ? createPortal(
         <div>
+            {}
             <div className={classes.modalOverlay}/>
             <Paper className={classes.root} ref={modalRef} style={{width:400, padding:20}}>
                 <Grid container justifyContent={"center"} spacing={3}>

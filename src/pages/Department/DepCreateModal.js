@@ -48,7 +48,7 @@ const DepCreateModal = ({
             }));
             isError = true;
         }
-        if (available.find(u => u.username === username)!==null){
+        if (available.find(u => u.username === username) !== null && role !== "Admin") {
             setError((prevError) => ({
                 ...prevError,
                 depName: "You already has a group.",
@@ -59,8 +59,9 @@ const DepCreateModal = ({
     }
 
     const handleSubmit = async () => {
-        onLoading();
+
         if (!validate()) {
+            onLoading();
             await GroupService.postDepartment(depName, description, leader)
                 .then((r) => {
                     if (r.status === 200) {
@@ -69,8 +70,8 @@ const DepCreateModal = ({
                         bar.enqueueSnackbar("Success", {variant: "success"})
                     } else
                         bar.enqueueSnackbar(r.data.message, {variant: "warning"})
+                    offLoading();
                 }, null);
-            offLoading();
         }
         document.body.style.overflow = "auto";
     }
@@ -84,7 +85,7 @@ const DepCreateModal = ({
             .catch((r) => {
                 bar.enqueueSnackbar(r, {variant: "error"})
             })
-    },[])
+    }, [])
     return isShowing
         ? ReactDOM.createPortal(
             <div>
@@ -149,9 +150,8 @@ const DepCreateModal = ({
                     </div>
                     <div className={classes.option}
                          style={{borderRadius: 0}}
-                         onClick={() => handleSubmit()}
-                    >Create
-                    </div>
+                         onClick={handleSubmit}
+                    >Create</div>
                     <div
                         className={classes.option}
                         style={{borderRadius: 0, margin: 10}}

@@ -55,12 +55,14 @@ const DepEdit = () => {
         }
         confirm({description: "Are you sure?"})
             .then(() => {
+                onLoading();
                 GroupService.removeMembers(depName, ids).then(res => {
                     if (res.status === 200) {
                         enqueueSnackbar("Success", {variant: "success"});
                         toggleMount();
                     } else enqueueSnackbar(res.data.message, {variant: "warning"});
                 })
+                offLoading();
             })
             .catch((r) => {
                 enqueueSnackbar(r, {variant: "error"});
@@ -74,12 +76,14 @@ const DepEdit = () => {
         }
         confirm("Are you sure? You will lose all privilege after this.")
             .then(() => {
+                onLoading();
                 GroupService.promotion(username).then(res => {
                     if (res.status === 200) {
                         enqueueSnackbar("Success", {variant: "success"});
                         toggleMount();
                     } else enqueueSnackbar(res.data.message, {variant: "warning"});
                 })
+                offLoading();
             })
             .catch((r) => {
                 enqueueSnackbar(r, {variant: "error"});
@@ -89,12 +93,14 @@ const DepEdit = () => {
     const deleteHandle = () => {
         confirm("Are you sure that you want to delete this group? This action is permanent.")
             .then(() => {
+                onLoading();
                 GroupService.deleteGroup(depId).then(res => {
                     if (res.status === 200) {
                         enqueueSnackbar("Success", {variant: "success"});
                         history.goBack();
                         toggleMount();
                     } else enqueueSnackbar(res.data.message, {variant: "warning"});
+                    offLoading();
                 })
                     .catch((r) => {
                         enqueueSnackbar(r, {variant: "error"});
@@ -110,13 +116,13 @@ const DepEdit = () => {
                 if (result.status === 200) {
                     loadDep(result.data);
                 } else console.log(result.data.message);
-                offLoading();
             })
             .catch(() => {
                 enqueueSnackbar("Internal Server Error", "error");
             });
 
         users.forEach((user) => {
+            onLoading();
             UserService.getProfile(user.id)
                 .then((result) => {
                     if (result.status === 200) {
