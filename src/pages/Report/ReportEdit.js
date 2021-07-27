@@ -15,6 +15,8 @@ import moment from "moment";
 import {useParams} from "react-router-dom";
 import PhaseEditModal from "../Phase/PhaseEditModal";
 import EditIcon from "@material-ui/icons/Edit";
+import ReportEditModal from "./ReportEditModal";
+import {EditOutlined} from "@material-ui/icons";
 
 const Chart = ({phase, loadPhaseId, togglePhaseEdit, toggleMount}) => {
     let start = moment(phase.startDate).format("MMM Do YYYY");
@@ -52,13 +54,15 @@ const ReportEdit = () => {
     const modalRef = useRef(null);
     const [showTask, setShowTask] = useState(false);
     const [showPhase, setShowPhase] = useState(false);
+    const [showEdit, setShowEdit] = useState(false);
     const [showPhaseEdit, setShowPhaseEdit] = useState(false);
+
 
     const [phaseId, setPhaseId] = useState("");
     let {reportId} = useParams();
 
     const [report, setReport] = useState({});
-    const {phases = [], name, groupId} = report;
+    const {phases = [], name, groupId, groupName} = report;
     //const [phases, setPhases] = useState([]);
 
     const loadReport = (value) => {
@@ -70,6 +74,7 @@ const ReportEdit = () => {
     const toggleMount = () => setMounted(!mounted);
     const toggleTask = () => setShowTask(!showTask);
     const togglePhase = () => setShowPhase(!showPhase);
+    const toggleEdit = () => setShowEdit(!showEdit);
     const togglePhaseEdit = () => {
         setShowPhaseEdit(!showPhaseEdit);
     }
@@ -119,6 +124,13 @@ const ReportEdit = () => {
                     offLoading={offLoading}
                     onLoading={onLoading}
                 />
+                <ReportEditModal
+                    toggleMount={toggleMount}
+                    modalRef={modalRef}
+                    isShow={showEdit}
+                    toggle={toggleEdit}
+                    reportId={reportId}
+                />
                 <Grid container className={classes.container}>
                     <Grid container item xs={6} spacing={2}>
                         <Grid item xs={3}>
@@ -134,6 +146,12 @@ const ReportEdit = () => {
                             <Button onClick={togglePhase}>
                                 <AddIcon/>
                                 Create phase
+                            </Button>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <Button onClick={toggleEdit}>
+                                <EditOutlined/>
+                                Edit report
                             </Button>
                         </Grid>
                     </Grid>

@@ -25,12 +25,12 @@ const postReport = (name, remark, startDate, dueDate, progress, projectId, group
         });
 };
 
-const putReport = (id, name, remark, startDate, dueDate, progress, groupName, projectName) => {
+const putReport = (id, name, remark, startDate, dueDate, progress, groupId, projectId) => {
     let url = API_URL + "/" + id;
     return axios
-        .post(
+        .put(
             API_URL + "/" + id,
-            {name, url, remark, startDate, dueDate, progress, groupName, projectName},
+            {name, url, remark, startDate, dueDate, progress, groupId, projectId},
             {headers: authHeader()}
         ).catch((error) => {
             return error.response;

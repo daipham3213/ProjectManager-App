@@ -25,6 +25,7 @@ const DepCreateModal = ({
     const [description, setDescription] = useState("");
     const [leader, setLeader] = useState("");
     const [available, setAvailable] = useState([]);
+    const [user, setUser] = useState({});
     const [error, setError] = useState({});
     let role = localStorage.getItem("roles");
 
@@ -38,10 +39,19 @@ const DepCreateModal = ({
 
     const validate = () => {
         let isError = false;
+        let username = localStorage.getItem("username");
+
         if (depName === "") {
             setError((prevError) => ({
                 ...prevError,
                 depName: "Name is required.",
+            }));
+            isError = true;
+        }
+        if (available.find(u => u.username === username)!==null){
+            setError((prevError) => ({
+                ...prevError,
+                depName: "You already has a group.",
             }));
             isError = true;
         }
@@ -51,19 +61,18 @@ const DepCreateModal = ({
     const handleSubmit = async () => {
         onLoading();
         if (!validate()) {
-            debugger;
             await GroupService.postDepartment(depName, description, leader)
                 .then((r) => {
                     if (r.status === 200) {
                         toggleModal();
+                        toggleMount();
                         bar.enqueueSnackbar("Success", {variant: "success"})
                     } else
                         bar.enqueueSnackbar(r.data.message, {variant: "warning"})
                 }, null);
+            offLoading();
         }
         document.body.style.overflow = "auto";
-        toggleMount();
-        offLoading();
     }
 
     useEffect(() => {

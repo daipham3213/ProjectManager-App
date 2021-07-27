@@ -9,9 +9,11 @@ import {useSnackbar} from "notistack";
 
 const Notification = ({setOpen, open, anchorRef, setCount}) => {
     const [request, setRequest] = useState([]);
+    const [mount, setMount] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
 
     const loadRequest = (r) => setRequest(r);
+    const toggleMount = () => setMount(!mount);
 
     function handleListKeyDown(event) {
         if (event.key === 'Tab') {
@@ -50,8 +52,6 @@ const Notification = ({setOpen, open, anchorRef, setCount}) => {
                 console.log(r)
             });
 
-
-
         document.addEventListener("keydown", handleListKeyDown);
         document.addEventListener("mousedown", handleClickOutside);
         if (prevOpen.current === true && open === false) {
@@ -62,17 +62,20 @@ const Notification = ({setOpen, open, anchorRef, setCount}) => {
             document.removeEventListener("keydown", handleListKeyDown);
             document.removeEventListener("mousedown", handleClickOutside);
         }
-    }, [open]);
+    }, [open, mount, setMount]);
 
 
     function handleRequest(id, choice) {
         RequestService.activeGroup(id, choice)
             .then((r) => {
-                if (r.status === 200)
-                    enqueueSnackbar(r.data.message, {variant:"success"})
+                if (r.status === 200) {
+                    enqueueSnackbar(r.data.message, {variant: "success"});
+                    toggleMount();
+                }
                 else enqueueSnackbar(r.data.message, {variant:"warning"})
             })
             .catch((r) =>enqueueSnackbar(r, {variant:"error"}))
+        toggleMount();
     }
 
     return (
