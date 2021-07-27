@@ -118,13 +118,12 @@ const ProjectCreateModal = ({
                         enqueueSnackbar("Submit successfully", {variant:"success"})
                     }
                     else enqueueSnackbar(r.data.message, {variant:"warning"})
+                    offLoading();
                 }, null).catch((r) => {
                     enqueueSnackbar(r, {variant:"error"})
                 });
         }
         document.body.style.overflow = "auto";
-        offLoading();
-        toggleModal();
     }
     return isShowing
         ? ReactDOM.createPortal(

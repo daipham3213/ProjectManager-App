@@ -108,28 +108,21 @@ export default function ImageCard({show, modalRef, toggle, image = {}}) {
                 }
             })
             .catch((reason) => enqueueSnackbar(reason, {variant: "error"}))
-        const handleKeyPress = (event) => {
-            if (event.key === "escape") {
-                toggle();
-                document.body.style.overflow = "auto";
-            }
-        }
+
         const handleClickOutside = (event) => {
             if (modalRef.current && !modalRef.current.contains(event.target)) {
-                toggle();
+                toggle(false);
                 document.body.style.overflow = "auto";
             }
         };
-        document.addEventListener("keydown", handleKeyPress);
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("keypress", handleKeyPress);
         };
     }, [image]);
 
 
-    show ? (document.body.style = "hidden") : (document.body.style = "overflow")
+    show ? (document.body.style.overflow = "hidden") : (document.body.style.overflow = "auto")
     return show ?
         createPortal(
             <div>

@@ -33,7 +33,10 @@ export default function TitlebarImageList({images = [], id = "title-bar-image-li
     const [show, setShow] = useState(false);
     const [image, setImage] = useState({});
 
-    const toggle = () => setShow(!show);
+    const toggle = (value) => {
+        if (value !== true && value!== false) setShow(!show)
+        else setShow(value);
+    };
 
     const handleImageClick = (item) => {
         setImage(item);

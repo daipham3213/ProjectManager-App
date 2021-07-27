@@ -57,11 +57,12 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
 
     const validate = () => {
         let isError = false;
+        debugger;
         if (name === ""){
             isError = true;
             setError(prevState => ({...prevState, errName:"This field is required."}))
         }
-        if (parentNId === ""){
+        if (parentNId === "" && type === "Group"){
             isError = true;
             setError(prevState => ({...prevState, errParentNId:"This field is required."}))
         }
@@ -192,7 +193,7 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
                         </Grid>
                         ) : null
                     }
-                    <Grid item xs={12}>
+                    <Grid item xs={12} >
                         {role ? (
                             <>
                                 <InputLabel id="leader-label">Leader</InputLabel>
@@ -219,7 +220,7 @@ const GroupCreateModal = ({modalRef, isShow, toggle, toggleMount}) => {
                             </>
                         ):null}
                     </Grid>
-                    <Grid item container xs={12} justifyContent={"center"}>
+                    <Grid item container xs={12} justifyContent={"space-evenly"}>
                         <Button children={"Create"} variant={"outlined"} color={"primary"} onClick={handleCreate}/>
                         <Button children={"Cancel"} variant={"outlined"} color={"secondary"} onClick={toggle}/>
                     </Grid>

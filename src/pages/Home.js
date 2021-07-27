@@ -187,7 +187,7 @@ const Home = () => {
                         </Paper>
                     )} tips={"Move to reports list"}/>
 
-                    {groupId === null || groupId === "" || isAdmin?
+                    {groupName === null || groupName === "" || isAdmin?
                         <Tooltips contents={(
                             <Paper elevation={3} className={classes.topBtn} onClick={toggleGroup}>
                                 <Button color={"primary"}> <GroupAdd fontSize={"large"}/> </Button>

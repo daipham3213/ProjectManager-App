@@ -96,7 +96,7 @@ const AddMemberModal = ({
         {
             field: "action", headerName: "Actions", width: 150,
             renderCell: (params) => {
-                let id = params.rows?.id;
+                let id = params.row.username;
                 return (
                     <Linker to={"/profile/" + id} isButton={true} content={"See profile"}/>
                 )

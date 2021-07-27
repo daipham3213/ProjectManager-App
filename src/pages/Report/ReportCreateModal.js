@@ -171,9 +171,7 @@ const ReportCreateModal = ({
                         toggle();
                         toggleMount();
                         enqueueSnackbar("Created", {variant: "success"})
-                    } else {
-                        alert(r.data.message);
-                    }
+                    } else enqueueSnackbar(r.data.message, {variant:"warning"})
                 })
                 .catch((r) => {
                     enqueueSnackbar("Internal Server Error.", {variant: "error"})
